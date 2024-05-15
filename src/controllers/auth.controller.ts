@@ -16,9 +16,9 @@ import {
   getAndUpdateUser,
   createVerificationCode,
   signToken,
+  getUserById,
 } from "../services";
 import { redisCLI } from "../clients";
-import Email from "../utils/email";
 import {
   signJwt,
   verifyJwt,
@@ -33,8 +33,7 @@ import { EMAIL_PROVIDER } from "../constants";
 // Exclude this fields from the response
 export const excludedFields = ["password"];
 
-// const { accessTokenExpiresIn, refreshTokenExpiresIn } =
-//   config.get<TokenConfig>("token");
+const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
 
 // Only set secure to true in production
 // if (process.env.NODE_ENV === "production")
@@ -296,60 +295,56 @@ export const verifyEmailHandler = async (
   }
 };
 
-// export const refreshAccessTokenHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     // Get the refresh token from cookie
-//     const refresh_token = req.cookies.refresh_token as string;
+export const refreshAccessTokenHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const refresh_token = req.cookies.refresh_token as string;
 
-//     // Validate the Refresh token
-//     const decoded = verifyJwt<{ sub: string }>(
-//       refresh_token,
-//       "refreshTokenPublicKey"
-//     );
+    const msg = "Could not refresh access token";
 
-//     const message = "Could not refresh access token";
-//     if (!decoded) {
-//       return next(new AppError(message, 403));
-//     }
+    const decoded = verifyJwt<{ id: string }>(
+      refresh_token,
+      "refreshTokenPublicKey"
+    );
+    if (!decoded) {
+      return next({ error: true, message: msg });
+    }
 
-//     // Check if the user has a valid session
-//     const session = await redisClient.get(decoded.sub);
-//     if (!session) {
-//       return next(new AppError(message, 403));
-//     }
+    // Check if the user has a valid session
+    const session = await redisCLI.get(decoded.id);
+    if (!session) {
+      return next({ error: true, message: msg });
+    }
 
-//     // Check if the user exist
-//     const user = await findUserById(JSON.parse(session).id);
+    // Check if the user exist
+    const user = await getUserById(JSON.parse(session).id);
+    if (!user) {
+      return next({ error: true, message: msg });
+    }
 
-//     if (!user) {
-//       return next(new AppError(message, 403));
-//     }
+    // Sign new access token
+    const atoken = signJwt({ sub: user.id }, "accessTokenPrivateKey", {
+      expiresIn: `${accessTokenExpiresIn}m`,
+    });
 
-//     // Sign new access token
-//     const access_token = signJwt({ sub: user.id }, "accessTokenPrivateKey", {
-//       expiresIn: `${accessTokenExpiresIn}m`,
-//     });
+    // Send the access token as cookie
+    res.cookie("access_token", atoken, accessTokenCookieOptions);
+    res.cookie("logged_in", true, {
+      ...accessTokenCookieOptions,
+      httpOnly: false,
+    });
 
-//     // Send the access token as cookie
-//     res.cookie("access_token", access_token, accessTokenCookieOptions);
-//     res.cookie("logged_in", true, {
-//       ...accessTokenCookieOptions,
-//       httpOnly: false,
-//     });
-
-//     // Send response
-//     res.status(200).json({
-//       status: "success",
-//       access_token,
-//     });
-//   } catch (err: any) {
-//     next(err);
-//   }
-// };
+    res.json({
+      error: false,
+      data: { atoken },
+    });
+  } catch (err: any) {
+    next(err);
+  }
+};
 
 const logout = (res: Response) => {
   res.cookie("access_token", "", { maxAge: 1 });
