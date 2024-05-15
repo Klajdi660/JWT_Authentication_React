@@ -2,9 +2,18 @@ import crypto from "crypto";
 import config from "config";
 import dayjs from "dayjs";
 import { CookieOptions, NextFunction, Request, Response } from "express";
-import { CreateUserInput, LoginUserInput, VerifyEmailInput } from "../schema";
 import {
+  CreateUserInput,
+  LoginUserInput,
+  VerifyEmailInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from "../schema";
+import {
+  getUserByEmail,
   getUserByEmailOrUsername,
+  createUser,
+  getAndUpdateUser,
   createVerificationCode,
   signToken,
 } from "../services";
@@ -220,41 +229,71 @@ export const loginHandler = async (
   }
 };
 
-// export const verifyEmailHandler = async (
-//   req: Request<VerifyEmailInput>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const verificationCode = crypto
-//       .createHash("sha256")
-//       .update(req.params.verificationCode)
-//       .digest("hex");
+export const verifyEmailHandler = async (
+  req: Request<VerifyEmailInput>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { code, email } = req.body;
 
-//     const user = await findUser({ verificationCode });
+    let redisObj: any = await redisCLI.get(`verify_email_pending_${email}`);
+    redisObj = JSON.parse(redisObj);
+    if (!redisObj) {
+      return res.json({ error: true, message: "Confirmation time expired!" });
+    }
 
-//     if (!user) {
-//       return next(new AppError("Could not verify email", 401));
-//     }
+    const { otpCode, expiredCodeAt } = redisObj;
+    if (code !== otpCode) {
+      return res.json({ error: true, message: "Confirmation code incorrect!" });
+    }
 
-//     user.verified = true;
-//     user.verificationCode = null;
-//     await user.save({ validateBeforeSave: false });
+    const currentDateTime = dayjs();
+    const expiresAtDateTime = dayjs(expiredCodeAt);
+    const isExpired = currentDateTime.isAfter(expiresAtDateTime);
 
-//     res.status(200).json({
-//       status: "success",
-//       message: "Email verified successfully",
-//     });
-//   } catch (err: any) {
-//     next(err);
-//   }
-// };
+    if (isExpired) {
+      log.error(
+        `${JSON.stringify({ action: "expired User", data: redisObj })}`
+      );
+      return res.json({
+        error: true,
+        message: "Your OTP code has expired. Please request a new OTP code",
+      });
+    } // nuk duhet
 
-// // Refresh tokens
-const logout = (res: Response) => {
-  res.cookie("access_token", "", { maxAge: 1 });
-  res.cookie("refresh_token", "", { maxAge: 1 });
-  res.cookie("logged_in", "", { maxAge: 1 });
+    const existingUser = await getUserByEmail(email);
+    let user;
+    let verified = true;
+
+    if (existingUser) {
+      user = await getAndUpdateUser(existingUser.id, { verified });
+      if (!user) {
+        log.error(
+          JSON.stringify({ action: "Confirm updateUser Req", data: user })
+        );
+        return res.json({ error: true, message: "Failed to update user!" });
+      }
+    } else {
+      user = await createUser(redisObj, verified);
+      if (!user) {
+        log.error(
+          JSON.stringify({ action: "Confirm createUser Req", data: user })
+        );
+        return res.json({ error: true, message: "Failed to register user!" });
+      }
+    }
+
+    await redisCLI.del(`verify_email_pending_${email}`);
+
+    res.json({
+      error: false,
+      message: "Congratulation! Your account has been created.",
+      data: { code: otpCode, codeExpire: expiredCodeAt },
+    });
+  } catch (err: any) {
+    next(err);
+  }
 };
 
 // export const refreshAccessTokenHandler = async (
@@ -312,6 +351,12 @@ const logout = (res: Response) => {
 //   }
 // };
 
+const logout = (res: Response) => {
+  res.cookie("access_token", "", { maxAge: 1 });
+  res.cookie("refresh_token", "", { maxAge: 1 });
+  res.cookie("logged_in", "", { maxAge: 1 });
+};
+
 export const logoutHandler = async (
   req: Request,
   res: Response,
@@ -331,6 +376,129 @@ export const logoutHandler = async (
   } catch (err: any) {
     next(err);
   }
+};
+
+export const forgotPasswordHandler = async (
+  req: Request<{}, {}, ForgotPasswordInput>,
+  res: Response
+) => {
+  const { email } = req.body;
+
+  const user = await getUserByEmail(email);
+  if (!user) {
+    return res.json({
+      error: true,
+      message: `This email: '${email}' is not register with us. Please enter a valid email.`,
+    });
+  }
+
+  if (!user.verified) {
+    return res.json({ error: true, message: "User not verified" });
+  }
+
+  const code = createVerificationCode();
+  const user_reset = {
+    ...user,
+    conf_code: code,
+  };
+
+  // const addedToRedis = await redisCLI.setnx(
+  //   `reset_password_pending_${user.email}`,
+  //   JSON.stringify(user_reset)
+  // );
+  const addedToRedis = await redisCLI.set(
+    `reset_password_pending_${user.email}`,
+    JSON.stringify(user_reset)
+  );
+  if (!addedToRedis) {
+    return res.json({
+      error: true,
+      message:
+        "New password waiting for confirmation. Please check your inbox!",
+    });
+  }
+  await redisCLI.expire(`reset_password_pending_${user.email}`, 300); // 5 min
+
+  let templatePath = "ForgotPassword";
+  const templateData = {
+    title: "Reset Password",
+    // urlTitle: "Reset Password",
+    code,
+    name: user.email,
+  };
+
+  const mailSent = await sendEmail(templatePath, templateData);
+  if (!mailSent) {
+    return res.json({
+      error: true,
+      message: "There was an error sending email, please try again",
+    });
+  }
+
+  res.json({
+    error: false,
+    message:
+      "Email Sent Successfully, Please Check Your Email to Continue Further.",
+  });
+};
+
+export const resetPasswordHandler = async (req: Request, res: Response) => {
+  const { password, email, code } = req.body;
+
+  let redisObj: any = await redisCLI.get(`reset_password_pending_${email}`);
+  redisObj = JSON.parse(redisObj);
+  if (!redisObj) {
+    return res.json({
+      error: true,
+      message:
+        "Your token has expired. Please attempt to reset your password again.",
+    });
+  }
+
+  const { id, conf_code, username } = redisObj;
+  const parseExtra = JSON.parse(redisObj.extra);
+  const { firstName, lastName } = parseExtra;
+
+  if (code !== conf_code) {
+    return res.json({ error: true, message: "Confirmation code incorrect!" });
+  }
+
+  const hash = crypto
+    .createHash("sha1")
+    .update(password + username)
+    .digest("hex");
+
+  const newPassword = await getAndUpdateUser(+id, { password: hash });
+  if (!newPassword) {
+    return res.json({
+      error: true,
+      message: "Some Error in Updating the Password",
+    });
+  }
+
+  await redisCLI.del(`reset_password_pending_${email}`);
+
+  let templatePath = "UpdatePassword";
+  const templateData = {
+    title: "Password Update Confirmation",
+    // urlTitle: "Login",
+    name: `${firstName} ${lastName}`,
+    email,
+  };
+
+  const mailSent = await sendEmail(templatePath, templateData);
+  if (!mailSent) {
+    return res.json({
+      error: true,
+      message: "Somenthing went wrong. Email not sent.",
+    });
+  }
+
+  res.json({
+    error: false,
+    message:
+      "Password data successfully updated, please login with your new credentials",
+  });
 };
 
 // export const googleOauthHandler = async (

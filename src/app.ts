@@ -6,8 +6,8 @@ import morgan from "morgan";
 import config from "config";
 import cors from "cors";
 import helmet from "helmet";
-import { AppConfig } from "./types/general.type";
 import routes from "./routes";
+import { AppConfig } from "./types";
 import { sequelizeConnection } from "./clients";
 import { log } from "./utils";
 
@@ -34,17 +34,13 @@ app.use(`${prefix}/static`, express.static(path.join(__dirname, "../public")));
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 app.use(routes);
-// app.use("/api/users", userRouter);
-// app.use("/api/auth", authRouter);
-// app.use("/api/sessions", sessionRouter);
-// app.use("/api/posts", postRouter);
 
 app.get(
   `${prefix}/healthChecker`,
   (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).json({
-      status: "success",
-      message: "Welcome to CodevoWeb😂😂👈👈",
+    res.json({
+      error: false,
+      message: "Welcome to GrooveIT😂😂👈👈",
     });
   }
 );

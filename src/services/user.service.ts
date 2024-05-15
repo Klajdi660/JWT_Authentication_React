@@ -1,10 +1,11 @@
 import config from "config";
+import dayjs from "dayjs";
 import otpGenerator from "otp-generator";
 import { DocumentType } from "@typegoose/typegoose";
 import { Op } from "sequelize";
 import { User } from "../models";
 import { log, signJwt } from "../utils";
-import { OtpConfig, TokenConfig } from "../types";
+import { OtpConfig, TokenConfig, UserParams } from "../types";
 import { redisCLI } from "../clients";
 
 const { otpLength, otpConfig } = config.get<OtpConfig>("otp");
@@ -17,6 +18,16 @@ export const getUserById = async (id: number): Promise<User | any> => {
   }).catch((error) => {
     log.error(
       `${JSON.stringify({ action: "getUserById catch", data: error })}`
+    );
+  });
+};
+
+export const getUserByEmail = async (email: string): Promise<User | any> => {
+  return User.findOne({
+    where: { email },
+  }).catch((error) => {
+    log.error(
+      `${JSON.stringify({ action: "getUserByEmail catch", data: error })}`
     );
   });
 };
@@ -35,6 +46,49 @@ export const getUserByEmailOrUsername = async (
         action: "getUserByEmailOrUsername catch",
         data: error,
       })}`
+    );
+  });
+};
+
+export const createUser = async (
+  data: UserParams,
+  verified: boolean
+): Promise<User | any> => {
+  const { email, username, fullName, password } = data;
+
+  const extraData = {
+    name: fullName,
+    gender: null,
+    dateOfBirth: null,
+    about: null,
+    contactNumber: null,
+    photo: null,
+  };
+
+  const newUser = new User({
+    email,
+    username,
+    password,
+    googleId: "",
+    extra: JSON.stringify(extraData),
+    verified,
+  });
+
+  return newUser.save().catch((error) => {
+    log.error(`${JSON.stringify({ action: "createUser catch", data: error })}`);
+  });
+};
+
+export const getAndUpdateUser = async (
+  id: number,
+  updatedField: { [key: string]: any }
+): Promise<User | any> => {
+  const currentTimestamp = dayjs().toDate();
+  updatedField.updatedAt = currentTimestamp;
+
+  return User.update(updatedField, { where: { id } }).catch((error) => {
+    log.error(
+      `${JSON.stringify({ action: "getAndUpdateUser catch", data: error })}`
     );
   });
 };

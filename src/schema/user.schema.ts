@@ -51,11 +51,46 @@ export const loginUserSchema = object({
 });
 
 export const verifyEmailSchema = object({
-  params: object({
-    verificationCode: string(),
+  body: object({
+    code: string({
+      required_error: "OTP code is required",
+    }),
+    email: string(),
+  }),
+});
+
+export const forgotPasswordSchema = object({
+  body: object({
+    email: string({
+      required_error: "Email is required",
+    }).regex(emailRegex, "Not a valid email"),
+  }),
+});
+
+export const resetPasswordSchema = object({
+  body: object({
+    password: string({
+      required_error: "Password is required",
+    })
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .refine((value) => uppercaseRegex.test(value), {
+        message: "Password must contain at least one capital letter",
+      })
+      .refine((value) => sepecialCharacter.test(value), {
+        message: "Password must contain at least one special character",
+      }),
+    confirmPassword: string({
+      required_error: "Password confirmation is required",
+    }),
+    email: string({}),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["passwordConfirmation"],
   }),
 });
 
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
 export type LoginUserInput = TypeOf<typeof loginUserSchema>["body"];
-export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["params"];
+export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["body"];
+export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
+export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
