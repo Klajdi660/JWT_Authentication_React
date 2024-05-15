@@ -93,6 +93,14 @@ export const getAndUpdateUser = async (
   });
 };
 
+export const deleteUser = async (id: number): Promise<User | any> => {
+  return User.destroy({
+    where: { id },
+  }).catch((error) => {
+    log.error(`${JSON.stringify({ action: "deleteUser catch", data: error })}`);
+  });
+};
+
 export const createVerificationCode = () => {
   const otp = otpGenerator.generate(otpLength, {
     ...otpConfig,

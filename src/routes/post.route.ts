@@ -6,16 +6,14 @@ import {
   getPostsHandler,
   parsePostFormData,
   updatePostHandler,
-} from "../controllers/post.controller";
-import { deserializeUser } from "../middleware/deserializeUser";
-import { requireUser } from "../middleware/requireUser";
-import { validate } from "../middleware/validate";
+} from "../controllers";
+import { deserializeUser, requireUser, validate } from "../middleware";
 import {
   createPostSchema,
   deletePostSchema,
   getPostSchema,
   updatePostSchema,
-} from "../schema/post.schema";
+} from "../schema";
 import { uploadPostImageDisk } from "../upload/single-upload-disk";
 import {
   resizePostImage,
