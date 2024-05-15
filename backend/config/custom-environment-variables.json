@@ -13,10 +13,12 @@
   "githubOauthRedirect": "GITHUB_OAUTH_REDIRECT_URL",
 
   "smtp": {
+    "service": "EMAIL_SERVICE",
+    "secure": "EMAIL_SECURE",
     "host": "EMAIL_HOST",
     "pass": "EMAIL_PASS",
     "port": "EMAIL_PORT",
-    "user": "EMAIL_USER"
+    "email": "EMAIL_USER"
   },
 
   "redisFeed": {

@@ -1,61 +1,66 @@
-import { omit } from "lodash";
-import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
 import config from "config";
-import userModel, { User } from "../models/user.model";
-import { excludedFields } from "../controllers/auth.controller";
-import { signJwt } from "../utils/jwt";
-import redisClient from "../utils/connectRedis";
+import otpGenerator from "otp-generator";
 import { DocumentType } from "@typegoose/typegoose";
+import { Op } from "sequelize";
+import { User } from "../models";
+import { log, signJwt } from "../utils";
+import { OtpConfig, TokenConfig } from "../types";
+import { redisCLI } from "../clients";
 
-// CreateUser service
-export const createUser = async (input: Partial<User>) => {
-  return userModel.create(input);
+const { otpLength, otpConfig } = config.get<OtpConfig>("otp");
+const { accessTokenExpiresIn, refreshTokenExpiresIn } =
+  config.get<TokenConfig>("token");
+
+export const getUserById = async (id: number): Promise<User | any> => {
+  return User.findOne({
+    where: { id },
+  }).catch((error) => {
+    log.error(
+      `${JSON.stringify({ action: "getUserById catch", data: error })}`
+    );
+  });
 };
 
-// Find User by Id
-export const findUserById = async (id: string) => {
-  const user = await userModel.findById(id).lean();
-  return omit(user, excludedFields);
+export const getUserByEmailOrUsername = async (
+  email: string,
+  username: string
+): Promise<User | any> => {
+  return User.findOne({
+    where: {
+      [Op.or]: [{ email }, { username }],
+    },
+  }).catch((error) => {
+    log.error(
+      `${JSON.stringify({
+        action: "getUserByEmailOrUsername catch",
+        data: error,
+      })}`
+    );
+  });
 };
 
-// Find All users
-export const findAllUsers = async () => {
-  return await userModel.find();
-};
-
-// Find one user by any fields
-export const findUser = async (
-  query: FilterQuery<User>,
-  options: QueryOptions = {}
-) => {
-  return await userModel.findOne(query, {}, options).select("+password");
-};
-
-export const findAndUpdateUser = async (
-  query: FilterQuery<User>,
-  update: UpdateQuery<User>,
-  options: QueryOptions
-) => {
-  return await userModel.findOneAndUpdate(query, update, options);
-};
-
-// Sign Token
-export const signToken = async (user: DocumentType<User>) => {
-  // Sign the access token
-  const access_token = signJwt({ sub: user.id }, "accessTokenPrivateKey", {
-    expiresIn: `${config.get<number>("accessTokenExpiresIn")}m`,
+export const createVerificationCode = () => {
+  const otp = otpGenerator.generate(otpLength, {
+    ...otpConfig,
   });
 
-  // Sign the refresh token
-  const refresh_token = signJwt({ sub: user.id }, "refreshTokenPrivateKey", {
-    expiresIn: `${config.get<number>("refreshTokenExpiresIn")}m`,
+  return otp;
+};
+
+export const signToken = async (user: DocumentType<User>) => {
+  const access_token = signJwt({ id: user.id }, "accessTokenPrivateKey", {
+    expiresIn: `${accessTokenExpiresIn}m`,
+  });
+
+  const refresh_token = signJwt({ id: user.id }, "refreshTokenPrivateKey", {
+    expiresIn: `${refreshTokenExpiresIn}m`,
   });
 
   // Create a Session
-  redisClient.set(user.id, JSON.stringify(user), {
+  await redisCLI.set(`session_${user.id}`, JSON.stringify(user), {
     EX: 60 * 60,
   });
+  await redisCLI.expire(`session_${user.id}`, 3600);
 
-  // Return access token
   return { access_token, refresh_token };
 };

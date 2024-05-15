@@ -1,19 +1,41 @@
 import { boolean, object, string, TypeOf } from "zod";
 
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const usernameRegex = /^[a-zA-Z0-9]+$/;
+const uppercaseRegex = /[A-Z]/;
+const sepecialCharacter = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+
 export const createUserSchema = object({
   body: object({
-    name: string({ required_error: "Name is required" }),
-    email: string({ required_error: "Email is required" }).email(
-      "Invalid email"
-    ),
-    password: string({ required_error: "Password is required" })
-      .min(8, "Password must be more than 8 characters")
-      .max(32, "Password must be less than 32 characters"),
-    passwordConfirm: string({ required_error: "Please confirm your password" }),
-  }).refine((data) => data.password === data.passwordConfirm, {
-    path: ["passwordConfirm"],
-    message: "Passwords do not match",
+    email: string({
+      required_error: "Email is required",
+    }).regex(emailRegex, "Not a valid email"),
+    username: string({
+      required_error: "Username is required",
+    })
+      .regex(usernameRegex, "Username should only contain letters and numbers")
+      .min(6, { message: "Username must be at least 8 characters long" }),
+    fullName: string({
+      required_error: "Full Name is required",
+    }),
+    password: string({
+      required_error: "Password is required",
+    })
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .refine((value) => uppercaseRegex.test(value), {
+        message: "Password must contain at least one capital letter",
+      })
+      .refine((value) => sepecialCharacter.test(value), {
+        message: "Password must contain at least one special character",
+      }),
+    // passwordConfirm: string({
+    //   required_error: "Password confirmation is required",
+    // }),
   }),
+  // .refine((data) => data.password === data.passwordConfirm, {
+  //   message: "Passwords do not match",
+  //   path: ["passwordConfirmation"],
+  // }),
 });
 
 export const loginUserSchema = object({

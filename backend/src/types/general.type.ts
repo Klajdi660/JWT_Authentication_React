@@ -35,3 +35,12 @@ export interface GameConfig {
   gameUrl: string;
   gameKey: string;
 }
+
+export interface SmtpConfig {
+  service: string;
+  host: string;
+  port: number;
+  secure: boolean;
+  email: string;
+  password: string;
+}

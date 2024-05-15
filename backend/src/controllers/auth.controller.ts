@@ -1,22 +1,25 @@
 import crypto from "crypto";
 import config from "config";
+import dayjs from "dayjs";
 import { CookieOptions, NextFunction, Request, Response } from "express";
 import { CreateUserInput, LoginUserInput, VerifyEmailInput } from "../schema";
 import {
-  getGithubOathToken,
-  getGithubUser,
-  getGoogleOauthToken,
-  getGoogleUser,
-  createUser,
-  findAndUpdateUser,
-  findUser,
-  findUserById,
+  getUserByEmailOrUsername,
+  createVerificationCode,
   signToken,
 } from "../services";
 import { redisCLI } from "../clients";
 import Email from "../utils/email";
-import { signJwt, verifyJwt, log } from "../utils";
-import { TokenConfig } from "../types";
+import {
+  signJwt,
+  verifyJwt,
+  log,
+  sendEmail,
+  accessTokenCookieOptions,
+  refreshTokenCookieOptions,
+} from "../utils";
+import { TokenConfig, UserParams } from "../types";
+import { EMAIL_PROVIDER } from "../constants";
 
 // Exclude this fields from the response
 export const excludedFields = ["password"];
@@ -28,52 +31,93 @@ export const excludedFields = ["password"];
 // if (process.env.NODE_ENV === "production")
 //   accessTokenCookieOptions.secure = true;
 
-// export const registerHandler = async (
-//   req: Request<{}, {}, CreateUserInput>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const user = await createUser({
-//       email: req.body.email,
-//       name: req.body.name,
-//       password: req.body.password,
-//     });
+export const registerHandler = async (
+  // req: Request<{}, {}, CreateUserInput>,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, username, password } = req.body;
 
-//     const verificationCode = user.createVerificationCode();
-//     await user.save({ validateBeforeSave: false });
+    const existingUser = await getUserByEmailOrUsername(email, username);
+    if (existingUser) {
+      log.info(
+        `${JSON.stringify({
+          action: "createUser existingUser",
+          data: existingUser,
+        })}`
+      );
+      return res.json({
+        error: true,
+        message: "User with the provided email or username already exists",
+      });
+    }
 
-//     const redirectUrl = `${config.get<string>(
-//       "origin"
-//     )}/verifyemail/${verificationCode}`;
+    const hash = crypto
+      .createHash("sha1")
+      .update(password + username)
+      .digest("hex");
 
-//     try {
-//       await new Email(user, redirectUrl).sendVerificationCode();
+    const user_registration: UserParams = {
+      ...req.body,
+      password: hash,
+      // passwordConfirm: hash,
+    };
 
-//       res.status(201).json({
-//         status: "success",
-//         message:
-//           "An email with a verification code has been sent to your email",
-//       });
-//     } catch (error) {
-//       user.verificationCode = null;
-//       await user.save({ validateBeforeSave: false });
+    const code = createVerificationCode();
+    const codeExpire = dayjs().add(180, "s");
 
-//       return res.status(500).json({
-//         status: "error",
-//         message: "There was an error sending email, please try again",
-//       });
-//     }
-//   } catch (err: any) {
-//     if (err.code === 11000) {
-//       return res.status(409).json({
-//         status: "fail",
-//         message: "Email already exist",
-//       });
-//     }
-//     next(err);
-//   }
-// };
+    user_registration["otpCode"] = code;
+    user_registration["expiredCodeAt"] = codeExpire;
+
+    // const addedToRedis = await redisCLI.setnx(
+    //   `verify_email_pending_${email}`,
+    //   JSON.stringify(user_registration)
+    // );
+    const addedToRedis = await redisCLI.set(
+      `verify_email_pending_${email}`,
+      JSON.stringify(user_registration)
+    );
+
+    if (!addedToRedis) {
+      return res.json({ error: true, message: "Email already registered." });
+    }
+
+    await redisCLI.expire(`verify_email_pending_${email}`, 180); // 3 min
+
+    const { fullName } = user_registration;
+    const subject = "OTP Verification Email";
+    const templatePath = "OTP";
+    const templateData = {
+      title: subject,
+      name: fullName,
+      code,
+    };
+
+    const mailSent = await sendEmail(templatePath, templateData);
+    if (!mailSent) {
+      return res.json({
+        error: true,
+        message: "There was an error sending email, please try again",
+      });
+    }
+
+    res.json({
+      error: false,
+      message:
+        "An email with a verification code has been sent to your email. Please enter this code to proceed",
+    });
+  } catch (err: any) {
+    if (err.code === 11000) {
+      return res.status(409).json({
+        status: "fail",
+        message: "Email already exist",
+      });
+    }
+    next(err);
+  }
+};
 
 export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
@@ -81,36 +125,89 @@ export const loginHandler = async (
   next: NextFunction
 ) => {
   try {
-    // Get the user from the collection
-    const user = await findUser({ email: req.body.email });
+    const { identifier, password, remember } = req.body;
 
-    // Check if user exist and password is correct
-    if (
-      !user ||
-      !(await user.comparePasswords(user.password, req.body.password))
-    ) {
-      return next(new AppError("Invalid email or password", 401));
+    const user = await getUserByEmailOrUsername(identifier, identifier);
+    if (!user) {
+      return res.json({
+        error: true,
+        message: "User is not Registered with us, please Sign Up to continue.",
+      });
+    }
+
+    if (user && user.provider !== EMAIL_PROVIDER.Email) {
+      return res.json({
+        error: true,
+        message: `That email address is already in use using ${user.provider} provider.`,
+      });
+    }
+
+    const expectedHash = crypto
+      .createHash("sha1")
+      .update(password + user.username)
+      .digest("hex");
+    if (user.password !== expectedHash) {
+      return res.json({
+        error: true,
+        message: "Invalid Password! Please enter valid password.",
+      });
     }
 
     if (!user.verified) {
-      return next(
-        new AppError(
-          "You are not verified, check your email to verify your account",
-          401
-        )
+      const code = createVerificationCode();
+
+      const user_registration = {
+        otpCode: code,
+        expiredCodeAt: dayjs().add(60, "s"),
+      };
+
+      // const addedToRedis = await redisCLI.setnx(
+      //   `verify_email_pending_${user.email}`,
+      //   JSON.stringify(user_registration)
+      // );
+      const addedToRedis = await redisCLI.set(
+        `verify_email_pending_${user.email}`,
+        JSON.stringify(user_registration)
       );
+      if (!addedToRedis) {
+        return res.json({ error: true, message: "Email already registered." });
+      }
+
+      await redisCLI.expire(`register_pending_${user.email}`, 3600);
+
+      const extra = JSON.parse(user.extra);
+      let subject = "OTP Verification Email";
+      let templatePath = "OTP";
+      const templateData = {
+        title: subject,
+        name: `${extra.firstName} ${extra.lastName}`,
+        code,
+      };
+
+      const mailSent = await sendEmail(templatePath, templateData);
+      if (!mailSent) {
+        return res.json({
+          error: true,
+          message: "There was an error sending email, please try again",
+        });
+      }
+
+      return res.json({
+        error: true,
+        message: `Email ${user.email} not verified. An email with a verification code has been sent to your email`,
+      });
     }
 
     // Create the Access and refresh Tokens
     const { access_token, refresh_token } = await signToken(user);
 
     // Send Access Token in Cookie
-    res.cookie("access_token", access_token, accessTokenCookieOptions);
-    res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
-    res.cookie("logged_in", true, {
-      ...accessTokenCookieOptions,
-      httpOnly: false,
-    });
+    // res.cookie("access_token", access_token, accessTokenCookieOptions);
+    // res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
+    // res.cookie("logged_in", true, {
+    //   ...accessTokenCookieOptions,
+    //   httpOnly: false,
+    // });
 
     // Send Access Token
     res.status(200).json({
@@ -154,11 +251,11 @@ export const loginHandler = async (
 // };
 
 // // Refresh tokens
-// const logout = (res: Response) => {
-//   res.cookie("access_token", "", { maxAge: 1 });
-//   res.cookie("refresh_token", "", { maxAge: 1 });
-//   res.cookie("logged_in", "", { maxAge: 1 });
-// };
+const logout = (res: Response) => {
+  res.cookie("access_token", "", { maxAge: 1 });
+  res.cookie("refresh_token", "", { maxAge: 1 });
+  res.cookie("logged_in", "", { maxAge: 1 });
+};
 
 // export const refreshAccessTokenHandler = async (
 //   req: Request,
@@ -215,20 +312,26 @@ export const loginHandler = async (
 //   }
 // };
 
-// export const logoutHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const user = res.locals.user;
-//     await redisClient.del(user.id);
-//     logout(res);
-//     res.status(200).json({ status: "success" });
-//   } catch (err: any) {
-//     next(err);
-//   }
-// };
+export const logoutHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user } = res.locals;
+    if (!user) {
+      return res.json({ error: true, message: "test" });
+    }
+
+    await redisCLI.del(`session_${user.id}`);
+
+    logout(res);
+
+    res.json({ error: false, message: "Logout success." });
+  } catch (err: any) {
+    next(err);
+  }
+};
 
 // export const googleOauthHandler = async (
 //   req: Request,

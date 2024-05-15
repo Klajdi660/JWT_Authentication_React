@@ -2,9 +2,9 @@ import { Router } from "express";
 import {
   // forgotPasswordHandler,
   loginHandler,
-  // logoutHandler,
+  logoutHandler,
   // refreshAccessTokenHandler,
-  // registerHandler,
+  registerHandler,
   // resetPasswordHandler,
   // verifyEmailHandler,
 } from "../controllers";
@@ -17,12 +17,12 @@ import {
 
 const router = Router();
 
-// router.post("/register", validate(createUserSchema), registerHandler);
+router.post("/register", validate(createUserSchema), registerHandler);
 router.post("/login", validate(loginUserSchema), loginHandler);
 // router.post("/forgotpassword", forgotPasswordHandler);
 
 // router.get("/refresh", refreshAccessTokenHandler);
-// router.get("/logout", deserializeUser, requireUser, logoutHandler);
+router.get("/logout", deserializeUser, requireUser, logoutHandler);
 // router.get(
 //   "/verifyemail/:verificationCode",
 //   validate(verifyEmailSchema),
