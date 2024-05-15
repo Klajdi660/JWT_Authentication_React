@@ -48,3 +48,8 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
     data: updatedUser,
   });
 };
+
+export const updateProfilePhotoHandler = async (
+  req: Request,
+  res: Response
+) => {};
