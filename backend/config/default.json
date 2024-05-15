@@ -1,0 +1,29 @@
+{
+  "app": {
+    "port": 8080,
+    "prefix": "/api",
+    "origin": "http://localhost:3000"
+  },
+  "logLevel": "info",
+  "token": {
+    "accessTokenExpiresIn": 30,
+    "refreshTokenExpiresIn": 59
+  },
+  "emailFrom": "contact@codevoweb.com",
+  "otp": {
+    "otpLength": 6,
+    "otpConfig": {
+      "lowerCaseAlphabets": false,
+      "upperCaseAlphabets": true,
+      "specialChars": false
+    }
+  },
+  "mysql": {
+    "connectionLimit": 10,
+    "host": "localhost",
+    "user": "root",
+    "port": 3306,
+    "password": "",
+    "database": "groove"
+  }
+}
