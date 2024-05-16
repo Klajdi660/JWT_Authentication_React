@@ -1,4 +1,6 @@
 import { Router } from "express";
+import config from "config";
+import passport from "passport";
 import {
   forgotPasswordHandler,
   loginHandler,
@@ -7,6 +9,7 @@ import {
   registerHandler,
   resetPasswordHandler,
   verifyEmailHandler,
+  googleOauthHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
 import {
@@ -15,6 +18,9 @@ import {
   verifyEmailSchema,
   forgotPasswordSchema,
 } from "../schema";
+import { AppConfig } from "../types";
+
+const { origin } = config.get<AppConfig>("app");
 
 const router = Router();
 
@@ -31,5 +37,19 @@ router.post(
 router.get("/logout", deserializeUser, requireUser, logoutHandler);
 
 router.patch("/reset-password", resetPasswordHandler);
+
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: `${origin}/login`,
+    session: false,
+  }),
+  googleOauthHandler
+);
 
 export default router;

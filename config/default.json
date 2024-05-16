@@ -6,7 +6,7 @@
   },
   "logLevel": "info",
   "token": {
-    "accessTokenExpiresIn": 30,
+    "accessTokenExpiresIn": 2,
     "refreshTokenExpiresIn": 59
   },
   "emailFrom": "contact@codevoweb.com",
