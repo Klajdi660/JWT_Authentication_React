@@ -4,7 +4,7 @@ import hbs from "nodemailer-express-handlebars";
 import { createTransport } from "nodemailer";
 import { SmtpConfig } from "../types";
 
-const smtp = config.get<SmtpConfig>("smtp");
+const smtp = config.get<SmtpConfig>("smtpConfig");
 
 export const sendEmail = (templatePath: string, templateData: any) => {
   let transporter = createTransport({

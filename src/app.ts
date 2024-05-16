@@ -6,10 +6,13 @@ import morgan from "morgan";
 import config from "config";
 import cors from "cors";
 import helmet from "helmet";
+import passport from "passport";
 import routes from "./routes";
-import { AppConfig } from "./types";
 import { sequelizeConnection } from "./clients";
 import { log } from "./utils";
+import { AppConfig } from "./types";
+import passportConfig from "../config/passport";
+import { cloudinaryConnect } from "../config/cloudinary";
 
 const { port, origin, prefix } = config.get<AppConfig>("app");
 
@@ -62,6 +65,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     message: err.message,
   });
 });
+
+// passportConfig(passport);
+// cloudinaryConnect();
 
 sequelizeConnection
   .authenticate()

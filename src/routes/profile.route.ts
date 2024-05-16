@@ -1,8 +1,9 @@
 import { Router } from "express";
 import {
-  deleteProfileHandler,
+  changePasswordHandler,
+  deleteAccountHandler,
   updateProfileHandler,
-  updateProfilePhotoHandler,
+  updateDisplayPictureHandler,
 } from "../controllers";
 import { deserializeUser, requireUser } from "../middleware";
 
@@ -10,10 +11,10 @@ const router = Router();
 
 router.use(deserializeUser, requireUser);
 
-router.delete("/:id", deleteProfileHandler);
+router.post("/change-password", changePasswordHandler);
+router.delete("/:id", deleteAccountHandler);
 
 router.put("/update-profile", updateProfileHandler);
-
-router.put("/update-profile-photo", updateProfilePhotoHandler);
+router.put("/update-display-picture", updateDisplayPictureHandler);
 
 export default router;

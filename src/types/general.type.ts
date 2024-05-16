@@ -44,3 +44,15 @@ export interface SmtpConfig {
   email: string;
   password: string;
 }
+
+export interface CloudinaryConfig {
+  cloudName: string;
+  cloudApiKey: string;
+  cloudApiSecret: string;
+}
+
+export interface GoogleConfig {
+  googleClientId: string;
+  googleClientSecret: string;
+  googleOauthRedirect: string;
+}

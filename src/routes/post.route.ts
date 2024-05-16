@@ -1,4 +1,4 @@
-import express from "express";
+import { Router } from "express";
 import {
   createPostHandler,
   deletePostHandler,
@@ -24,7 +24,7 @@ import {
   uploadPostImages,
 } from "../upload/multi-upload-sharp";
 
-const router = express.Router();
+const router = Router();
 
 router.use(deserializeUser, requireUser);
 router

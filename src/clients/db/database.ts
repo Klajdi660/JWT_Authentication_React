@@ -1,8 +1,8 @@
 import config from "config";
 // import mongoose from "mongoose";
 import { Sequelize } from "sequelize";
-import { DatabaseConfig } from "../../types";
 // import { log } from "../../utils";
+import { DatabaseConfig } from "../../types";
 
 const {
   //   dbUrl,

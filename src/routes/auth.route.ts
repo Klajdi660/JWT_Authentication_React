@@ -22,7 +22,7 @@ router.post("/register", validate(createUserSchema), registerHandler);
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmailHandler);
 router.post("/login", validate(loginUserSchema), loginHandler);
 router.post(
-  "/forgotpassword",
+  "/forgot-password",
   validate(forgotPasswordSchema),
   forgotPasswordHandler
 );
@@ -30,6 +30,6 @@ router.post(
 // router.get("/refresh", refreshAccessTokenHandler);
 router.get("/logout", deserializeUser, requireUser, logoutHandler);
 
-router.patch("/resetpassword", resetPasswordHandler);
+router.patch("/reset-password", resetPasswordHandler);
 
 export default router;

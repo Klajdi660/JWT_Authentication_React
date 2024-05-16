@@ -10,6 +10,7 @@ export const signJwt = (
   const privateKey = Buffer.from(config.get<string>(key), "base64").toString(
     "ascii"
   );
+
   return jwt.sign(payload, privateKey, {
     ...(options && options),
     algorithm: "RS256",
@@ -24,6 +25,7 @@ export const verifyJwt = <T>(
     const publicKey = Buffer.from(config.get<string>(key), "base64").toString(
       "ascii"
     );
+
     const decoded = jwt.verify(token, publicKey) as T;
     return decoded;
   } catch (error) {

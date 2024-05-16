@@ -27,13 +27,14 @@ import {
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
 } from "../utils";
-import { TokenConfig, UserParams } from "../types";
+import { AppConfig, TokenConfig, UserParams } from "../types";
 import { EMAIL_PROVIDER } from "../constants";
 
 // Exclude this fields from the response
 export const excludedFields = ["password"];
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
+const { origin } = config.get<AppConfig>("app");
 
 // Only set secure to true in production
 // if (process.env.NODE_ENV === "production")
@@ -217,11 +218,10 @@ export const loginHandler = async (
     //   httpOnly: false,
     // });
 
-    // Send Access Token
-    res.status(200).json({
-      status: "success",
-      access_token,
-      refresh_token,
+    res.json({
+      error: false,
+      message: "Login successful",
+      data: { atoken: access_token, rtoken: refresh_token },
     });
   } catch (err: any) {
     next(err);
@@ -494,6 +494,16 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     message:
       "Password data successfully updated, please login with your new credentials",
   });
+};
+
+export const googleOauthHandler = async (req: Request, res: Response) => {
+  // const user = req.user;
+  const { user } = res.locals;
+  console.log("user :>> ", user);
+
+  const { access_token } = await signToken(user);
+
+  res.redirect(`${origin}/social-auth?token=${access_token}`);
 };
 
 // export const googleOauthHandler = async (

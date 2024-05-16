@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { deleteUser, getUserById, getAndUpdateUser } from "../services";
 
-export const deleteProfileHandler = async (req: Request, res: Response) => {
+export const changePasswordHandler = async (req: Request, res: Response) => {};
+
+export const deleteAccountHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const deletedUser = await deleteUser(+id);
@@ -49,7 +51,7 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
   });
 };
 
-export const updateProfilePhotoHandler = async (
+export const updateDisplayPictureHandler = async (
   req: Request,
   res: Response
 ) => {};

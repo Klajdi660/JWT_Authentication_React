@@ -7,7 +7,7 @@ export const requireUser = (
   next: NextFunction
 ) => {
   try {
-    const user = res.locals.user;
+    const { user } = res.locals;
     if (!user) {
       return next({
         error: true,

@@ -1,11 +1,6 @@
 import { Router } from "express";
-import {
-  getAllUsersHandler,
-  getMeHandler,
-} from "../controllers/user.controller";
-import { deserializeUser } from "../middleware/deserializeUser";
-import { requireUser } from "../middleware/requireUser";
-import { restrictTo } from "../middleware/restrictTo";
+import { getAllUsersHandler, getMeHandler } from "../controllers";
+import { deserializeUser, requireUser, restrictTo } from "../middleware";
 
 const router = Router();
 

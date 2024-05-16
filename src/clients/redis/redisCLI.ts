@@ -4,7 +4,7 @@ import { createClient } from "redis";
 import { log } from "../../utils";
 import { RedisConfig } from "../../types";
 
-const { redisHost, redisPort } = config.get<RedisConfig>("redisFeed");
+const { redisHost, redisPort } = config.get<RedisConfig>("redisConfig");
 
 // export const redisCLI = new Redis({ host: redisHost, port: redisPort });
 
