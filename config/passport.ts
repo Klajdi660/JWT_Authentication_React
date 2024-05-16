@@ -49,7 +49,7 @@ const googleAuth = async () => {
       clientSecret: googleClientSecret,
       callbackURL: googleOauthCallbackUrl,
     };
-    console.log("strategyOptions :>> ", strategyOptions);
+
     const verifyCallback = async (
       accessToken: string,
       refreshToken: string,
@@ -57,10 +57,12 @@ const googleAuth = async () => {
       done: any
     ) => {
       const { displayName, photos, emails, id: googleId, _json } = profile;
-      console.log("profile :>> ", profile);
       const { email_verified } = _json;
-      const username = displayName.replace(/\s/g, "").toLowerCase();
 
+      if (!email_verified) {
+      }
+
+      const username = displayName.replace(/\s/g, "").toLowerCase();
       const extraData = {
         name: displayName,
         photos: photos[0].value,
