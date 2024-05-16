@@ -7,7 +7,7 @@
   "googleConfig": {
     "googleClientId": "GOOGLE_OAUTH_CLIENT_ID",
     "googleClientSecret": "GOOGLE_OAUTH_CLIENT_SECRET",
-    "googleOauthRedirect": "GOOGLE_OAUTH_REDIRECT_URL"
+    "googleOauthCallbackUrl": "GOOGLE_OAUTH_CALLBACK_URL"
   },
   "gitHubConfig": {
     "githubClientId": "GITHUB_OAUTH_CLIENT_ID",

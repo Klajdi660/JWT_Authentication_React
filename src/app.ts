@@ -66,8 +66,8 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// passportConfig(passport);
-// cloudinaryConnect();
+passportConfig(passport);
+cloudinaryConnect();
 
 sequelizeConnection
   .authenticate()

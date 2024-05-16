@@ -497,8 +497,8 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 };
 
 export const googleOauthHandler = async (req: Request, res: Response) => {
-  // const user = req.user;
-  const { user } = res.locals;
+  const user = req.user;
+  // const { user } = res.locals;
   console.log("user :>> ", user);
 
   const { access_token } = await signToken(user);

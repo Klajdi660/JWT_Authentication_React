@@ -109,7 +109,7 @@ export const createVerificationCode = () => {
   return otp;
 };
 
-export const signToken = async (user: DocumentType<User>) => {
+export const signToken = async (user: DocumentType<User | any>) => {
   const access_token = signJwt({ id: user.id }, "accessTokenPrivateKey", {
     expiresIn: `${accessTokenExpiresIn}m`,
   });

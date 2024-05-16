@@ -1,17 +1,19 @@
+import { Op } from "sequelize";
 import config from "config";
 import passport from "passport";
-import { Op } from "sequelize";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { log } from "../src/utils";
 import { User } from "../src/models";
 import { EMAIL_PROVIDER } from "../src/constants";
+import { log } from "../src/utils";
 import { GoogleConfig } from "../src/types";
 
-const { googleClientId, googleClientSecret, googleOauthRedirect } =
+const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
   config.get<GoogleConfig>("googleConfig");
 
-type ProfileType = { [key: string]: any };
+type ProfileType = {
+  [key: string]: any;
+};
 
 interface VerifyCallbackParams {
   accessToken: string;
@@ -34,8 +36,8 @@ passport.use(
       }
 
       return done(null, false);
-    } catch (e) {
-      return done(e, false);
+    } catch (err) {
+      return done(err, false);
     }
   })
 );
@@ -45,29 +47,22 @@ const googleAuth = async () => {
     const strategyOptions = {
       clientID: googleClientId,
       clientSecret: googleClientSecret,
-      callbackURL: googleOauthRedirect,
+      callbackURL: googleOauthCallbackUrl,
     };
-
+    console.log("strategyOptions :>> ", strategyOptions);
     const verifyCallback = async (
       accessToken: string,
       refreshToken: string,
-      profile: ProfileType,
+      profile: { [key: string]: any },
       done: any
     ) => {
-      const {
-        name,
-        displayName,
-        photos,
-        emails,
-        id: googleId,
-        _json,
-      } = profile;
+      const { displayName, photos, emails, id: googleId, _json } = profile;
       console.log("profile :>> ", profile);
       const { email_verified } = _json;
       const username = displayName.replace(/\s/g, "").toLowerCase();
+
       const extraData = {
-        firstName: name.givenName,
-        lastName: name.familyName,
+        name: displayName,
         photos: photos[0].value,
         googleId,
       };
@@ -80,8 +75,9 @@ const googleAuth = async () => {
         extra: JSON.stringify(extraData),
         verified: true,
       };
-
+      console.log("newUser :>> ", newUser);
       try {
+        // let user = await User.findOne({ where: { googleId: id } });
         let user = await User.findOne({
           where: {
             extra: {
@@ -94,6 +90,7 @@ const googleAuth = async () => {
           done(null, user);
         } else {
           user = await User.create(newUser);
+          console.log("user :>> ", user);
           done(null, user);
         }
       } catch (err) {

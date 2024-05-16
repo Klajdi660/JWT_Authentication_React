@@ -16,15 +16,16 @@ const router = Router();
 // router.get('/oauth/github', githubOauthHandler);
 
 router.get(
-  "/oauth-google",
+  "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 router.get(
-  "/oauth-google/callback",
+  "/google/callback",
   passport.authenticate("google", {
     failureRedirect: `${origin}/login`,
     session: false,
-  })
+  }),
+  googleOauthHandler
 );
 export default router;

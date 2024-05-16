@@ -13,6 +13,6 @@ const routes = Router();
 routes.use(`${prefix}/auth`, authRoutes);
 routes.use(`${prefix}/user`, userRoutes);
 routes.use(`${prefix}/profile`, profileRoutes);
-routes.use(`${prefix}/sessions`, sessionRoutes);
+routes.use(`${prefix}/auth`, sessionRoutes);
 
 export default routes;

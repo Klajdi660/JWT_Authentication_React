@@ -54,5 +54,5 @@ export interface CloudinaryConfig {
 export interface GoogleConfig {
   googleClientId: string;
   googleClientSecret: string;
-  googleOauthRedirect: string;
+  googleOauthCallbackUrl: string;
 }
