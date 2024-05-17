@@ -105,6 +105,7 @@ export const registerHandler = async (
     };
 
     const mailSent = await sendEmail(templatePath, templateData);
+    console.log("mailSent :>> ", mailSent);
     if (!mailSent) {
       return res.json({
         error: true,

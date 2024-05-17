@@ -1,7 +1,10 @@
 require("dotenv").config();
+import express, { Express, NextFunction, Request, Response } from "express";
+// import session from "express-session";
+// import fileUpload from "express-fileupload";
+// import SequelizeStore from "connect-session-sequelize";
 import cookieParser from "cookie-parser";
 import path from "path";
-import express, { Express, NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 import config from "config";
 import cors from "cors";
@@ -10,13 +13,20 @@ import passport from "passport";
 import routes from "./routes";
 import { sequelizeConnection } from "./clients";
 import { log } from "./utils";
-import { AppConfig } from "./types";
 import passportConfig from "../config/passport";
 import { cloudinaryConnect } from "../config/cloudinary";
+import { AppConfig } from "./types";
 
 const { port, origin, prefix } = config.get<AppConfig>("app");
 
 const app: Express = express();
+
+// Initialize SequelizeStore for session storage
+// const SequelizeSessionStore = SequelizeStore(session.Store);
+// const sessionStore = new SequelizeSessionStore({
+//   db: sequelizeConnection,
+//   expiration: 24 * 60 * 60 * 1000,
+// });
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -31,6 +41,22 @@ app.use(
 );
 app.options("*", cors());
 app.disable("x-powered-by");
+
+// app.use(
+//   session({
+//     secret: "keyboard cat",
+//     resave: false,
+//     saveUninitialized: false,
+//     store: sessionStore,
+//   })
+// );
+
+// app.use(
+//   fileUpload({
+//     useTempFiles: true,
+//     tempFileDir: "/tmp",
+//   })
+// );
 
 app.use(`${prefix}/static`, express.static(path.join(__dirname, "../public")));
 
@@ -67,6 +93,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 passportConfig(passport);
+// app.use(passport.initialize());
+// app.use(passport.session());
+
 cloudinaryConnect();
 
 sequelizeConnection

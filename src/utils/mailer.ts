@@ -6,7 +6,7 @@ import { SmtpConfig } from "../types";
 
 const smtp = config.get<SmtpConfig>("smtpConfig");
 
-export const sendEmail = (templatePath: string, templateData: any) => {
+export const sendEmail = async (templatePath: string, templateData: any) => {
   let transporter = createTransport({
     ...smtp,
     auth: {
@@ -20,10 +20,10 @@ export const sendEmail = (templatePath: string, templateData: any) => {
   const handlebarOptions = {
     viewEngine: {
       extname: ".hbs",
-      layoutsDir: path.join(__dirname, "src", "public", "views"),
+      layoutsDir: path.join(__dirname, "src", "views"),
       defaultLayout: false,
     },
-    viewPath: path.join(__dirname, "src", "public", "views"),
+    viewPath: path.join(__dirname, "src", "views"),
     extName: ".hbs",
   };
 
@@ -39,12 +39,12 @@ export const sendEmail = (templatePath: string, templateData: any) => {
     attachments: [
       {
         filename: "icon.png",
-        path: `${__dirname}/src/public/assets/icon.png`,
+        path: `${__dirname}/public/assets/icon.png`,
         cid: "icon",
       },
     ],
   };
 
-  const info = transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
   return info;
 };

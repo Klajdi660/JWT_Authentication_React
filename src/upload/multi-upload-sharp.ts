@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import multer, { FileFilterCallback } from "multer";
 import sharp from "sharp";
-import uuid from "../utils/uuid";
+import { v4 as uuidv4 } from "uuid";
 
 const multerStorage = multer.memoryStorage();
 
@@ -38,7 +38,7 @@ export const resizePostImages = async (
     // resize imageCover
     // @ts-ignore
     if (req.files?.image) {
-      const filename = `post-${uuid()}-${Date.now()}.jpeg`;
+      const filename = `post-${uuidv4()}-${Date.now()}.jpeg`;
       req.body.image = filename;
       // @ts-ignore
       await sharp(req.files?.image[0]?.buffer)
@@ -55,7 +55,7 @@ export const resizePostImages = async (
       await Promise.all(
         // @ts-ignore
         req?.files?.images.map((file, i) => {
-          const filename = `post-${uuid()}-${Date.now()}-${i + 1}.jpeg`;
+          const filename = `post-${uuidv4()}-${Date.now()}-${i + 1}.jpeg`;
 
           req.body.images.push(filename);
           return sharp(file.buffer)

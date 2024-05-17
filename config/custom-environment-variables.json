@@ -18,7 +18,7 @@
     "service": "EMAIL_SERVICE",
     "secure": "EMAIL_SECURE",
     "host": "EMAIL_HOST",
-    "pass": "EMAIL_PASS",
+    "password": "EMAIL_PASS",
     "port": "EMAIL_PORT",
     "email": "EMAIL_USER"
   },

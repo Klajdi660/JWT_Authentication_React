@@ -32,8 +32,12 @@ export interface DatabaseConfig {
 }
 
 export interface GameConfig {
-  gameUrl: string;
-  gameKey: string;
+  // rwgUrl?: string;
+  // rwgKey?: string;
+  twAuthUrl: string;
+  twUrl: string;
+  twClientId: string;
+  twClientSecret: string;
 }
 
 export interface SmtpConfig {
