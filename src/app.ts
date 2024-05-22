@@ -60,7 +60,7 @@ app.disable("x-powered-by");
 
 app.use(`${prefix}/static`, express.static(path.join(__dirname, "../public")));
 
-if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+// if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 app.use(routes);
 
@@ -98,31 +98,31 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 // cloudinaryConnect();
 
-// sequelizeConnection
-//   .authenticate()
-//   .then(() => {
-//     log.info(
-//       `${JSON.stringify({
-//         action: "Database Run",
-//         message: "Database connection has been established successfully.",
-//       })}`
-//     );
-console.log("port :>> ", port);
-app.listen(port, () => {
-  log.info(
-    `${JSON.stringify({
-      action: "Server Run",
-      messsage: `Server is running at http://localhost:${port}`,
-    })}`
-  );
-});
-// })
-// .catch((error) => {
-//   log.error(
-//     `${JSON.stringify({
-//       action: "Server Catch",
-//       messsage: "Cannot connect to the server",
-//       data: error,
-//     })}`
-//   );
-// });
+sequelizeConnection
+  .authenticate()
+  .then(() => {
+    log.info(
+      `${JSON.stringify({
+        action: "Database Run",
+        message: "Database connection has been established successfully.",
+      })}`
+    );
+
+    app.listen(port, () => {
+      log.info(
+        `${JSON.stringify({
+          action: "Server Run",
+          messsage: `Server is running at port:${port}`,
+        })}`
+      );
+    });
+  })
+  .catch((error) => {
+    log.error(
+      `${JSON.stringify({
+        action: "Server Catch",
+        messsage: "Cannot connect to the server",
+        data: error,
+      })}`
+    );
+  });
