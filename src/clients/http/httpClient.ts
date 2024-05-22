@@ -2,8 +2,7 @@ import axios from "axios";
 import config from "config";
 import { GameConfig } from "../../types";
 
-const { gameUrl: rwgUrl, gameKey: rwgKey } =
-  config.get<GameConfig>("gamesConfig");
+const { rwgUrl, rwgKey } = config.get<GameConfig>("gamesConfig");
 
 const instance = axios.create({
   baseURL: rwgUrl,
