@@ -92,11 +92,11 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-passportConfig(passport);
+// passportConfig(passport);
 // app.use(passport.initialize());
 // app.use(passport.session());
 
-cloudinaryConnect();
+// cloudinaryConnect();
 
 // sequelizeConnection
 //   .authenticate()
@@ -107,7 +107,7 @@ cloudinaryConnect();
 //         message: "Database connection has been established successfully.",
 //       })}`
 //     );
-
+console.log("port :>> ", port);
 app.listen(port, () => {
   log.info(
     `${JSON.stringify({
