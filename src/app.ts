@@ -60,8 +60,6 @@ app.disable("x-powered-by");
 
 app.use(`${prefix}/static`, express.static(path.join(__dirname, "../public")));
 
-// if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
-
 app.use(routes);
 
 app.get(
