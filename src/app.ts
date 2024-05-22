@@ -98,31 +98,31 @@ passportConfig(passport);
 
 cloudinaryConnect();
 
-sequelizeConnection
-  .authenticate()
-  .then(() => {
-    log.info(
-      `${JSON.stringify({
-        action: "Database Run",
-        message: "Database connection has been established successfully.",
-      })}`
-    );
+// sequelizeConnection
+//   .authenticate()
+//   .then(() => {
+//     log.info(
+//       `${JSON.stringify({
+//         action: "Database Run",
+//         message: "Database connection has been established successfully.",
+//       })}`
+//     );
 
-    app.listen(port, () => {
-      log.info(
-        `${JSON.stringify({
-          action: "Server Run",
-          messsage: `Server is running at http://localhost:${port}`,
-        })}`
-      );
-    });
-  })
-  .catch((error) => {
-    log.error(
-      `${JSON.stringify({
-        action: "Server Catch",
-        messsage: "Cannot connect to the server",
-        data: error,
-      })}`
-    );
-  });
+app.listen(port, () => {
+  log.info(
+    `${JSON.stringify({
+      action: "Server Run",
+      messsage: `Server is running at http://localhost:${port}`,
+    })}`
+  );
+});
+// })
+// .catch((error) => {
+//   log.error(
+//     `${JSON.stringify({
+//       action: "Server Catch",
+//       messsage: "Cannot connect to the server",
+//       data: error,
+//     })}`
+//   );
+// });
