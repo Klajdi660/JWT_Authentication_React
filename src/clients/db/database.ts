@@ -26,7 +26,7 @@ export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
     raw: true,
   },
 });
-console.log("sequelizeConnection :>> ", sequelizeConnection);
+
 // export const connectDB = async () => {
 //   try {
 //     await mongoose.connect(dbUrl);
