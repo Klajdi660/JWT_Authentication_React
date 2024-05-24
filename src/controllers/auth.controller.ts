@@ -46,87 +46,77 @@ export const registerHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const { email, username, password } = req.body;
+  const { email, username, password } = req.body;
 
-    const existingUser = await getUserByEmailOrUsername(email, username);
-    if (existingUser) {
-      log.info(
-        `${JSON.stringify({
-          action: "createUser existingUser",
-          data: existingUser,
-        })}`
-      );
-      return res.json({
-        error: true,
-        message: "User with the provided email or username already exists",
-      });
-    }
-
-    const hash = crypto
-      .createHash("sha1")
-      .update(password + username)
-      .digest("hex");
-
-    const user_registration: UserParams = {
-      ...req.body,
-      password: hash,
-      // passwordConfirm: hash,
-    };
-
-    const code = createVerificationCode();
-    const codeExpire = dayjs().add(180, "s");
-
-    user_registration["otpCode"] = code;
-    user_registration["expiredCodeAt"] = codeExpire;
-
-    // const addedToRedis = await redisCLI.setnx(
-    //   `verify_email_pending_${email}`,
-    //   JSON.stringify(user_registration)
-    // );
-    const addedToRedis = await redisCLI.set(
-      `verify_email_pending_${email}`,
-      JSON.stringify(user_registration)
+  const existingUser = await getUserByEmailOrUsername(email, username);
+  if (existingUser) {
+    log.info(
+      `${JSON.stringify({
+        action: "createUser existingUser",
+        data: existingUser,
+      })}`
     );
-
-    if (!addedToRedis) {
-      return res.json({ error: true, message: "Email already registered." });
-    }
-
-    await redisCLI.expire(`verify_email_pending_${email}`, 180); // 3 min
-
-    const { fullName } = user_registration;
-    const subject = "OTP Verification Email";
-    const templatePath = "OTP";
-    const templateData = {
-      title: subject,
-      name: fullName,
-      code,
-    };
-
-    const mailSent = await sendEmail(templatePath, templateData);
-    console.log("mailSent :>> ", mailSent);
-    if (!mailSent) {
-      return res.json({
-        error: true,
-        message: "There was an error sending email, please try again",
-      });
-    }
-
-    res.json({
-      error: false,
-      message:
-        "An email with a verification code has been sent to your email. Please enter this code to proceed",
+    return res.json({
+      error: true,
+      message: "User with the provided email or username already exists",
     });
-  } catch (err: any) {
-    if (err.code === 11000) {
-      return res.status(409).json({
-        status: "fail",
-        message: "Email already exist",
-      });
-    }
-    next(err);
   }
+
+  const hash = crypto
+    .createHash("sha1")
+    .update(password + username)
+    .digest("hex");
+
+  const user_registration: UserParams = {
+    ...req.body,
+    password: hash,
+    // passwordConfirm: hash,
+  };
+
+  const code = createVerificationCode();
+  const codeExpire = dayjs().add(180, "s");
+
+  user_registration["otpCode"] = code;
+  user_registration["expiredCodeAt"] = codeExpire;
+
+  // const addedToRedis = await redisCLI.setnx(
+  //   `verify_email_pending_${email}`,
+  //   JSON.stringify(user_registration)
+  // );
+  const addedToRedis = await redisCLI.set(
+    `verify_email_pending_${email}`,
+    JSON.stringify(user_registration)
+  );
+
+  if (!addedToRedis) {
+    return res.json({ error: true, message: "Email already registered." });
+  }
+
+  await redisCLI.expire(`verify_email_pending_${email}`, 180); // 3 min
+
+  const { fullName } = user_registration;
+  const subject = "OTP Verification Email";
+  const templatePath = "OTP";
+  const templateData = {
+    title: subject,
+    name: fullName,
+    code,
+  };
+
+  const mailSent = await sendEmail(templatePath, templateData);
+  if (!mailSent) {
+    return res.json({
+      error: true,
+      message: "There was an error sending email, please try again",
+    });
+  }
+
+  res.json({
+    error: false,
+    message:
+      "An email with a verification code has been sent to your email. Please enter this code to proceed",
+    data: { email, codeExpire },
+  });
 };
 
 export const loginHandler = async (
@@ -134,99 +124,95 @@ export const loginHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const { identifier, password, remember } = req.body;
+  const { identifier, password, remember } = req.body;
 
-    const user = await getUserByEmailOrUsername(identifier, identifier);
-    if (!user) {
-      return res.json({
-        error: true,
-        message: "User is not Registered with us, please Sign Up to continue.",
-      });
-    }
-
-    if (user && user.provider !== EMAIL_PROVIDER.Email) {
-      return res.json({
-        error: true,
-        message: `That email address is already in use using ${user.provider} provider.`,
-      });
-    }
-
-    const expectedHash = crypto
-      .createHash("sha1")
-      .update(password + user.username)
-      .digest("hex");
-    if (user.password !== expectedHash) {
-      return res.json({
-        error: true,
-        message: "Invalid Password! Please enter valid password.",
-      });
-    }
-
-    if (!user.verified) {
-      const code = createVerificationCode();
-
-      const user_registration = {
-        otpCode: code,
-        expiredCodeAt: dayjs().add(60, "s"),
-      };
-
-      // const addedToRedis = await redisCLI.setnx(
-      //   `verify_email_pending_${user.email}`,
-      //   JSON.stringify(user_registration)
-      // );
-      const addedToRedis = await redisCLI.set(
-        `verify_email_pending_${user.email}`,
-        JSON.stringify(user_registration)
-      );
-      if (!addedToRedis) {
-        return res.json({ error: true, message: "Email already registered." });
-      }
-
-      await redisCLI.expire(`register_pending_${user.email}`, 3600);
-
-      const extra = JSON.parse(user.extra);
-      let subject = "OTP Verification Email";
-      let templatePath = "OTP";
-      const templateData = {
-        title: subject,
-        name: `${extra.firstName} ${extra.lastName}`,
-        code,
-      };
-
-      const mailSent = await sendEmail(templatePath, templateData);
-      if (!mailSent) {
-        return res.json({
-          error: true,
-          message: "There was an error sending email, please try again",
-        });
-      }
-
-      return res.json({
-        error: true,
-        message: `Email ${user.email} not verified. An email with a verification code has been sent to your email`,
-      });
-    }
-
-    // Create the Access and refresh Tokens
-    const { access_token, refresh_token } = await signToken(user);
-
-    // Send Access Token in Cookie
-    // res.cookie("access_token", access_token, accessTokenCookieOptions);
-    // res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
-    // res.cookie("logged_in", true, {
-    //   ...accessTokenCookieOptions,
-    //   httpOnly: false,
-    // });
-
-    res.json({
-      error: false,
-      message: "Login successful",
-      data: { atoken: access_token, rtoken: refresh_token },
+  const user = await getUserByEmailOrUsername(identifier, identifier);
+  if (!user) {
+    return res.json({
+      error: true,
+      message: "User is not Registered with us, please Sign Up to continue.",
     });
-  } catch (err: any) {
-    next(err);
   }
+
+  if (user && user.provider !== EMAIL_PROVIDER.Email) {
+    return res.json({
+      error: true,
+      message: `That email address is already in use using ${user.provider} provider.`,
+    });
+  }
+
+  const expectedHash = crypto
+    .createHash("sha1")
+    .update(password + user.username)
+    .digest("hex");
+  if (user.password !== expectedHash) {
+    return res.json({
+      error: true,
+      message: "Invalid Password! Please enter valid password.",
+    });
+  }
+
+  if (!user.verified) {
+    const code = createVerificationCode();
+
+    const user_registration = {
+      otpCode: code,
+      expiredCodeAt: dayjs().add(60, "s"),
+    };
+
+    // const addedToRedis = await redisCLI.setnx(
+    //   `verify_email_pending_${user.email}`,
+    //   JSON.stringify(user_registration)
+    // );
+    const addedToRedis = await redisCLI.set(
+      `verify_email_pending_${user.email}`,
+      JSON.stringify(user_registration)
+    );
+    if (!addedToRedis) {
+      return res.json({ error: true, message: "Email already registered." });
+    }
+
+    await redisCLI.expire(`register_pending_${user.email}`, 3600);
+
+    const extra = JSON.parse(user.extra);
+    let subject = "OTP Verification Email";
+    let templatePath = "OTP";
+    const templateData = {
+      title: subject,
+      name: `${extra.firstName} ${extra.lastName}`,
+      code,
+    };
+
+    const mailSent = await sendEmail(templatePath, templateData);
+    if (!mailSent) {
+      return res.json({
+        error: true,
+        message: "There was an error sending email, please try again",
+      });
+    }
+
+    return res.json({
+      error: true,
+      message: `Email ${user.email} not verified. An email with a verification code has been sent to your email`,
+    });
+  }
+
+  // Create the Access and refresh Tokens
+  const { access_token, refresh_token } = await signToken(user);
+
+  // Send Access Token in Cookie
+  // res.cookie("access_token", access_token, accessTokenCookieOptions);
+  // res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
+  // res.cookie("logged_in", true, {
+  //   ...accessTokenCookieOptions,
+  //   httpOnly: false,
+  // });
+
+  res.json({
+    error: false,
+    message: "Login successful",
+    data: { atoken: access_token, rtoken: refresh_token },
+  });
 };
 
 export const verifyEmailHandler = async (
@@ -234,66 +220,60 @@ export const verifyEmailHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const { code, email } = req.body;
+  const { code, email } = req.body;
 
-    let redisObj: any = await redisCLI.get(`verify_email_pending_${email}`);
-    redisObj = JSON.parse(redisObj);
-    if (!redisObj) {
-      return res.json({ error: true, message: "Confirmation time expired!" });
-    }
-
-    const { otpCode, expiredCodeAt } = redisObj;
-    if (code !== otpCode) {
-      return res.json({ error: true, message: "Confirmation code incorrect!" });
-    }
-
-    const currentDateTime = dayjs();
-    const expiresAtDateTime = dayjs(expiredCodeAt);
-    const isExpired = currentDateTime.isAfter(expiresAtDateTime);
-
-    if (isExpired) {
-      log.error(
-        `${JSON.stringify({ action: "expired User", data: redisObj })}`
-      );
-      return res.json({
-        error: true,
-        message: "Your OTP code has expired. Please request a new OTP code",
-      });
-    } // nuk duhet
-
-    const existingUser = await getUserByEmail(email);
-    let user;
-    let verified = true;
-
-    if (existingUser) {
-      user = await getAndUpdateUser(existingUser.id, { verified });
-      if (!user) {
-        log.error(
-          JSON.stringify({ action: "Confirm updateUser Req", data: user })
-        );
-        return res.json({ error: true, message: "Failed to update user!" });
-      }
-    } else {
-      user = await createUser(redisObj, verified);
-      if (!user) {
-        log.error(
-          JSON.stringify({ action: "Confirm createUser Req", data: user })
-        );
-        return res.json({ error: true, message: "Failed to register user!" });
-      }
-    }
-
-    await redisCLI.del(`verify_email_pending_${email}`);
-
-    res.json({
-      error: false,
-      message: "Congratulation! Your account has been created.",
-      data: { code: otpCode, codeExpire: expiredCodeAt },
-    });
-  } catch (err: any) {
-    next(err);
+  let redisObj: any = await redisCLI.get(`verify_email_pending_${email}`);
+  redisObj = JSON.parse(redisObj);
+  if (!redisObj) {
+    return res.json({ error: true, message: "Confirmation time expired!" });
   }
+
+  const { otpCode, expiredCodeAt } = redisObj;
+  if (code !== otpCode) {
+    return res.json({ error: true, message: "Confirmation code incorrect!" });
+  }
+
+  const currentDateTime = dayjs();
+  const expiresAtDateTime = dayjs(expiredCodeAt);
+  const isExpired = currentDateTime.isAfter(expiresAtDateTime);
+
+  if (isExpired) {
+    log.error(`${JSON.stringify({ action: "expired User", data: redisObj })}`);
+    return res.json({
+      error: true,
+      message: "Your OTP code has expired. Please request a new OTP code",
+    });
+  } // nuk duhet
+
+  const existingUser = await getUserByEmail(email);
+  let user;
+  let verified = true;
+
+  if (existingUser) {
+    user = await getAndUpdateUser(existingUser.id, { verified });
+    if (!user) {
+      log.error(
+        JSON.stringify({ action: "Confirm updateUser Req", data: user })
+      );
+      return res.json({ error: true, message: "Failed to update user!" });
+    }
+  } else {
+    user = await createUser(redisObj, verified);
+    if (!user) {
+      log.error(
+        JSON.stringify({ action: "Confirm createUser Req", data: user })
+      );
+      return res.json({ error: true, message: "Failed to register user!" });
+    }
+  }
+
+  await redisCLI.del(`verify_email_pending_${email}`);
+
+  res.json({
+    error: false,
+    message: "Congratulation! Your account has been created.",
+    data: { code: otpCode, codeExpire: expiredCodeAt },
+  });
 };
 
 export const refreshAccessTokenHandler = async (
@@ -301,50 +281,46 @@ export const refreshAccessTokenHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const refresh_token = req.cookies.refresh_token as string;
+  const refresh_token = req.cookies.refresh_token as string;
 
-    const msg = "Could not refresh access token";
+  const msg = "Could not refresh access token";
 
-    const decoded = verifyJwt<{ id: string }>(
-      refresh_token,
-      "refreshTokenPublicKey"
-    );
-    if (!decoded) {
-      return next({ error: true, message: msg });
-    }
-
-    // Check if the user has a valid session
-    const session = await redisCLI.get(decoded.id);
-    if (!session) {
-      return next({ error: true, message: msg });
-    }
-
-    // Check if the user exist
-    const user = await getUserById(JSON.parse(session).id);
-    if (!user) {
-      return next({ error: true, message: msg });
-    }
-
-    // Sign new access token
-    const atoken = signJwt({ sub: user.id }, "accessTokenPrivateKey", {
-      expiresIn: `${accessTokenExpiresIn}m`,
-    });
-
-    // Send the access token as cookie
-    res.cookie("access_token", atoken, accessTokenCookieOptions);
-    res.cookie("logged_in", true, {
-      ...accessTokenCookieOptions,
-      httpOnly: false,
-    });
-
-    res.json({
-      error: false,
-      data: { atoken },
-    });
-  } catch (err: any) {
-    next(err);
+  const decoded = verifyJwt<{ id: string }>(
+    refresh_token,
+    "refreshTokenPublicKey"
+  );
+  if (!decoded) {
+    return next({ error: true, message: msg });
   }
+
+  // Check if the user has a valid session
+  const session = await redisCLI.get(decoded.id);
+  if (!session) {
+    return next({ error: true, message: msg });
+  }
+
+  // Check if the user exist
+  const user = await getUserById(JSON.parse(session).id);
+  if (!user) {
+    return next({ error: true, message: msg });
+  }
+
+  // Sign new access token
+  const atoken = signJwt({ sub: user.id }, "accessTokenPrivateKey", {
+    expiresIn: `${accessTokenExpiresIn}m`,
+  });
+
+  // Send the access token as cookie
+  res.cookie("access_token", atoken, accessTokenCookieOptions);
+  res.cookie("logged_in", true, {
+    ...accessTokenCookieOptions,
+    httpOnly: false,
+  });
+
+  res.json({
+    error: false,
+    data: { atoken },
+  });
 };
 
 const logout = (res: Response) => {
@@ -358,20 +334,16 @@ export const logoutHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const { user } = res.locals;
-    if (!user) {
-      return res.json({ error: true, message: "test" });
-    }
-
-    await redisCLI.del(`session_${user.id}`);
-
-    logout(res);
-
-    res.json({ error: false, message: "Logout success." });
-  } catch (err: any) {
-    next(err);
+  const { user } = res.locals;
+  if (!user) {
+    return res.json({ error: true, message: "test" });
   }
+
+  await redisCLI.del(`session_${user.id}`);
+
+  logout(res);
+
+  res.json({ error: false, message: "Logout success." });
 };
 
 export const forgotPasswordHandler = async (
