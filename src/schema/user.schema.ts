@@ -55,7 +55,18 @@ export const verifyEmailSchema = object({
     code: string({
       required_error: "OTP code is required",
     }),
-    username: string(),
+    email: string(),
+  }),
+});
+
+export const resendOtpCodeSchema = object({
+  body: object({
+    email: string({
+      required_error: "Email is required",
+    }).regex(emailRegex, "Not a valid email"),
+    fullName: string({
+      required_error: "Full Name is required",
+    }),
   }),
 });
 
@@ -92,5 +103,6 @@ export const resetPasswordSchema = object({
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
 export type LoginUserInput = TypeOf<typeof loginUserSchema>["body"];
 export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["body"];
+export type ResendOtpCodeInput = TypeOf<typeof resendOtpCodeSchema>["body"];
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];

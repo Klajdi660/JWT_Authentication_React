@@ -32,6 +32,18 @@ export const getUserByEmail = async (email: string): Promise<User | any> => {
   });
 };
 
+export const getUserByUsername = async (
+  username: string
+): Promise<User | any> => {
+  return User.findOne({
+    where: { username },
+  }).catch((error) => {
+    log.error(
+      `${JSON.stringify({ action: "getUserByEmail catch", data: error })}`
+    );
+  });
+};
+
 export const getUserByEmailOrUsername = async (
   email: string,
   username: string
