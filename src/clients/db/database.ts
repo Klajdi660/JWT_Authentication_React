@@ -14,7 +14,7 @@ const {
 // } = config.get<DatabaseConfig>("database");
 
 const dbDriver = "mysql";
-console.log("dbHost :>> ", dbHost, "dbUser", dbUser, "dbName", dbName);
+
 export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
   dialect: dbDriver,

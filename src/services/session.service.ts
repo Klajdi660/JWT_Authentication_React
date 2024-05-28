@@ -1,6 +1,7 @@
-import config from 'config';
-import axios from 'axios';
-import qs from 'qs';
+import config from "config";
+import axios from "axios";
+import qs from "qs";
+import { log } from "../utils";
 
 interface GoogleOauthToken {
   access_token: string;
@@ -16,14 +17,14 @@ export const getGoogleOauthToken = async ({
 }: {
   code: string;
 }): Promise<GoogleOauthToken> => {
-  const rootURl = 'https://oauth2.googleapis.com/token';
+  const rootURl = "https://oauth2.googleapis.com/token";
 
   const options = {
     code,
-    client_id: config.get<string>('googleClientId'),
-    client_secret: config.get<string>('googleClientSecret'),
-    redirect_uri: config.get<string>('googleOauthRedirect'),
-    grant_type: 'authorization_code',
+    client_id: config.get<string>("googleClientId"),
+    client_secret: config.get<string>("googleClientSecret"),
+    redirect_uri: config.get<string>("googleOauthRedirect"),
+    grant_type: "authorization_code",
   };
   try {
     const { data } = await axios.post<GoogleOauthToken>(
@@ -31,14 +32,20 @@ export const getGoogleOauthToken = async ({
       qs.stringify(options),
       {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }
     );
 
     return data;
   } catch (err: any) {
-    console.log('Failed to fetch Google Oauth Tokens');
+    log.error(
+      JSON.stringify({
+        action: "getGoogleOauthToken catch",
+        message: "Failed to fetch Google Oauth Tokens",
+        data: err,
+      })
+    );
     throw new Error(err);
   }
 };
@@ -73,13 +80,18 @@ export async function getGoogleUser({
 
     return data;
   } catch (err: any) {
-    console.log(err);
+    log.error(
+      JSON.stringify({
+        action: "getGoogleUSer catch",
+        message: "Failed to get User",
+        data: err,
+      })
+    );
     throw Error(err);
   }
 }
 
 // 👇 GitHub OAuth
-
 type GitHubOauthToken = {
   access_token: string;
 };
@@ -124,10 +136,10 @@ export const getGithubOathToken = async ({
 }: {
   code: string;
 }): Promise<GitHubOauthToken> => {
-  const rootUrl = 'https://github.com/login/oauth/access_token';
+  const rootUrl = "https://github.com/login/oauth/access_token";
   const options = {
-    client_id: config.get<string>('githubClientId'),
-    client_secret: config.get<string>('githubClientSecret'),
+    client_id: config.get<string>("githubClientId"),
+    client_secret: config.get<string>("githubClientSecret"),
     code,
   };
 
@@ -136,7 +148,7 @@ export const getGithubOathToken = async ({
   try {
     const { data } = await axios.post(`${rootUrl}?${queryString}`, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     });
 
@@ -155,7 +167,7 @@ export const getGithubUser = async ({
 }): Promise<GitHubUser> => {
   try {
     const { data } = await axios.get<GitHubUser>(
-      'https://api.github.com/user',
+      "https://api.github.com/user",
       {
         headers: {
           Authorization: `Bearer ${access_token}`,

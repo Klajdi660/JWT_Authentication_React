@@ -77,7 +77,7 @@ const googleAuth = async () => {
         extra: JSON.stringify(extraData),
         verified: true,
       };
-      console.log("newUser :>> ", newUser);
+
       try {
         // let user = await User.findOne({ where: { googleId: id } });
         let user = await User.findOne({
@@ -92,7 +92,6 @@ const googleAuth = async () => {
           done(null, user);
         } else {
           user = await User.create(newUser);
-          console.log("user :>> ", user);
           done(null, user);
         }
       } catch (err) {

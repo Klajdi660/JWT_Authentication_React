@@ -110,11 +110,11 @@ export const createVerificationCode = () => {
 };
 
 export const signToken = async (user: DocumentType<User | any>) => {
-  const access_token = signJwt({ id: user.id }, "accessTokenPrivateKey", {
+  const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
     expiresIn: `${accessTokenExpiresIn}m`,
   });
 
-  const refresh_token = signJwt({ id: user.id }, "refreshTokenPrivateKey", {
+  const refreshToken = signJwt({ id: user.id }, "refreshTokenPrivateKey", {
     expiresIn: `${refreshTokenExpiresIn}m`,
   });
 
@@ -124,5 +124,5 @@ export const signToken = async (user: DocumentType<User | any>) => {
   });
   await redisCLI.expire(`session_${user.id}`, 3600);
 
-  return { access_token, refresh_token };
+  return { accessToken, refreshToken };
 };

@@ -84,7 +84,7 @@ export const registerHandler = async (
   //   JSON.stringify(user_registration)
   // );
   const addedToRedis = await redisCLI.set(
-    `verify_email_pending_${email}`,
+    `verify_email_pending_${username}`,
     JSON.stringify(user_registration)
   );
 
@@ -92,7 +92,7 @@ export const registerHandler = async (
     return res.json({ error: true, message: "Email already registered." });
   }
 
-  await redisCLI.expire(`verify_email_pending_${email}`, 180); // 3 min
+  await redisCLI.expire(`verify_email_pending_${username}`, 180); // 3 min
 
   const { fullName } = user_registration;
   const subject = "OTP Verification Email";
@@ -115,7 +115,7 @@ export const registerHandler = async (
     error: false,
     message:
       "An email with a verification code has been sent to your email. Please enter this code to proceed",
-    data: { email, codeExpire },
+    data: { username, codeExpire },
   });
 };
 
@@ -198,7 +198,7 @@ export const loginHandler = async (
   }
 
   // Create the Access and refresh Tokens
-  const { access_token, refresh_token } = await signToken(user);
+  const { accessToken, refreshToken } = await signToken(user);
 
   // Send Access Token in Cookie
   // res.cookie("access_token", access_token, accessTokenCookieOptions);
@@ -211,7 +211,7 @@ export const loginHandler = async (
   res.json({
     error: false,
     message: "Login successful",
-    data: { atoken: access_token, rtoken: refresh_token },
+    data: { aToken: accessToken, rToken: refreshToken },
   });
 };
 
@@ -220,15 +220,15 @@ export const verifyEmailHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { code, email } = req.body;
+  const { code, username } = req.body;
 
-  let redisObj: any = await redisCLI.get(`verify_email_pending_${email}`);
+  let redisObj: any = await redisCLI.get(`verify_email_pending_${username}`);
   redisObj = JSON.parse(redisObj);
   if (!redisObj) {
     return res.json({ error: true, message: "Confirmation time expired!" });
   }
 
-  const { otpCode, expiredCodeAt } = redisObj;
+  const { email, otpCode, expiredCodeAt } = redisObj;
   if (code !== otpCode) {
     return res.json({ error: true, message: "Confirmation code incorrect!" });
   }
@@ -267,12 +267,11 @@ export const verifyEmailHandler = async (
     }
   }
 
-  await redisCLI.del(`verify_email_pending_${email}`);
+  await redisCLI.del(`verify_email_pending_${username}`);
 
   res.json({
     error: false,
     message: "Congratulation! Your account has been created.",
-    data: { code: otpCode, codeExpire: expiredCodeAt },
   });
 };
 
@@ -472,11 +471,10 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 export const googleOauthHandler = async (req: Request, res: Response) => {
   const user = req.user;
   // const { user } = res.locals;
-  console.log("user :>> ", user);
 
-  const { access_token } = await signToken(user);
+  const { accessToken } = await signToken(user);
 
-  res.redirect(`${origin}/social-auth?token=${access_token}`);
+  res.redirect(`${origin}/social-auth?token=${accessToken}`);
 };
 
 // export const googleOauthHandler = async (
@@ -536,7 +534,13 @@ export const googleOauthHandler = async (req: Request, res: Response) => {
 
 //     res.redirect(`${config.get<string>("origin")}${pathUrl}`);
 //   } catch (err: any) {
-//     console.log("Failed to authorize Google User", err);
+// log.error(
+//   JSON.stringify({
+//     action: "googleOauthHandler",
+//     message: "Failed to authorize Google User",
+//     data: err,
+//   })
+// );
 //     return res.redirect(`${config.get<string>("origin")}/oauth/error`);
 //   }
 // };
@@ -659,8 +663,6 @@ export const googleOauthHandler = async (req: Request, res: Response) => {
 //       passwordResetToken: resetToken,
 //       passwordResetAt: { $gt: new Date() },
 //     });
-
-//     console.log(user);
 
 //     if (!user) {
 //       return next(new AppError("Token is invalid or has expired", 403));
