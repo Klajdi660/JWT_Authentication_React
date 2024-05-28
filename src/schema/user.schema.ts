@@ -55,7 +55,7 @@ export const verifyEmailSchema = object({
     code: string({
       required_error: "OTP code is required",
     }),
-    email: string(),
+    username: string(),
   }),
 });
 
