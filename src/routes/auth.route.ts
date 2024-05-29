@@ -10,7 +10,6 @@ import {
   resetPasswordHandler,
   verifyEmailHandler,
   googleOauthHandler,
-  resendOtpCodeHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
 import {
@@ -18,7 +17,6 @@ import {
   loginUserSchema,
   verifyEmailSchema,
   forgotPasswordSchema,
-  resendOtpCodeSchema,
 } from "../schema";
 import { AppConfig } from "../types";
 
@@ -33,11 +31,6 @@ router.post(
   "/forgot-password",
   validate(forgotPasswordSchema),
   forgotPasswordHandler
-);
-router.post(
-  "/resend-code",
-  validate(resendOtpCodeSchema),
-  resendOtpCodeHandler
 );
 
 // router.get("/refresh", refreshAccessTokenHandler);

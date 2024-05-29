@@ -67,17 +67,16 @@ export const registerHandler = async (
     .update(password + username)
     .digest("hex");
 
-  const user_registration: UserParams = {
+  const userRegistration: UserParams = {
     ...req.body,
     password: hash,
-    // passwordConfirm: hash,
   };
 
   const code = createVerificationCode();
   const codeExpire = dayjs().add(180, "s");
 
-  user_registration["otpCode"] = code;
-  user_registration["expiredCodeAt"] = codeExpire;
+  userRegistration["otpCode"] = code;
+  userRegistration["expiredCodeAt"] = codeExpire;
 
   // const addedToRedis = await redisCLI.setnx(
   //   `verify_email_pending_${email}`,
@@ -85,7 +84,7 @@ export const registerHandler = async (
   // );
   const addedToRedis = await redisCLI.set(
     `verify_email_pending_${email}`,
-    JSON.stringify(user_registration)
+    JSON.stringify(userRegistration)
   );
 
   if (!addedToRedis) {
@@ -94,7 +93,7 @@ export const registerHandler = async (
 
   await redisCLI.expire(`verify_email_pending_${email}`, 180); // 3 min
 
-  const { fullName } = user_registration;
+  const { fullName } = userRegistration;
   const subject = "OTP Verification Email";
   const templatePath = "OTP";
   const templateData = {
@@ -115,7 +114,7 @@ export const registerHandler = async (
     error: false,
     message:
       "An email with a verification code has been sent to your email. Please enter this code to proceed",
-    data: { email, name: fullName, codeExpire },
+    data: { email, codeExpire },
   });
 };
 
@@ -274,74 +273,6 @@ export const verifyEmailHandler = async (
   res.json({
     error: false,
     message: "Congratulation! Your account has been created.",
-  });
-};
-
-export const resendOtpCodeHandler = async (
-  // req: Request<{}, {}, CreateUserInput>,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { email } = req.body;
-
-  const existingUser = await getUserByEmail(email);
-  if (existingUser) {
-    log.info(
-      `${JSON.stringify({
-        action: "createUser existingUser",
-        data: existingUser,
-      })}`
-    );
-    return res.json({
-      error: true,
-      message: "User with the provided email already exists",
-    });
-  }
-
-  const user_registration: UserParams = {
-    ...req.body,
-  };
-
-  const code = createVerificationCode();
-  const codeExpire = dayjs().add(180, "s");
-
-  user_registration["otpCode"] = code;
-  user_registration["expiredCodeAt"] = codeExpire;
-
-  const addedToRedis = await redisCLI.set(
-    `verify_email_pending_${email}`,
-    JSON.stringify(user_registration)
-  );
-
-  if (!addedToRedis) {
-    return res.json({ error: true, message: "Email already registered." });
-  }
-
-  await redisCLI.expire(`verify_email_pending_${email}`, 180); // 3 min
-
-  const { fullName } = user_registration;
-  const subject = "OTP Verification Email";
-  const templatePath = "OTP";
-  const templateData = {
-    title: subject,
-    name: fullName,
-    code,
-  };
-
-  const mailSent = await sendEmail(templatePath, templateData);
-  if (!mailSent) {
-    return res.json({
-      error: true,
-      message: "There was an error sending email, please try again",
-    });
-  }
-
-  res.json({
-    error: false,
-    message:
-      "An email with a verification code has been sent to your email. Please enter this code to proceed",
-    data: { email, name: fullName, codeExpire },
   });
 };
 
