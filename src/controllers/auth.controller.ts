@@ -361,34 +361,41 @@ export const forgotPasswordHandler = async (
   }
 
   if (!user.verified) {
-    return res.json({ error: true, message: "User not verified" });
-  }
-
-  const code = createVerificationCode();
-  const userReset = {
-    ...user,
-    confCode: code,
-  };
-
-  const addedToRedis = await redisCLI.set(
-    `reset_password_pending_${user.email}`,
-    JSON.stringify(userReset)
-  );
-  if (!addedToRedis) {
     return res.json({
       error: true,
-      message:
-        "New password waiting for confirmation. Please check your inbox!",
+      message: `User with email '${email}' is not verified.`,
     });
   }
-  await redisCLI.expire(`reset_password_pending_${user.email}`, 300); // 5 min
+
+  const { accessToken } = await signToken(user);
+  const resetPassordUrl = `${origin}/reset-password/${user.username}/${accessToken}`;
+
+  // const code = createVerificationCode();
+  // const userReset = {
+  //   ...user,
+  //   confCode: code,
+  // };
+
+  // const addedToRedis = await redisCLI.set(
+  //   `reset_password_pending_${user.email}`,
+  //   JSON.stringify(userReset)
+  // );
+  // if (!addedToRedis) {
+  //   return res.json({
+  //     error: true,
+  //     message:
+  //       "New password waiting for confirmation. Please check your inbox!",
+  //   });
+  // }
+  // await redisCLI.expire(`reset_password_pending_${user.email}`, 300); // 5 min
 
   let templatePath = "ForgotPassword";
+  const name = JSON.parse(user.extra).name;
   const templateData = {
     title: "Reset Password",
-    // urlTitle: "Reset Password",
-    code,
-    name: user.email,
+    // code,
+    url: resetPassordUrl,
+    name,
   };
 
   const mailSent = await sendEmail(templatePath, templateData);
