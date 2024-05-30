@@ -81,7 +81,7 @@ export const registerHandler = async (
   // const addedToRedis = await redisCLI.setnx(
   //   `verify_email_pending_${email}`,
   //   JSON.stringify(user_registration)
-  // );
+  // ); // ioredis
   const addedToRedis = await redisCLI.set(
     `verify_email_pending_${email}`,
     JSON.stringify(userRegistration)
@@ -365,18 +365,14 @@ export const forgotPasswordHandler = async (
   }
 
   const code = createVerificationCode();
-  const user_reset = {
+  const userReset = {
     ...user,
-    conf_code: code,
+    confCode: code,
   };
 
-  // const addedToRedis = await redisCLI.setnx(
-  //   `reset_password_pending_${user.email}`,
-  //   JSON.stringify(user_reset)
-  // );
   const addedToRedis = await redisCLI.set(
     `reset_password_pending_${user.email}`,
-    JSON.stringify(user_reset)
+    JSON.stringify(userReset)
   );
   if (!addedToRedis) {
     return res.json({
@@ -423,11 +419,11 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const { id, conf_code, username } = redisObj;
+  const { id, confCode, username } = redisObj;
   const parseExtra = JSON.parse(redisObj.extra);
   const { firstName, lastName } = parseExtra;
 
-  if (code !== conf_code) {
+  if (code !== confCode) {
     return res.json({ error: true, message: "Confirmation code incorrect!" });
   }
 
