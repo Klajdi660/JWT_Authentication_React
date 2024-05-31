@@ -38,7 +38,7 @@ router.post(
 router.get("/logout", deserializeUser, requireUser, logoutHandler);
 
 router.post(
-  "/reset-password/:email/:hash",
+  "/reset-password",
   validate(resetPasswordSchema),
   resetPasswordHandler
 );

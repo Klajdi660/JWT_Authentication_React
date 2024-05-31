@@ -402,7 +402,7 @@ export const forgotPasswordHandler = async (
 };
 
 export const resetPasswordHandler = async (req: Request, res: Response) => {
-  const { hash, email } = req.params;
+  const { hash, email } = req.query;
   const { password } = req.body;
 
   let redisObj: any = await redisCLI.get(`reset_password_pending_${email}`);

@@ -18,7 +18,7 @@ export const signJwt = (
 };
 
 export const verifyJwt = <T>(
-  token: string,
+  token: string | any,
   key: "accessTokenPublicKey" | "refreshTokenPublicKey"
 ): T | null => {
   try {
