@@ -31,7 +31,7 @@ import { AppConfig, TokenConfig, UserParams } from "../types";
 import { EMAIL_PROVIDER } from "../constants";
 
 // Exclude this fields from the response
-export const excludedFields = ["password"];
+// export const excludedFields = ["password"];
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
 const { origin } = config.get<AppConfig>("app");
@@ -159,10 +159,6 @@ export const loginHandler = async (
       expiredCodeAt: dayjs().add(60, "s"),
     };
 
-    // const addedToRedis = await redisCLI.setnx(
-    //   `verify_email_pending_${user.email}`,
-    //   JSON.stringify(user_registration)
-    // );
     const addedToRedis = await redisCLI.set(
       `verify_email_pending_${user.email}`,
       JSON.stringify(user_registration)
@@ -196,7 +192,6 @@ export const loginHandler = async (
     });
   }
 
-  // Create the Access and refresh Tokens
   const { accessToken, refreshToken } = await signToken(user);
 
   // Send Access Token in Cookie
@@ -370,14 +365,9 @@ export const forgotPasswordHandler = async (
   const { accessToken } = await signToken(user);
   const resetPassordUrl = `${origin}/reset-password/${user.email}/${accessToken}`;
 
-  const userReset = {
-    ...user,
-    confHash: accessToken,
-  };
-
   const addedToRedis = await redisCLI.set(
     `reset_password_pending_${user.email}`,
-    JSON.stringify(userReset)
+    JSON.stringify(user)
   );
   if (!addedToRedis) {
     return res.json({
@@ -425,10 +415,10 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const { id, confHash, username } = redisObj;
+  const { id, username } = redisObj;
   const parseExtra = JSON.parse(redisObj.extra);
   const { name } = parseExtra;
-  console.log("redisObj :>> ", redisObj);
+
   const decoded = verifyJwt(hash, "accessTokenPublicKey");
   if (!decoded) {
     return res.json({
@@ -436,12 +426,6 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
       message: "Invalid token or user doesn't exist",
     });
   }
-  // if (hash !== confHash) {
-  //   return res.json({
-  //     error: true,
-  //     message: "Invalid token. Please attempt to reset your password again",
-  //   });
-  // }
 
   const hashPass = crypto
     .createHash("sha1")
