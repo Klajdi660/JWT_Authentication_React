@@ -368,32 +368,30 @@ export const forgotPasswordHandler = async (
   }
 
   const { accessToken } = await signToken(user);
-  const resetPassordUrl = `${origin}/reset-password/${user.username}/${accessToken}`;
+  const resetPassordUrl = `${origin}/reset-password/${user.email}/${accessToken}`;
 
-  // const code = createVerificationCode();
-  // const userReset = {
-  //   ...user,
-  //   confCode: code,
-  // };
+  const userReset = {
+    ...user,
+    confHash: accessToken,
+  };
 
-  // const addedToRedis = await redisCLI.set(
-  //   `reset_password_pending_${user.email}`,
-  //   JSON.stringify(userReset)
-  // );
-  // if (!addedToRedis) {
-  //   return res.json({
-  //     error: true,
-  //     message:
-  //       "New password waiting for confirmation. Please check your inbox!",
-  //   });
-  // }
-  // await redisCLI.expire(`reset_password_pending_${user.email}`, 300); // 5 min
+  const addedToRedis = await redisCLI.set(
+    `reset_password_pending_${user.email}`,
+    JSON.stringify(userReset)
+  );
+  if (!addedToRedis) {
+    return res.json({
+      error: true,
+      message:
+        "New password waiting for confirmation. Please check your inbox!",
+    });
+  }
+  await redisCLI.expire(`reset_password_pending_${user.email}`, 180);
 
   let templatePath = "ForgotPassword";
   const name = JSON.parse(user.extra).name;
   const templateData = {
     title: "Reset Password",
-    // code,
     url: resetPassordUrl,
     name,
   };
@@ -414,7 +412,8 @@ export const forgotPasswordHandler = async (
 };
 
 export const resetPasswordHandler = async (req: Request, res: Response) => {
-  const { password, email, code } = req.body;
+  const { hash, email } = req.params;
+  const { password } = req.body;
 
   let redisObj: any = await redisCLI.get(`reset_password_pending_${email}`);
   redisObj = JSON.parse(redisObj);
@@ -426,20 +425,30 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const { id, confCode, username } = redisObj;
+  const { id, confHash, username } = redisObj;
   const parseExtra = JSON.parse(redisObj.extra);
-  const { firstName, lastName } = parseExtra;
-
-  if (code !== confCode) {
-    return res.json({ error: true, message: "Confirmation code incorrect!" });
+  const { name } = parseExtra;
+  console.log("redisObj :>> ", redisObj);
+  const decoded = verifyJwt(hash, "accessTokenPublicKey");
+  if (!decoded) {
+    return res.json({
+      error: true,
+      message: "Invalid token or user doesn't exist",
+    });
   }
+  // if (hash !== confHash) {
+  //   return res.json({
+  //     error: true,
+  //     message: "Invalid token. Please attempt to reset your password again",
+  //   });
+  // }
 
-  const hash = crypto
+  const hashPass = crypto
     .createHash("sha1")
     .update(password + username)
     .digest("hex");
 
-  const newPassword = await getAndUpdateUser(+id, { password: hash });
+  const newPassword = await getAndUpdateUser(+id, { password: hashPass });
   if (!newPassword) {
     return res.json({
       error: true,
@@ -452,8 +461,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
   let templatePath = "UpdatePassword";
   const templateData = {
     title: "Password Update Confirmation",
-    // urlTitle: "Login",
-    name: `${firstName} ${lastName}`,
+    name,
     email,
   };
 

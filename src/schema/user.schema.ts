@@ -68,6 +68,14 @@ export const forgotPasswordSchema = object({
 });
 
 export const resetPasswordSchema = object({
+  // params: object({
+  //   email: string({
+  //     required_error: "Email is required",
+  //   }).regex(emailRegex, "Not a valid email"),
+  //   hash: string({
+  //     required_error: "Hash is required",
+  //   }),
+  // }),
   body: object({
     password: string({
       required_error: "Password is required",
@@ -82,7 +90,6 @@ export const resetPasswordSchema = object({
     confirmPassword: string({
       required_error: "Password confirmation is required",
     }),
-    email: string({}),
   }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["passwordConfirmation"],

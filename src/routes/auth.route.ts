@@ -17,6 +17,7 @@ import {
   loginUserSchema,
   verifyEmailSchema,
   forgotPasswordSchema,
+  resetPasswordSchema,
 } from "../schema";
 import { AppConfig } from "../types";
 
@@ -36,7 +37,11 @@ router.post(
 // router.get("/refresh", refreshAccessTokenHandler);
 router.get("/logout", deserializeUser, requireUser, logoutHandler);
 
-router.patch("/reset-password", resetPasswordHandler);
+router.post(
+  "/reset-password/:email/:hash",
+  validate(resetPasswordSchema),
+  resetPasswordHandler
+);
 
 router.get(
   "/google",
