@@ -101,3 +101,4 @@ export type LoginUserInput = TypeOf<typeof loginUserSchema>["body"];
 export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["body"];
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
+// export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;
