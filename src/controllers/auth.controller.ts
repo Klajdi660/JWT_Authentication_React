@@ -124,7 +124,7 @@ export const loginHandler = async (
   next: NextFunction
 ) => {
   const { identifier, password, remember } = req.body;
-
+  console.log("remember :>> ", remember);
   const user = await getUserByEmailOrUsername(identifier, identifier);
   if (!user) {
     return res.json({
@@ -192,7 +192,11 @@ export const loginHandler = async (
     });
   }
 
-  const { accessToken, refreshToken } = await signToken(user);
+  const refreshTokenExpiration = remember ? "30d" : "1d";
+  const { accessToken, refreshToken } = await signToken(
+    user,
+    refreshTokenExpiration
+  );
 
   // Send Access Token in Cookie
   // res.cookie("access_token", access_token, accessTokenCookieOptions);

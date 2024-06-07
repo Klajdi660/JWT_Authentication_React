@@ -121,14 +121,21 @@ export const createVerificationCode = () => {
   return otp;
 };
 
-export const signToken = async (user: DocumentType<User | any>) => {
+export const signToken = async (
+  user: DocumentType<User | any>,
+  refreshTokenExpiration?: string
+) => {
   const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
     expiresIn: `${accessTokenExpiresIn}m`,
   });
 
   const refreshToken = signJwt({ id: user.id }, "refreshTokenPrivateKey", {
-    expiresIn: `${refreshTokenExpiresIn}m`,
+    // expiresIn: `${refreshTokenExpiresIn}m`,
+    expiresIn: refreshTokenExpiration,
   });
+
+  // You may want to save the refreshToken in the database or a persistent store
+  await saveRefreshToken(user.id, refreshToken);
 
   // Create a Session
   await redisCLI.set(`session_${user.id}`, JSON.stringify(user), {
@@ -137,4 +144,12 @@ export const signToken = async (user: DocumentType<User | any>) => {
   await redisCLI.expire(`session_${user.id}`, 3600);
 
   return { accessToken, refreshToken };
+};
+
+const saveRefreshToken = async (userId: string, token: string) => {
+  await redisCLI.set(`refreshToken_${userId}`, token);
+  await redisCLI.expire(
+    `refreshToken_${userId}`,
+    dayjs().add(30, "days").unix()
+  );
 };
