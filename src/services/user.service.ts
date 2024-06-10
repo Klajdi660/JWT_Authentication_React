@@ -123,15 +123,17 @@ export const createVerificationCode = () => {
 
 export const signToken = async (
   user: DocumentType<User | any>,
-  refreshTokenExpiration?: string
+  remember?: boolean
 ) => {
+  // const refreshTokenExpiration = remember ? "30d" : "1d";
+  const refreshTokenExpiration = remember ? 2 : 10;
+
   const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
     expiresIn: `${accessTokenExpiresIn}m`,
   });
 
   const refreshToken = signJwt({ id: user.id }, "refreshTokenPrivateKey", {
-    // expiresIn: `${refreshTokenExpiresIn}m`,
-    expiresIn: refreshTokenExpiration,
+    expiresIn: `${refreshTokenExpiration}m`,
   });
 
   // You may want to save the refreshToken in the database or a persistent store

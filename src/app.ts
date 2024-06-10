@@ -90,7 +90,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// passportConfig(passport);
+passportConfig(passport);
 // app.use(passport.initialize());
 // app.use(passport.session());
 
