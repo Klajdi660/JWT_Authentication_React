@@ -60,6 +60,7 @@ const googleAuth = async () => {
       const { email_verified } = _json;
 
       if (!email_verified) {
+        return { error: true, message: "Google account not verified" };
       }
 
       const username = displayName.replace(/\s/g, "").toLowerCase();

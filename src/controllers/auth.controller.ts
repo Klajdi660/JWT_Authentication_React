@@ -466,7 +466,6 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
 export const googleOauthHandler = async (req: Request, res: Response) => {
   const user = req.user;
-  // const { user } = res.locals;
 
   const { accessToken } = await signToken(user);
 
