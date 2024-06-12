@@ -193,7 +193,7 @@ export const loginHandler = async (
   }
 
   const { accessToken, refreshToken } = await signToken(user, remember);
-
+  user.password = undefined;
   // Send Access Token in Cookie
   // res.cookie("access_token", access_token, accessTokenCookieOptions);
   // res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
@@ -201,11 +201,11 @@ export const loginHandler = async (
   //   ...accessTokenCookieOptions,
   //   httpOnly: false,
   // });
-
+  console.log("user :>> ", user);
   res.json({
     error: false,
     message: "Login successful",
-    data: { aToken: accessToken, rToken: refreshToken },
+    data: { aToken: accessToken, rToken: refreshToken, user },
   });
 };
 

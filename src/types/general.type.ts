@@ -7,6 +7,7 @@ export interface AppConfig {
 export interface TokenConfig {
   accessTokenExpiresIn: number;
   refreshTokenExpiresIn: number;
+  rememberRefreshTokenExpiresIn: number;
 }
 
 export interface OtpConfig {

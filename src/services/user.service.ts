@@ -9,8 +9,11 @@ import { OtpConfig, TokenConfig, UserParams } from "../types";
 import { redisCLI } from "../clients";
 
 const { otpLength, otpConfig } = config.get<OtpConfig>("otp");
-const { accessTokenExpiresIn, refreshTokenExpiresIn } =
-  config.get<TokenConfig>("token");
+const {
+  accessTokenExpiresIn,
+  refreshTokenExpiresIn,
+  rememberRefreshTokenExpiresIn,
+} = config.get<TokenConfig>("token");
 
 export const getUserById = async (id: number): Promise<User | any> => {
   return User.findOne({
@@ -125,15 +128,16 @@ export const signToken = async (
   user: DocumentType<User | any>,
   remember?: boolean
 ) => {
-  // const refreshTokenExpiration = remember ? "30d" : "1d";
-  const refreshTokenExpiration = remember ? 2 : 10;
+  const refreshTokenExpiration = remember
+    ? rememberRefreshTokenExpiresIn
+    : refreshTokenExpiresIn;
 
   const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
     expiresIn: `${accessTokenExpiresIn}m`,
   });
 
   const refreshToken = signJwt({ id: user.id }, "refreshTokenPrivateKey", {
-    expiresIn: `${refreshTokenExpiration}m`,
+    expiresIn: `${refreshTokenExpiration}d`,
   });
 
   // You may want to save the refreshToken in the database or a persistent store

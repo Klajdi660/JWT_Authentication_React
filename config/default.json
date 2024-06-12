@@ -6,8 +6,9 @@
   },
   "logLevel": "info",
   "token": {
-    "accessTokenExpiresIn": 3,
-    "refreshTokenExpiresIn": 59
+    "accessTokenExpiresIn": 30,
+    "refreshTokenExpiresIn": 1,
+    "rememberRefreshTokenExpiresIn": 30
   },
   "emailFrom": "contact@codevoweb.com",
   "otp": {
