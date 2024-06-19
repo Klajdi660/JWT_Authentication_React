@@ -8,7 +8,7 @@
   "token": {
     "accessTokenExpiresIn": 30,
     "refreshTokenExpiresIn": 1,
-    "rememberRefreshTokenExpiresIn": 30
+    "rememberRefreshTokenExpiresIn": 2
   },
   "emailFrom": "contact@codevoweb.com",
   "otp": {
