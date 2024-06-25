@@ -64,7 +64,7 @@ export const registerHandler = async (
 
   const hash = crypto
     .createHash("sha1")
-    .update(password + username)
+    .update(password + email)
     .digest("hex");
 
   const userRegistration: UserParams = {
@@ -142,7 +142,7 @@ export const loginHandler = async (
 
   const expectedHash = crypto
     .createHash("sha1")
-    .update(password + user.username)
+    .update(password + user.email)
     .digest("hex");
   if (user.password !== expectedHash) {
     return res.json({
@@ -416,7 +416,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const { id, username } = redisObj;
+  const { id } = redisObj;
   const parseExtra = JSON.parse(redisObj.extra);
   const { name } = parseExtra;
 
@@ -430,7 +430,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
   const hashPass = crypto
     .createHash("sha1")
-    .update(password + username)
+    .update(password + email)
     .digest("hex");
 
   const newPassword = await getAndUpdateUser(+id, { password: hashPass });
