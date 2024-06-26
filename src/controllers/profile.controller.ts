@@ -1,17 +1,86 @@
 import { Request, Response } from "express";
-import { deleteUser, getUserById, getAndUpdateUser } from "../services";
+import {
+  getUserById,
+  getAndUpdateUser,
+  scheduleAccountDeletion,
+  cancelAccountDeletion,
+} from "../services";
+import { createHash } from "../utils";
 
-export const changePasswordHandler = async (req: Request, res: Response) => {};
+export const changePasswordHandler = async (req: Request, res: Response) => {
+  const { currentPassword, newPassword } = req.body;
+  const { user } = res.locals;
 
-export const deleteAccountHandler = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id, email, extra } = user;
+  const parseExtra = JSON.parse(extra);
+  const { name } = parseExtra;
 
-  const deletedUser = await deleteUser(+id);
-  if (!deletedUser) {
-    return res.json({ error: true, message: "Unable to delete your profile!" });
+  const expectedHash = createHash(currentPassword, user.email);
+  if (user.password !== expectedHash) {
+    return res.json({
+      error: true,
+      message: "The password is incorrect. Please enter the correct password.",
+    });
   }
 
-  res.json({ error: false, message: "Your profile deleted successfully" });
+  const hash = createHash(newPassword, email);
+  const newPasswordResp = await getAndUpdateUser(+id, { password: hash });
+  if (!newPasswordResp) {
+    return res.json({
+      error: true,
+      message:
+        "Something went wrong changing the password. Please try again later.",
+    });
+  }
+
+  // let templatePath = "UpdatePassword";
+  // const templateData = {
+  //   title: "Password Update Confirmation",
+  //   name,
+  //   email,
+  // };
+
+  // const mailSent = await sendEmail(templatePath, templateData);
+  // if (!mailSent) {
+  //   return res.json({
+  //     error: true,
+  //     message: "Somenthing went wrong. Email not sent.",
+  //   });
+  // }
+
+  res.json({ error: false, message: "Password changed successfully." });
+};
+
+export const deleteAccountHandler = async (req: Request, res: Response) => {
+  const { confirmDelete } = req.body;
+  const { user } = res.locals;
+
+  if (confirmDelete !== "delete") {
+    return res.json({
+      error: true,
+      message: "Please type 'delete' to confirm account deletion.",
+    });
+  }
+
+  scheduleAccountDeletion(user.id);
+
+  res.json({
+    error: false,
+    message:
+      "Your profile will be deleted in 14 days. If you change your mind, please contact support.",
+  });
+};
+
+export const cancelDeletionHandler = async (req: Request, res: Response) => {
+  // const { id } = req.params;
+  const { user } = res.locals;
+
+  const { error, message } = cancelAccountDeletion(user.id);
+  if (error) {
+    return res.json({ error: true, message });
+  }
+
+  res.json({ error: false, message });
 };
 
 export const updateProfileHandler = async (req: Request, res: Response) => {

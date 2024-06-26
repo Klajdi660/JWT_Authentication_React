@@ -3,7 +3,7 @@ import {
   //   UploadApiResponse,
   v2 as cloudinary,
 } from "cloudinary";
-import { log } from "./logger";
+import { log } from "./helpFunctions";
 
 export const uploadImgToCloudinary = async (
   file: any,

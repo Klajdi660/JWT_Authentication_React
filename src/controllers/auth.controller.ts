@@ -26,6 +26,7 @@ import {
   sendEmail,
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
+  createHash,
 } from "../utils";
 import { AppConfig, TokenConfig, UserParams } from "../types";
 import { EMAIL_PROVIDER } from "../constants";
@@ -62,10 +63,7 @@ export const registerHandler = async (
     });
   }
 
-  const hash = crypto
-    .createHash("sha1")
-    .update(password + email)
-    .digest("hex");
+  const hash = createHash(password, email);
 
   const userRegistration: UserParams = {
     ...req.body,
@@ -140,10 +138,7 @@ export const loginHandler = async (
     });
   }
 
-  const expectedHash = crypto
-    .createHash("sha1")
-    .update(password + user.email)
-    .digest("hex");
+  const expectedHash = createHash(password, user.email);
   if (user.password !== expectedHash) {
     return res.json({
       error: true,
@@ -428,16 +423,14 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const hashPass = crypto
-    .createHash("sha1")
-    .update(password + email)
-    .digest("hex");
+  const hashPass = createHash(password, email);
 
   const newPassword = await getAndUpdateUser(+id, { password: hashPass });
   if (!newPassword) {
     return res.json({
       error: true,
-      message: "Some Error in Updating the Password",
+      message:
+        "Something went wrong changing the password. Please try again later.",
     });
   }
 

@@ -96,9 +96,43 @@ export const resetPasswordSchema = object({
   }),
 });
 
+export const changePasswordSchema = object({
+  body: object({
+    password: string({
+      required_error: "Password is required",
+    }),
+    newPassword: string({
+      required_error: "Password is required",
+    })
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .refine((value) => uppercaseRegex.test(value), {
+        message: "Password must contain at least one capital letter",
+      })
+      .refine((value) => sepecialCharacter.test(value), {
+        message: "Password must contain at least one special character",
+      }),
+    confirmNewPassword: string({
+      required_error: "Enter new password again",
+    }),
+  }).refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Passwords do not match",
+    path: ["confirmNewPassword"],
+  }),
+});
+
+export const deleteAccountSchema = object({
+  body: object({
+    confirmDelete: string({
+      required_error: "confirmDelete is required",
+    }),
+  }),
+});
+
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
 export type LoginUserInput = TypeOf<typeof loginUserSchema>["body"];
 export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["body"];
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
 // export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;
+export type ChangePasswordInput = TypeOf<typeof changePasswordSchema>["body"];
+export type DeleteAccountInput = TypeOf<typeof deleteAccountSchema>["body"];
