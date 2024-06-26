@@ -24,7 +24,7 @@ router.delete(
   validate(deleteAccountSchema),
   deleteAccountHandler
 );
-router.post("/cancle-deletion", cancelDeletionHandler);
+router.post("/cancel-deletion", cancelDeletionHandler);
 
 router.put("/update-profile", updateProfileHandler);
 router.put("/update-display-picture", updateDisplayPictureHandler);
