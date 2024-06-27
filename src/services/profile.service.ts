@@ -12,13 +12,16 @@ export const scheduleAccountDeletion = (id: number) => {
     const deletedUser = await deleteUser(id);
     if (!deletedUser) {
       log.error(`Unable to delete user with id: ${id}`);
-    } else {
-      log.info(`User with id: ${id} deleted successfully`);
     }
+
     scheduledJobs.delete(id);
   });
 
   scheduledJobs.set(id, job);
+
+  const daysDifference = dayjs(deleteDate).diff(dayjs(), "day");
+
+  return { daysDifference };
 };
 
 export const cancelAccountDeletion = (id: number) => {
@@ -36,21 +39,9 @@ export const cancelAccountDeletion = (id: number) => {
   }
 
   scheduledJobs.delete(id);
+
   return {
     error: false,
     message: "Account deletion process cancelled successfully.",
   };
-
-  //   if (cancelledJob) {
-  //     scheduledJobs.delete(id);
-  //     return {
-  //       error: false,
-  //       message: "Account deletion process cancelled successfully.",
-  //     };
-  //   } else {
-  //     return {
-  //       error: true,
-  //       message: "Unable to cancel the deletion process. Please try again later.",
-  //     };
-  //   }
 };

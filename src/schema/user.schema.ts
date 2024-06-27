@@ -98,7 +98,7 @@ export const resetPasswordSchema = object({
 
 export const changePasswordSchema = object({
   body: object({
-    password: string({
+    currentPassword: string({
       required_error: "Password is required",
     }),
     newPassword: string({

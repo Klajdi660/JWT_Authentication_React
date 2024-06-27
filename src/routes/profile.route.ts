@@ -18,8 +18,7 @@ router.post(
   validate(changePasswordSchema),
   changePasswordHandler
 );
-
-router.delete(
+router.post(
   "/delete-account",
   validate(deleteAccountSchema),
   deleteAccountHandler

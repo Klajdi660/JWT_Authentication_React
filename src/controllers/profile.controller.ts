@@ -12,8 +12,8 @@ export const changePasswordHandler = async (req: Request, res: Response) => {
   const { user } = res.locals;
 
   const { id, email, extra } = user;
-  const parseExtra = JSON.parse(extra);
-  const { name } = parseExtra;
+  // const parseExtra = JSON.parse(extra);
+  // const { name } = parseExtra;
 
   const expectedHash = createHash(currentPassword, user.email);
   if (user.password !== expectedHash) {
@@ -62,17 +62,17 @@ export const deleteAccountHandler = async (req: Request, res: Response) => {
     });
   }
 
-  scheduleAccountDeletion(user.id);
+  const { daysDifference } = scheduleAccountDeletion(user.id);
+  // scheduleAccountDeletion(user.id);
 
   res.json({
     error: false,
-    message:
-      "Your profile will be deleted in 14 days. If you change your mind, please contact support.",
+    message: "Your profile will be deleted in 14 days.",
+    data: { daysDifference },
   });
 };
 
 export const cancelDeletionHandler = async (req: Request, res: Response) => {
-  // const { id } = req.params;
   const { user } = res.locals;
 
   const { error, message } = cancelAccountDeletion(user.id);
