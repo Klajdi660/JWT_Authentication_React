@@ -5,14 +5,24 @@ import {
   updateProfileHandler,
   updateDisplayPictureHandler,
   cancelDeletionHandler,
+  changeUsernameHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
-import { deleteAccountSchema, changePasswordSchema } from "../schema";
+import {
+  deleteAccountSchema,
+  changePasswordSchema,
+  changeUsernameSchema,
+} from "../schema";
 
 const router = Router();
 
 router.use(deserializeUser, requireUser);
 
+router.post(
+  "/change-username",
+  validate(changeUsernameSchema),
+  changeUsernameHandler
+);
 router.post(
   "/change-password",
   validate(changePasswordSchema),

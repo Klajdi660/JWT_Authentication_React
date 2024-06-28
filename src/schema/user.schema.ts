@@ -96,6 +96,16 @@ export const resetPasswordSchema = object({
   }),
 });
 
+export const changeUsernameSchema = object({
+  body: object({
+    username: string({
+      required_error: "Username is required",
+    })
+      .regex(usernameRegex, "Username should only contain letters and numbers")
+      .min(6, { message: "Username must be at least 8 characters long" }),
+  }),
+});
+
 export const changePasswordSchema = object({
   body: object({
     currentPassword: string({
@@ -134,5 +144,6 @@ export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["body"];
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
 // export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;
+export type ChangeUsernameInput = TypeOf<typeof changeUsernameSchema>["body"];
 export type ChangePasswordInput = TypeOf<typeof changePasswordSchema>["body"];
 export type DeleteAccountInput = TypeOf<typeof deleteAccountSchema>["body"];

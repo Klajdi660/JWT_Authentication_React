@@ -4,8 +4,40 @@ import {
   getAndUpdateUser,
   scheduleAccountDeletion,
   cancelAccountDeletion,
+  getUserByUsername,
 } from "../services";
 import { createHash } from "../utils";
+
+export const changeUsernameHandler = async (req: Request, res: Response) => {
+  const { username } = req.body;
+  const { user } = res.locals;
+
+  const existingUser = await getUserByUsername(username);
+  if (existingUser) {
+    return res.json({
+      error: true,
+      message:
+        "User with this username exists, please choose another username.",
+    });
+  }
+
+  const updateUser = await getAndUpdateUser(user.id, { username });
+  if (!updateUser) {
+    return res.json({
+      error: true,
+      message:
+        "Something went wrong changing the username. Please try again later.",
+    });
+  }
+
+  const newUser = await getUserById(user.id);
+
+  res.json({
+    error: false,
+    message: "Username changed successfully.",
+    data: newUser,
+  });
+};
 
 export const changePasswordHandler = async (req: Request, res: Response) => {
   const { currentPassword, newPassword } = req.body;
