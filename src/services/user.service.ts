@@ -71,8 +71,13 @@ export const createUser = async (
 ): Promise<User | any> => {
   const { email, username, fullName, password } = data;
 
+  const [firstName, ...rest] = fullName.split(" ");
+  const lastName = rest.join(" ");
+
   const extraData = {
-    name: fullName,
+    // name: fullName,
+    firstName,
+    lastName,
     gender: null,
     dateOfBirth: null,
     about: null,
@@ -131,6 +136,10 @@ export const signToken = async (
   const refreshTokenExpiration = remember
     ? rememberRefreshTokenExpiresIn
     : refreshTokenExpiresIn;
+
+  // const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
+  //   expiresIn: `${accessTokenExpiresIn}m`,
+  // });
 
   const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
     expiresIn: `${accessTokenExpiresIn}m`,

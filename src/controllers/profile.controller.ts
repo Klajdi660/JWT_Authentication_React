@@ -129,7 +129,8 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
 
   Object.assign(user, userUpdates);
 
-  // const extraData = { ...JSON.parse(user.extra || '{}'), ...extra };
+  // const extraData2 = { ...JSON.parse(user.extra || "{}"), ...extra };
+
   const extraData = Object.assign({}, JSON.parse(user.extra || "{}"), extra);
 
   const updatedProfileUser = await getAndUpdateUser(user.id, {
