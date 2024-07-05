@@ -7,6 +7,7 @@ import {
   getUserByUsername,
 } from "../services";
 import { createHash } from "../utils";
+import { uploadImageToCloudinary } from "../upload";
 
 export const changeUsernameHandler = async (req: Request, res: Response) => {
   const { username } = req.body;
@@ -156,4 +157,39 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
 export const updateDisplayPictureHandler = async (
   req: Request,
   res: Response
-) => {};
+) => {
+  if (!req.files || Object.keys(req.files).length === 0) {
+    console.log("No files were uploaded.");
+    return res.status(400).send("No files were uploaded.");
+  }
+
+  const { user } = res.locals;
+  const { displayPicture } = req.files;
+  console.log("displayPicture :>> ", displayPicture);
+  const image = await uploadImageToCloudinary(
+    displayPicture,
+    // process.env.FOLDER_NAME,
+    "profilePhoto",
+    1000,
+    1000
+  );
+  console.log(image);
+  const extraData = { avatar: image.secure_url };
+  const updatedProfileUser = await getAndUpdateUser(user.id, {
+    extra: JSON.stringify(extraData),
+  });
+  if (!updatedProfileUser) {
+    return res.json({
+      error: true,
+      message: "Profile not updated. Please try again later.",
+    });
+  }
+
+  const updatedUser = await getUserById(user.id);
+
+  res.json({
+    error: false,
+    message: "Profile updated successfully!",
+    data: updatedUser,
+  });
+};

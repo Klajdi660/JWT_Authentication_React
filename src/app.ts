@@ -1,20 +1,19 @@
 require("dotenv").config();
 import express, { Express, NextFunction, Request, Response } from "express";
 // import session from "express-session";
-// import fileUpload from "express-fileupload";
+import fileUpload from "express-fileupload";
 // import SequelizeStore from "connect-session-sequelize";
 import cookieParser from "cookie-parser";
 import path from "path";
-import morgan from "morgan";
+// import morgan from "morgan";
 import config from "config";
 import cors from "cors";
 import helmet from "helmet";
 import passport from "passport";
 import routes from "./routes";
-import { sequelizeConnection } from "./clients";
+import { connectCloudinary, sequelizeConnection } from "./clients";
 import { log } from "./utils";
 import passportConfig from "../config/passport";
-import { cloudinaryConnect } from "../config/cloudinary";
 import { AppConfig } from "./types";
 
 const { port, origin, prefix } = config.get<AppConfig>("app");
@@ -51,12 +50,12 @@ app.disable("x-powered-by");
 //   })
 // );
 
-// app.use(
-//   fileUpload({
-//     useTempFiles: true,
-//     tempFileDir: "/tmp",
-//   })
-// );
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp",
+  })
+);
 
 app.use(`${prefix}/static`, express.static(path.join(__dirname, "../public")));
 
@@ -94,7 +93,7 @@ passportConfig(passport);
 // app.use(passport.initialize());
 // app.use(passport.session());
 
-// cloudinaryConnect();
+connectCloudinary();
 
 sequelizeConnection
   .authenticate()
