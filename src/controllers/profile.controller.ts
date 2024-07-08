@@ -7,12 +7,11 @@ import {
   scheduleAccountDeletion,
   cancelAccountDeletion,
   getUserByUsername,
+  uploadImageToCloudinary,
   removeImageFromCloudinary,
 } from "../services";
 import { CloudinaryConfig } from "../types";
-import { createHash } from "../utils";
-// import { uploadImageToCloudinary } from "../upload";
-import { uploadImageToCloudinary } from "../services";
+import { createHash, log } from "../utils";
 
 const { cloudFolderName } = config.get<CloudinaryConfig>("cloudinaryConfig");
 
@@ -166,7 +165,12 @@ export const updateDisplayPictureHandler = async (
   res: Response
 ) => {
   if (!req.files || Object.keys(req.files).length === 0) {
-    console.log("No files were uploaded.");
+    log.error(
+      JSON.stringify({
+        action: "Error ploading file",
+        message: "No files were uploaded.",
+      })
+    );
     return res.status(400).send("No files were uploaded.");
   }
 
