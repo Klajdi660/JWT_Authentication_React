@@ -6,6 +6,7 @@ import {
   updateDisplayPictureHandler,
   cancelDeletionHandler,
   changeUsernameHandler,
+  removeDisplayPictureHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
 import {
@@ -37,5 +38,7 @@ router.post("/cancel-deletion", cancelDeletionHandler);
 
 router.put("/update-profile", updateProfileHandler);
 router.put("/update-display-picture", updateDisplayPictureHandler);
+
+router.delete("/remove-display-picture", removeDisplayPictureHandler);
 
 export default router;

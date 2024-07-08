@@ -44,6 +44,7 @@
   "cloudinaryConfig": {
     "cloudName": "CLOUD_NAME",
     "cloudApiKey": "CLOUD_API_KEY",
-    "cloudApiSecret": "CLOUD_API_SECRET"
+    "cloudApiSecret": "CLOUD_API_SECRET",
+    "cloudFolderName": "CLOUD_FOLDER_NAME"
   }
 }

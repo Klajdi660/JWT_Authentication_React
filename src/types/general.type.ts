@@ -54,6 +54,7 @@ export interface CloudinaryConfig {
   cloudName: string;
   cloudApiKey: string;
   cloudApiSecret: string;
+  cloudFolderName: string;
 }
 
 export interface GoogleConfig {

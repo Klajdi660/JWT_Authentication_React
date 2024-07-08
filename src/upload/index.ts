@@ -1,1 +1,0 @@
-export { uploadImageToCloudinary } from "./imageUploader";
