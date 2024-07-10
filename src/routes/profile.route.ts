@@ -36,7 +36,7 @@ router.post(
 );
 router.post("/cancel-deletion", cancelDeletionHandler);
 
-router.put("/update-profile", updateProfileHandler);
+router.post("/update-profile", updateProfileHandler);
 router.put("/update-display-picture", updateDisplayPictureHandler);
 
 router.delete("/remove-display-picture", removeDisplayPictureHandler);

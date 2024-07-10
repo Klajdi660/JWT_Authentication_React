@@ -133,15 +133,15 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
   // };
 
   const { extra, ...userUpdates } = updates;
+  // console.log("extra :>> ", extra);
+  // Object.assign(user, userUpdates);
 
-  Object.assign(user, userUpdates);
+  const extraData = { ...JSON.parse(user.extra || "{}"), ...extra };
 
-  // const extraData2 = { ...JSON.parse(user.extra || "{}"), ...extra };
-
-  const extraData = Object.assign({}, JSON.parse(user.extra || "{}"), extra);
-
+  // const extraData = Object.assign({}, JSON.parse(user.extra || "{}"), extra);
+  console.log("extraData :>> ", extraData);
   const updatedProfileUser = await getAndUpdateUser(user.id, {
-    ...user,
+    // ...user,
     extra: JSON.stringify(extraData),
   });
   if (!updatedProfileUser) {
