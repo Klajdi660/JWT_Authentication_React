@@ -124,25 +124,15 @@ export const cancelDeletionHandler = async (req: Request, res: Response) => {
 };
 
 export const updateProfileHandler = async (req: Request, res: Response) => {
-  // const { id } = req.params;
   const updates = req.body;
   const { user } = res.locals;
 
-  // const user = await getUserById(+id);
-  // if (!user) {
-  //     return res.json({ error: true, message: "User not found!" });
-  // };
-
-  const { extra, ...userUpdates } = updates;
-  // console.log("extra :>> ", extra);
-  // Object.assign(user, userUpdates);
+  const { extra } = updates;
 
   const extraData = { ...JSON.parse(user.extra || "{}"), ...extra };
-
   // const extraData = Object.assign({}, JSON.parse(user.extra || "{}"), extra);
-  console.log("extraData :>> ", extraData);
+
   const updatedProfileUser = await getAndUpdateUser(user.id, {
-    // ...user,
     extra: JSON.stringify(extraData),
   });
   if (!updatedProfileUser) {
