@@ -38,6 +38,7 @@ export const changeUsernameHandler = async (req: Request, res: Response) => {
   }
 
   const newUser = await getUserById(user.id);
+  newUser.password = undefined;
 
   res.json({
     error: false,
@@ -152,6 +153,7 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
   }
 
   const updatedUser = await getUserById(user.id);
+  updatedUser.password = undefined;
 
   res.json({
     error: false,
@@ -198,6 +200,7 @@ export const updateDisplayPictureHandler = async (
   }
 
   const updatedUser = await getUserById(user.id);
+  updatedUser.password = undefined;
 
   res.json({
     error: false,
@@ -239,6 +242,7 @@ export const removeDisplayPictureHandler = async (
   }
 
   const updatedUser = await getUserById(user.id);
+  updatedUser.password = undefined;
 
   res.json({
     error: false,

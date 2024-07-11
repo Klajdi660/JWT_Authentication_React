@@ -6,13 +6,15 @@ export const getMeHandler = async (req: Request, res: Response) => {
   // const user = res.locals.user;
   const { id } = req.params;
 
-  const user = await getUserById(+id);
+  let user = await getUserById(+id);
   if (!user) {
     return res.json({
       error: true,
       message: "User does not exist in our database!",
     });
   }
+
+  user.password = undefined;
 
   res.json({ error: false, data: user });
 };
