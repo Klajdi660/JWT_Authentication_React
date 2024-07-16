@@ -1,1 +1,3 @@
-export interface GameListParams {}
+export interface GameListParams {
+  results: object | any;
+}

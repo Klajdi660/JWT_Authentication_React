@@ -36,7 +36,7 @@
   "gamesConfig": {
     "rwgUrl": "RWG_URL",
     "rwgKey": "RWG_KEY",
-    "twAuthUrl": "TW_AUT_URL",
+    "twAuthUrl": "TW_AUTH_URL",
     "twUrl": "TW_URL",
     "twClientId": "TW_CLIENT_ID",
     "twClientSecret": "TW_CLIENT_SECRET"

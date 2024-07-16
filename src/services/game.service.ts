@@ -4,39 +4,58 @@ import { HttpClient } from "../clients";
 import { log } from "../utils";
 import { GameConfig, GameListParams } from "../types";
 
-const { twAuthUrl, twClientId, twClientSecret } =
+const { twAuthUrl, twUrl, twClientId, twClientSecret } =
   config.get<GameConfig>("gamesConfig");
 
+interface TwAuthResponse {
+  access_token: string;
+  expires_in: number;
+  token_type: string;
+}
+
 export const rwgApi = {
-  gameList: async (rwgType: string, params: object) =>
+  gameList: async (rwgType: string | any, params: object) =>
     await HttpClient.get<GameListParams>(rwgType, params),
 };
 
-export const getGameList = async () => {
-  const token = await getTwAuthToken();
-  if (!token) {
-    return { error: true, message: "Authenticated Failed!" };
+export const getGameList = async (params: object) => {
+  try {
+    const gameListResp = await HttpClient.get<GameListParams>("games", params);
+    return gameListResp.results;
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "getGameList catch",
+        message: e.response.data,
+      })
+    );
   }
 };
 
 export const getTwAuthToken = async () => {
-  const headers = {
-    "Content-Type": "application/x-www-form-urlencoded",
-  };
+  try {
+    const headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+    };
 
-  const params = new URLSearchParams({
-    client_id: twClientId,
-    client_secret: twClientSecret,
-    grant_type: "client_credentials",
-  });
+    const params = {
+      client_id: twClientId,
+      client_secret: twClientSecret,
+      grant_type: "client_credentials",
+    };
 
-  return axios
-    .post(twAuthUrl, params, { headers })
-    .then((res) => res.data.access_token)
-    .catch((e) => {
-      log.error(
-        JSON.stringify({ action: "authTwToken catch", message: e.message })
-      );
-      return { error: true, message: e.message };
+    const data = await HttpClient.post<TwAuthResponse>(twAuthUrl, null, {
+      headers,
+      params,
     });
+
+    return data.access_token;
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "authTwToken catch",
+        message: e.response.data,
+      })
+    );
+  }
 };

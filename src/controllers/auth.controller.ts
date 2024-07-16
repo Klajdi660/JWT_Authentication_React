@@ -1,13 +1,10 @@
-import crypto from "crypto";
 import config from "config";
 import dayjs from "dayjs";
-import { CookieOptions, NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
-  CreateUserInput,
   LoginUserInput,
   VerifyEmailInput,
   ForgotPasswordInput,
-  ResetPasswordInput,
 } from "../schema";
 import {
   getUserByEmail,
@@ -25,28 +22,15 @@ import {
   log,
   sendEmail,
   accessTokenCookieOptions,
-  refreshTokenCookieOptions,
   createHash,
 } from "../utils";
 import { AppConfig, TokenConfig, UserParams } from "../types";
 import { EMAIL_PROVIDER } from "../constants";
 
-// Exclude this fields from the response
-// export const excludedFields = ["password"];
-
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
 const { origin } = config.get<AppConfig>("app");
 
-// Only set secure to true in production
-// if (process.env.NODE_ENV === "production")
-//   accessTokenCookieOptions.secure = true;
-
-export const registerHandler = async (
-  // req: Request<{}, {}, CreateUserInput>,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const registerHandler = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
 
   const existingUser = await getUserByEmailOrUsername(email, username);
@@ -118,8 +102,7 @@ export const registerHandler = async (
 
 export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   const { identifier, password, remember } = req.body;
 
@@ -190,14 +173,6 @@ export const loginHandler = async (
   const { accessToken, refreshToken } = await signToken(user, remember);
   user.password = undefined;
 
-  // Send Access Token in Cookie
-  // res.cookie("access_token", access_token, accessTokenCookieOptions);
-  // res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
-  // res.cookie("logged_in", true, {
-  //   ...accessTokenCookieOptions,
-  //   httpOnly: false,
-  // });
-
   res.json({
     error: false,
     message: "Login successful",
@@ -207,8 +182,7 @@ export const loginHandler = async (
 
 export const verifyEmailHandler = async (
   req: Request<VerifyEmailInput>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   const { code } = req.body;
 
@@ -314,12 +288,6 @@ export const refreshAccessTokenHandler = async (
   });
 };
 
-const logout = (res: Response) => {
-  res.cookie("access_token", "", { maxAge: 1 });
-  res.cookie("refresh_token", "", { maxAge: 1 });
-  res.cookie("logged_in", "", { maxAge: 1 });
-};
-
 export const logoutHandler = async (
   req: Request,
   res: Response,
@@ -331,8 +299,6 @@ export const logoutHandler = async (
   }
 
   await redisCLI.del(`session_${user.id}`);
-
-  logout(res);
 
   res.json({ error: false, message: "Logout success." });
 };

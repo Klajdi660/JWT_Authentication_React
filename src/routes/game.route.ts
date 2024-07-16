@@ -3,6 +3,6 @@ import { gameListHandler } from "../controllers";
 
 const router = Router();
 
-router.post("/", gameListHandler);
+router.get("/", gameListHandler);
 
 export default router;
