@@ -13,7 +13,7 @@ export const gameListHandler = async (req: Request, res: Response) => {
   if (!gameListResp) {
     return res.json({ error: true, message: "Failed to get games list" });
   }
-  console.log(" gameListResp.length :>> ", gameListResp.length);
+
   res.json({
     error: false,
     message: "Success get games list",
