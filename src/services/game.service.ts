@@ -32,6 +32,23 @@ export const getGameList = async (params: object) => {
   }
 };
 
+export const getGameDetail = async (gameId: string | any) => {
+  try {
+    const gameDetailsResp = await HttpClient.get<GameListParams>(
+      `games/${gameId}`
+    );
+
+    return gameDetailsResp;
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "getGameDetails catch",
+        message: e.response.data,
+      })
+    );
+  }
+};
+
 export const getTwAuthToken = async () => {
   try {
     const headers = {
