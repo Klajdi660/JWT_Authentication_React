@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getGameList, getGameDetail } from "../services";
+import { getGameList, getGameDetail, getGameVideos } from "../services";
 
 export const gameListHandler = async (req: Request, res: Response) => {
   const { page, pageSize } = req.query;
@@ -33,5 +33,20 @@ export const gameDetailHandler = async (req: Request, res: Response) => {
     error: false,
     message: "Success get games details",
     data: gameDetailResp,
+  });
+};
+
+export const gameVideosHandler = async (req: Request, res: Response) => {
+  const { gameId } = req.query;
+
+  const gameVideosResp = await getGameVideos(gameId);
+  if (!gameVideosResp) {
+    return res.json({ error: true, message: "Failed to get game details" });
+  }
+
+  res.json({
+    error: false,
+    message: "Success get games details",
+    data: gameVideosResp,
   });
 };
