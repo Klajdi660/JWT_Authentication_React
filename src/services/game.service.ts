@@ -34,11 +34,11 @@ export const getGameList = async (params: object) => {
 
 export const getGameDetail = async (gameId: string | any) => {
   try {
-    const gameDetailsResp = await HttpClient.get<GameListParams>(
-      `games/${gameId}`
+    const gameDetailResp = await HttpClient.get<GameListParams>(
+      `games/${gameId}/twitch`
     );
 
-    return gameDetailsResp;
+    return gameDetailResp;
   } catch (e: any) {
     log.error(
       JSON.stringify({
