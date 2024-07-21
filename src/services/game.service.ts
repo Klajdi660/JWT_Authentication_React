@@ -1,4 +1,3 @@
-import axios from "axios";
 import config from "config";
 import { HttpClient } from "../clients";
 import { log } from "../utils";
@@ -40,7 +39,6 @@ export const getGameDetail = async (gameId: string | any) => {
 
     return gameDetailResp;
   } catch (e: any) {
-    console.log("e :>> ", e);
     log.error(
       JSON.stringify({
         action: "getGameDetails catch",
@@ -60,7 +58,24 @@ export const getGameVideos = async (gameId: string | any) => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameDetails catch",
+        action: "getGameVideos catch",
+        message: e.response.data,
+      })
+    );
+  }
+};
+
+export const getGameReviews = async (gameId: string | any) => {
+  try {
+    const gameReviewsResp = await HttpClient.get<GameListParams>(
+      `games/${gameId}/reviews`
+    );
+
+    return gameReviewsResp;
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "getGameReviews catch",
         message: e.response.data,
       })
     );
