@@ -7,14 +7,13 @@ import {
 } from "../services";
 
 export const gameListHandler = async (req: Request, res: Response) => {
-  const { page, pageSize } = req.query;
+  // const params = req.query;
+  // const params = {
+  //   page,
+  //   // page_size: pageSize,
+  // };
 
-  const params = {
-    page,
-    page_size: pageSize,
-  };
-
-  const gameListResp = await getGameList(params);
+  const gameListResp = await getGameList(req.params);
   if (!gameListResp) {
     return res.json({ error: true, message: "Failed to get games list" });
   }

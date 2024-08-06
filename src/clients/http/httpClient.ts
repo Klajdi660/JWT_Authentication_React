@@ -8,7 +8,6 @@ const instance = axios.create({
   baseURL: rwgUrl,
   params: {
     key: rwgKey,
-    // key: "f4ef000bfe6749038685cc5a314359e1",
   },
   headers: {
     "Content-Type": "application/json",
