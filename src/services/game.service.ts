@@ -17,11 +17,12 @@ export const rwgApi = {
     await HttpClient.get<GameListParams>(rwgType, params),
 };
 
-export const getGameList = async (params: object) => {
+export const getGameList = async (page: string | any) => {
   try {
     const gameListResp = await HttpClient.get<GameListParams>("games", {
-      params,
+      page,
     });
+
     return gameListResp;
   } catch (e: any) {
     log.error(

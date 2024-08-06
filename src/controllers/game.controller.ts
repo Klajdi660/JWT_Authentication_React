@@ -7,13 +7,9 @@ import {
 } from "../services";
 
 export const gameListHandler = async (req: Request, res: Response) => {
-  // const params = req.query;
-  // const params = {
-  //   page,
-  //   // page_size: pageSize,
-  // };
+  const { page } = req.query;
 
-  const gameListResp = await getGameList(req.params);
+  const gameListResp = await getGameList(page);
   if (!gameListResp) {
     return res.json({ error: true, message: "Failed to get games list" });
   }
@@ -30,7 +26,8 @@ export const gameDetailHandler = async (req: Request, res: Response) => {
 
   const gameDetailResp = await getGameDetail(gameId);
   if (!gameDetailResp) {
-    return res.json({ error: true, message: "Failed to get game details" });
+    return;
+    // return res.json({ error: true, message: "Failed to get game details" });
   }
 
   res.json({
