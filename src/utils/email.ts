@@ -3,7 +3,7 @@ import config from "config";
 import pug from "pug";
 import { convert } from "html-to-text";
 import { User } from "../models/user.model";
-import { log } from "./logger";
+import { log } from "./helpFunctions";
 
 const smtp = config.get<{
   host: string;

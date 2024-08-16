@@ -1,4 +1,5 @@
 import config from "config";
+import dayjs from "dayjs";
 import { HttpClient } from "../clients";
 import { log } from "../utils";
 import { GameConfig, GameListParams } from "../types";
@@ -28,7 +29,7 @@ export const getGameList = async (page: string | any) => {
     log.error(
       JSON.stringify({
         action: "getGameList catch",
-        message: e.response.data,
+        message: e.response.data || "Failed to get dame list",
       })
     );
   }
@@ -111,4 +112,37 @@ export const getTwAuthToken = async () => {
       })
     );
   }
+};
+
+export const getGameListNoPage = async () => {
+  try {
+    const gameListResp = await HttpClient.get<GameListParams>("games");
+    if (!gameListResp) return;
+
+    return gameListResp.results;
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "getGameList catch",
+        message: e.response.data,
+      })
+    );
+  }
+};
+
+let cachedGameList: GameListParams[] = [];
+let lastFetchTime = dayjs().subtract(6, "minutes");
+
+export const refreshGameList = async () => {
+  const now = dayjs();
+  if (now.diff(lastFetchTime, "minute") >= 5) {
+    console.log("Hyrii");
+    cachedGameList = await getGameListNoPage();
+    lastFetchTime = now;
+  }
+};
+
+export const getRandomGames = () => {
+  const shuffled = cachedGameList.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 6);
 };

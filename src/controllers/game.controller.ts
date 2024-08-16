@@ -4,14 +4,21 @@ import {
   getGameDetail,
   getGameVideos,
   getGameReviews,
+  refreshGameList,
+  getRandomGames,
 } from "../services";
+import { log } from "../utils";
 
 export const gameListHandler = async (req: Request, res: Response) => {
   const { page } = req.query;
 
   const gameListResp = await getGameList(page);
+  // if (!gameListResp) {
+  //   return res.json({ error: true, message: "Failed to get games list" });
+  // }
   if (!gameListResp) {
-    return res.json({ error: true, message: "Failed to get games list" });
+    log.error(JSON.stringify({ action: "getGameList", data: gameListResp }));
+    return null;
   }
 
   res.json({
@@ -64,5 +71,17 @@ export const gameReviewsHandler = async (req: Request, res: Response) => {
     error: false,
     message: "Success get games details",
     data: gameReviewsResp.results,
+  });
+};
+
+export const gameSliderHandler = async (req: Request, res: Response) => {
+  await refreshGameList();
+
+  const randomGames = getRandomGames();
+  console.log("randomGames :>> ", randomGames);
+  res.json({
+    error: false,
+    message: "Success get games details",
+    data: randomGames,
   });
 };
