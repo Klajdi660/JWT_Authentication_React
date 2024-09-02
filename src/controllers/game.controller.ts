@@ -4,8 +4,7 @@ import {
   getGameDetail,
   getGameVideos,
   getGameReviews,
-  refreshGameList,
-  getRandomGames,
+  getGamesSliderList,
 } from "../services";
 import { log } from "../utils";
 
@@ -75,13 +74,11 @@ export const gameReviewsHandler = async (req: Request, res: Response) => {
 };
 
 export const gameSliderHandler = async (req: Request, res: Response) => {
-  await refreshGameList();
+  const games = await getGamesSliderList();
 
-  const randomGames = getRandomGames();
-  console.log("randomGames :>> ", randomGames);
   res.json({
     error: false,
     message: "Success get games details",
-    data: randomGames,
+    data: games,
   });
 };

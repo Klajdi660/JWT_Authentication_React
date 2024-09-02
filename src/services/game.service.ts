@@ -114,7 +114,11 @@ export const getTwAuthToken = async () => {
   }
 };
 
-export const getGameListNoPage = async () => {
+let cachedGameList: GameListParams[] = [];
+let lastFetchTime: number = 0;
+const CACHE_DURATION: number = 5 * 60 * 1000;
+
+export const fetchGameList = async () => {
   try {
     const gameListResp = await HttpClient.get<GameListParams>("games");
     if (!gameListResp) return;
@@ -130,19 +134,28 @@ export const getGameListNoPage = async () => {
   }
 };
 
-let cachedGameList: GameListParams[] = [];
-let lastFetchTime = dayjs().subtract(6, "minutes");
+const getRandomGames = (games: any) => {
+  const shuffledGames = games.sort(() => 0.5 - Math.random());
+  return shuffledGames.slice(0, 6);
+};
 
-export const refreshGameList = async () => {
-  const now = dayjs();
-  if (now.diff(lastFetchTime, "minute") >= 5) {
-    console.log("Hyrii");
-    cachedGameList = await getGameListNoPage();
-    lastFetchTime = now;
+const refreshGameList = async () => {
+  const gameList = await fetchGameList();
+  if (gameList.length > 0) {
+    cachedGameList = getRandomGames(gameList);
+    lastFetchTime = Date.now();
   }
 };
 
-export const getRandomGames = () => {
-  const shuffled = cachedGameList.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 6);
+export const getGamesSliderList = async () => {
+  const currentTime = Date.now();
+
+  if (
+    currentTime - lastFetchTime > CACHE_DURATION ||
+    cachedGameList.length === 0
+  ) {
+    await refreshGameList();
+  }
+
+  return cachedGameList;
 };
