@@ -141,6 +141,9 @@ const getRandomGames = (games: any) => {
 
 const refreshGameList = async () => {
   const gameList = await fetchGameList();
+
+  if (!gameList) return null;
+
   if (gameList.length > 0) {
     cachedGameList = getRandomGames(gameList);
     lastFetchTime = Date.now();
