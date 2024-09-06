@@ -29,7 +29,7 @@ export const getGameList = async (page: string | any) => {
     log.error(
       JSON.stringify({
         action: "getGameList catch",
-        message: e.response.data || "Failed to get dame list",
+        message: "Failed to get game list",
       })
     );
   }
@@ -46,7 +46,7 @@ export const getGameDetail = async (gameId: string | any) => {
     log.error(
       JSON.stringify({
         action: "getGameDetails catch",
-        message: e.response.data,
+        message: "Failed to get game detail",
       })
     );
   }
