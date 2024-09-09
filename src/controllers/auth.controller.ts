@@ -426,7 +426,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
 export const googleOauthHandler = async (req: Request, res: Response) => {
   const user = req.user;
-
+  console.log("user :>> ", user);
   const { accessToken } = await signToken(user);
 
   res.redirect(`${origin}/social-auth?token=${accessToken}`);

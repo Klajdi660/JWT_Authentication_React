@@ -66,7 +66,7 @@ const googleAuth = async () => {
       const username = displayName.replace(/\s/g, "").toLowerCase();
       const extraData = {
         name: displayName,
-        photos: photos[0].value,
+        avatar: photos[0].value,
         googleId,
       };
 
