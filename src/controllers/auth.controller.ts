@@ -28,7 +28,7 @@ import { AppConfig, TokenConfig, UserParams } from "../types";
 import { EMAIL_PROVIDER } from "../constants";
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
-const { origin } = config.get<AppConfig>("app");
+const { origin, prefix } = config.get<AppConfig>("app");
 
 export const registerHandler = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
@@ -426,214 +426,35 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
 export const googleOauthHandler = async (req: Request, res: Response) => {
   const user = req.user;
-  console.log("user :>> ", user);
+
   const { accessToken } = await signToken(user);
 
-  res.redirect(`${origin}/social-auth?token=${accessToken}`);
+  const params = new URLSearchParams({
+    accessToken,
+    user: JSON.stringify(user),
+  }).toString();
+
+  // res.redirect(`${prefix}/auth/google/success?${params}`);
+
+  // res.redirect(`${origin}/social-auth?${params}`);
+
+  res.json({
+    error: false,
+    message: "Login successful",
+    data: { user: user, aToken: accessToken },
+  });
 };
 
-// export const googleOauthHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     // Get the code from the query
-//     const code = req.query.code as string;
-//     const pathUrl = (req.query.state as string) || "/";
+export const googleOauthSuccessHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { accessToken, user } = req.query;
+  console.log("hyri :>> ");
 
-//     if (!code) {
-//       return next(new AppError("Authorization code not provided!", 401));
-//     }
-
-//     // Use the code to get the id and access tokens
-//     const { id_token, access_token } = await getGoogleOauthToken({ code });
-
-//     // Use the token to get the User
-//     const { name, verified_email, email, picture } = await getGoogleUser({
-//       id_token,
-//       access_token,
-//     });
-
-//     // Check if user is verified
-//     if (!verified_email) {
-//       return next(new AppError("Google account not verified", 403));
-//     }
-
-//     // Update user if user already exist or create new user
-//     const user = await findAndUpdateUser(
-//       { email },
-//       {
-//         name,
-//         photo: picture,
-//         email,
-//         provider: "Google",
-//         verified: true,
-//       },
-//       { upsert: true, runValidators: false, new: true, lean: true }
-//     );
-
-//     if (!user)
-//       return res.redirect(`${config.get<string>("origin")}/oauth/error`);
-
-//     // Create access and refresh token
-//     const { access_token: accessToken, refresh_token } = await signToken(user);
-
-//     // Send cookie
-//     res.cookie("access_token", accessToken, accessTokenCookieOptions);
-//     res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
-//     res.cookie("logged_in", true, {
-//       ...accessTokenCookieOptions,
-//       httpOnly: false,
-//     });
-
-//     res.redirect(`${config.get<string>("origin")}${pathUrl}`);
-//   } catch (err: any) {
-// log.error(
-//   JSON.stringify({
-//     action: "googleOauthHandler",
-//     message: "Failed to authorize Google User",
-//     data: err,
-//   })
-// );
-//     return res.redirect(`${config.get<string>("origin")}/oauth/error`);
-//   }
-// };
-
-// export const githubOauthHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     // Get the code from the query
-//     const code = req.query.code as string;
-//     const pathUrl = (req.query.state as string) ?? "/";
-
-//     if (req.query.error) {
-//       return res.redirect(`${config.get<string>("origin")}/login`);
-//     }
-
-//     if (!code) {
-//       return next(new AppError("Authorization code not provided!", 401));
-//     }
-
-//     // Get the user the access_token with the code
-//     const { access_token } = await getGithubOathToken({ code });
-
-//     // Get the user with the access_token
-//     const { email, avatar_url, login } = await getGithubUser({ access_token });
-
-//     // Create new user or update user if user already exist
-//     const user = await findAndUpdateUser(
-//       { email },
-//       {
-//         email,
-//         photo: avatar_url,
-//         name: login,
-//         provider: "GitHub",
-//         verified: true,
-//       },
-//       { runValidators: false, new: true, upsert: true }
-//     );
-
-//     if (!user) {
-//       return res.redirect(`${config.get<string>("origin")}/oauth/error`);
-//     }
-
-//     // Create access and refresh tokens
-//     const { access_token: accessToken, refresh_token } = await signToken(user);
-
-//     res.cookie("access_token", accessToken, accessTokenCookieOptions);
-//     res.cookie("refresh_token", refresh_token, refreshTokenCookieOptions);
-//     res.cookie("logged_in", true, {
-//       ...accessTokenCookieOptions,
-//       httpOnly: false,
-//     });
-
-//     res.redirect(`${config.get<string>("origin")}${pathUrl}`);
-//   } catch (err: any) {
-//     return res.redirect(`${config.get<string>("origin")}/oauth/error`);
-//   }
-// };
-
-// export const forgotPasswordHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const user = await findUser({ email: req.body.email });
-
-//     const message =
-//       "You will receive a password reset email if user with that email exist";
-
-//     if (!user) {
-//       return next(new AppError(message, 403));
-//     }
-
-//     if (!user.verified) {
-//       return new AppError("User not verified", 403);
-//     }
-
-//     // Create the reset token
-//     const resetToken = user.createResetToken();
-//     await user.save({ validateBeforeSave: false });
-
-//     const url = `${config.get<string>("origin")}/resetpassword/${resetToken}`;
-
-//     try {
-//       await new Email(user, url).sendPasswordResetToken();
-
-//       return res.status(200).json({
-//         status: "success",
-//         message,
-//       });
-//     } catch (error) {
-//       user.passwordResetToken = null;
-//       user.passwordResetAt = null;
-//       await user.save({ validateBeforeSave: false });
-//       return res.status(500).json({
-//         status: "error",
-//         message: "There was an error sending email, please try again",
-//       });
-//     }
-//   } catch (err: any) {
-//     next(err);
-//   }
-// };
-
-// export const resetPasswordHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const resetToken = crypto
-//       .createHash("sha256")
-//       .update(req.params.resetToken)
-//       .digest("hex");
-
-//     const user = await findUser({
-//       passwordResetToken: resetToken,
-//       passwordResetAt: { $gt: new Date() },
-//     });
-
-//     if (!user) {
-//       return next(new AppError("Token is invalid or has expired", 403));
-//     }
-
-//     user.password = req.body.password;
-//     user.passwordResetToken = null;
-//     user.passwordResetAt = null;
-//     await user.save();
-
-//     res.status(200).json({
-//       status: "success",
-//       message:
-//         "Password data successfully updated, please login with your new credentials",
-//     });
-//   } catch (err: any) {
-//     next(err);
-//   }
-// };
+  res.json({
+    error: false,
+    message: "Login successful",
+    data: { user: JSON.parse(user as string), aToken: accessToken },
+  });
+};

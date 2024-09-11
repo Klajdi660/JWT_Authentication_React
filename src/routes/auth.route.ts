@@ -10,6 +10,7 @@ import {
   resetPasswordHandler,
   verifyEmailHandler,
   googleOauthHandler,
+  googleOauthSuccessHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
 import {
@@ -21,7 +22,7 @@ import {
 } from "../schema";
 import { AppConfig } from "../types";
 
-const { origin } = config.get<AppConfig>("app");
+const { origin, prefix } = config.get<AppConfig>("app");
 
 const router = Router();
 
@@ -51,10 +52,17 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${origin}/login`,
+    // failureRedirect: `${origin}/login`,
+    // session: false,
+    failureRedirect: `${prefix}/auth/google/error`,
     session: false,
   }),
   googleOauthHandler
+);
+
+router.get("/google/success", googleOauthSuccessHandler);
+router.get("/google/error", (req, res) =>
+  res.json({ error: true, message: "Error logging in via Google..." })
 );
 
 export default router;
