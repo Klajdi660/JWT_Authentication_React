@@ -450,7 +450,6 @@ export const googleOauthSuccessHandler = async (
   res: Response
 ) => {
   const { accessToken, user } = req.query;
-  console.log("hyri :>> ");
 
   res.json({
     error: false,
