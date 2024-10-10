@@ -5,6 +5,7 @@ import {
   getGameVideos,
   getGameReviews,
   getGamesSliderList,
+  getGameGenreList,
 } from "../services";
 import { log } from "../utils";
 
@@ -80,5 +81,15 @@ export const gameSliderHandler = async (req: Request, res: Response) => {
     error: false,
     message: "Success get games details",
     data: games,
+  });
+};
+
+export const gameGenreListHandler = async (req: Request, res: Response) => {
+  const genreList = await getGameGenreList();
+
+  res.json({
+    error: false,
+    message: "Success get gendre list",
+    data: genreList.results,
   });
 };

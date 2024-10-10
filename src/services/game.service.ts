@@ -162,3 +162,18 @@ export const getGamesSliderList = async () => {
 
   return cachedGameList;
 };
+
+export const getGameGenreList = async () => {
+  try {
+    const gameGenreListResp = await HttpClient.get<any>("genres");
+
+    return gameGenreListResp;
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "getGameGenreList catch",
+        message: "Failed to get game genre list",
+      })
+    );
+  }
+};
