@@ -10,7 +10,6 @@ import {
   resetPasswordHandler,
   verifyEmailHandler,
   googleOauthHandler,
-  googleOauthSuccessHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
 import {
@@ -60,7 +59,6 @@ router.get(
   googleOauthHandler
 );
 
-router.get("/google/success", googleOauthSuccessHandler);
 router.get("/google/error", (req, res) =>
   res.json({ error: true, message: "Error logging in via Google..." })
 );

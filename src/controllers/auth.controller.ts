@@ -427,33 +427,17 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 export const googleOauthHandler = async (req: Request, res: Response) => {
   const user = req.user;
 
-  const { accessToken } = await signToken(user);
+  const { accessToken, refreshToken } = await signToken(user);
+
+  const token = {
+    aToken: accessToken,
+    rToken: refreshToken,
+  };
 
   const params = new URLSearchParams({
-    accessToken,
+    token: JSON.stringify(token),
     user: JSON.stringify(user),
   }).toString();
 
-  // res.redirect(`${prefix}/auth/google/success?${params}`);
-
-  // res.redirect(`${origin}/social-auth?${params}`);
-
-  res.json({
-    error: false,
-    message: "Login successful",
-    data: { user: user, aToken: accessToken },
-  });
-};
-
-export const googleOauthSuccessHandler = async (
-  req: Request,
-  res: Response
-) => {
-  const { accessToken, user } = req.query;
-
-  res.json({
-    error: false,
-    message: "Login successful",
-    data: { user: JSON.parse(user as string), aToken: accessToken },
-  });
+  res.redirect(`${origin}/social-auth?${params}`);
 };
