@@ -123,7 +123,7 @@ export const fetchGameList = async () => {
     const gameListResp = await HttpClient.get<GameListParams>("games");
     if (!gameListResp) return;
 
-    return gameListResp.results;
+    return gameListResp?.results;
   } catch (e: any) {
     log.error(
       JSON.stringify({
