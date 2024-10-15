@@ -70,7 +70,7 @@ export const gameReviewsHandler = async (req: Request, res: Response) => {
   res.json({
     error: false,
     message: "Success get games details",
-    data: gameReviewsResp.results,
+    data: gameReviewsResp?.results,
   });
 };
 
@@ -90,6 +90,6 @@ export const gameGenreListHandler = async (req: Request, res: Response) => {
   res.json({
     error: false,
     message: "Success get gendre list",
-    data: genreList.results,
+    data: genreList?.results,
   });
 };
