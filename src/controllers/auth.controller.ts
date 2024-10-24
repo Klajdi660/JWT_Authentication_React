@@ -295,7 +295,10 @@ export const logoutHandler = async (
 ) => {
   const { user } = res.locals;
   if (!user) {
-    return res.json({ error: true, message: "test" });
+    return res.json({
+      error: true,
+      message: "User is not Registered with us, please Sign Up to continue.",
+    });
   }
 
   await redisCLI.del(`session_${user.id}`);

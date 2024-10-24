@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { getUserById } from "../services";
+import { NextFunction, Request, Response } from "express";
+import { getUserById, signToken } from "../services";
 import { User } from "../models";
 
 export const getMeHandler = async (req: Request, res: Response) => {
@@ -43,5 +43,34 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
       currentPage: parsedPage,
       totalUsers,
     },
+  });
+};
+
+export const saveAuthUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { remember } = req.body;
+  const { user } = res.locals;
+
+  console.log("req.body :>> ", req.body);
+
+  if (!user) {
+    return res.json({
+      error: true,
+      message: "User is not Registered with us, please Sign Up to continue.",
+    });
+  }
+
+  const { saveAuthUserToken } = await signToken(user, remember);
+  user.password = undefined;
+
+  console.log("saveAuthUserToken :>> ", saveAuthUserToken);
+
+  res.json({
+    error: false,
+    message: "Save auth user successful",
+    data: { saveAuthUserToken },
   });
 };

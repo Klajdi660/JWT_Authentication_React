@@ -133,20 +133,24 @@ export const signToken = async (
   user: DocumentType<User | any>,
   remember?: boolean
 ) => {
-  const refreshTokenExpiration = remember
-    ? rememberRefreshTokenExpiresIn
-    : refreshTokenExpiresIn;
+  if (remember) {
+    const saveAuthUserToken = signJwt(
+      { id: user.id },
+      "refreshTokenPrivateKey",
+      {
+        expiresIn: `${rememberRefreshTokenExpiresIn}d`,
+      }
+    );
 
-  // const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
-  //   expiresIn: `${accessTokenExpiresIn}m`,
-  // });
+    return { saveAuthUserToken };
+  }
 
   const accessToken = signJwt({ id: user.id }, "accessTokenPrivateKey", {
     expiresIn: `${accessTokenExpiresIn}m`,
   });
 
   const refreshToken = signJwt({ id: user.id }, "refreshTokenPrivateKey", {
-    expiresIn: `${refreshTokenExpiration}d`,
+    expiresIn: `${refreshTokenExpiresIn}d`,
   });
 
   // You may want to save the refreshToken in the database or a persistent store

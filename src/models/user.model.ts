@@ -6,7 +6,7 @@ export class User extends Model {
   id: number;
   email: string;
   username: string;
-  password: string;
+  password: string | any;
   role: string;
   provider: string;
   extra: string;
