@@ -58,15 +58,6 @@ export const saveAuthUser = async (
 
   const extraData = JSON.parse(user.extra || "{}");
 
-  console.log("extraData :>> ", extraData);
-
-  // if (!user) {
-  //   return res.json({
-  //     error: true,
-  //     message: "User is not Registered with us, please Sign Up to continue.",
-  //   });
-  // }
-
   const { saveAuthUserToken } = await signToken(user, remember);
 
   extraData.remember = remember;
