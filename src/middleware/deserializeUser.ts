@@ -18,7 +18,7 @@ export const deserializeUser = async (
     } else if (access_token) {
       accessToken = access_token;
     }
-    console.log("accessToken :>> ", accessToken);
+
     if (!accessToken) {
       return next({ error: true, message: "You are not logged in" });
     }

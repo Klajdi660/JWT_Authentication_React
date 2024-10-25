@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getUserById, signToken } from "../services";
+import { getUserById, signToken, getAndUpdateUser } from "../services";
 import { User } from "../models";
 
 export const getMeHandler = async (req: Request, res: Response) => {
@@ -54,23 +54,41 @@ export const saveAuthUser = async (
   const { remember } = req.body;
   const { user } = res.locals;
 
-  console.log("req.body :>> ", req.body);
+  console.log("remember :>> ", remember);
 
-  if (!user) {
+  const extraData = JSON.parse(user.extra || "{}");
+
+  console.log("extraData :>> ", extraData);
+
+  // if (!user) {
+  //   return res.json({
+  //     error: true,
+  //     message: "User is not Registered with us, please Sign Up to continue.",
+  //   });
+  // }
+
+  const { saveAuthUserToken } = await signToken(user, remember);
+
+  extraData.remember = remember;
+
+  const updatedProfileUser = await getAndUpdateUser(user.id, {
+    extra: JSON.stringify(extraData),
+  });
+  if (!updatedProfileUser) {
     return res.json({
       error: true,
-      message: "User is not Registered with us, please Sign Up to continue.",
+      message: "Profile not updated. Please try again later.",
     });
   }
 
-  const { saveAuthUserToken } = await signToken(user, remember);
-  user.password = undefined;
+  const updatedUser = await getUserById(user.id);
+  updatedUser.password = undefined;
 
-  console.log("saveAuthUserToken :>> ", saveAuthUserToken);
+  console.log("updatedUser :>> ", updatedUser);
 
   res.json({
     error: false,
     message: "Save auth user successful",
-    data: { saveAuthUserToken },
+    data: { saveAuthUserToken, user: updatedUser },
   });
 };
