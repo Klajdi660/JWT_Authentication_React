@@ -56,30 +56,33 @@ export const saveAuthUser = async (
 
   console.log("remember :>> ", remember);
 
-  const extraData = JSON.parse(user.extra || "{}");
+  // const extraData = JSON.parse(user.extra || "{}");
 
   const { saveAuthUserToken } = await signToken(user, remember);
 
-  extraData.remember = remember;
+  // extraData.remember = remember;
 
-  const updatedProfileUser = await getAndUpdateUser(user.id, {
-    extra: JSON.stringify(extraData),
-  });
-  if (!updatedProfileUser) {
-    return res.json({
-      error: true,
-      message: "Profile not updated. Please try again later.",
-    });
-  }
+  // const updatedProfileUser = await getAndUpdateUser(user.id, {
+  //   extra: JSON.stringify(extraData),
+  // });
+  // if (!updatedProfileUser) {
+  //   return res.json({
+  //     error: true,
+  //     message: "Profile not updated. Please try again later.",
+  //   });
+  // }
 
-  const updatedUser = await getUserById(user.id);
-  updatedUser.password = undefined;
+  // const updatedUser = await getUserById(user.id);
+  // updatedUser.password = undefined;
 
-  console.log("updatedUser :>> ", updatedUser);
+  // console.log("updatedUser :>> ", updatedUser);
 
   res.json({
     error: false,
     message: "Save auth user successful",
-    data: { saveAuthUserToken, user: updatedUser },
+    data: {
+      saveAuthUserToken,
+      // user: updatedUser
+    },
   });
 };
