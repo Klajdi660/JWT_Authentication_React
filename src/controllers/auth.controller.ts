@@ -100,6 +100,67 @@ export const registerHandler = async (req: Request, res: Response) => {
   });
 };
 
+export const verifyEmailHandler = async (
+  req: Request<VerifyEmailInput>,
+  res: Response
+) => {
+  const { code } = req.body;
+
+  let redisObj: any = await redisCLI.get(
+    `verify_email_pending_${req.body.email}`
+  );
+  redisObj = JSON.parse(redisObj);
+  if (!redisObj) {
+    return res.json({ error: true, message: "Confirmation time expired!" });
+  }
+
+  const { email, otpCode, expiredCodeAt } = redisObj;
+  if (code !== otpCode) {
+    return res.json({ error: true, message: "Confirmation code incorrect!" });
+  }
+
+  const currentDateTime = dayjs();
+  const expiresAtDateTime = dayjs(expiredCodeAt);
+  const isExpired = currentDateTime.isAfter(expiresAtDateTime);
+
+  if (isExpired) {
+    log.error(`${JSON.stringify({ action: "expired User", data: redisObj })}`);
+    return res.json({
+      error: true,
+      message: "Your OTP code has expired. Please request a new OTP code",
+    });
+  } // nuk duhet
+
+  const existingUser = await getUserByEmail(email);
+  let user;
+  let verified = true;
+
+  if (existingUser) {
+    user = await getAndUpdateUser(existingUser.id, { verified });
+    if (!user) {
+      log.error(
+        JSON.stringify({ action: "Confirm updateUser Req", data: user })
+      );
+      return res.json({ error: true, message: "Failed to update user!" });
+    }
+  } else {
+    user = await createUser(redisObj, verified);
+    if (!user) {
+      log.error(
+        JSON.stringify({ action: "Confirm createUser Req", data: user })
+      );
+      return res.json({ error: true, message: "Failed to register user!" });
+    }
+  }
+
+  await redisCLI.del(`verify_email_pending_${email}`);
+
+  res.json({
+    error: false,
+    message: "Congratulation! Your account has been created.",
+  });
+};
+
 export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
   res: Response
@@ -180,64 +241,26 @@ export const loginHandler = async (
   });
 };
 
-export const verifyEmailHandler = async (
-  req: Request<VerifyEmailInput>,
+export const loginWithSavedUserHandler = async (
+  req: Request,
   res: Response
 ) => {
-  const { code } = req.body;
+  const { user } = res.locals;
 
-  let redisObj: any = await redisCLI.get(
-    `verify_email_pending_${req.body.email}`
-  );
-  redisObj = JSON.parse(redisObj);
-  if (!redisObj) {
-    return res.json({ error: true, message: "Confirmation time expired!" });
-  }
-
-  const { email, otpCode, expiredCodeAt } = redisObj;
-  if (code !== otpCode) {
-    return res.json({ error: true, message: "Confirmation code incorrect!" });
-  }
-
-  const currentDateTime = dayjs();
-  const expiresAtDateTime = dayjs(expiredCodeAt);
-  const isExpired = currentDateTime.isAfter(expiresAtDateTime);
-
-  if (isExpired) {
-    log.error(`${JSON.stringify({ action: "expired User", data: redisObj })}`);
+  if (!user) {
     return res.json({
       error: true,
-      message: "Your OTP code has expired. Please request a new OTP code",
+      message: "User is not Registered with us, please Sign Up to continue.",
     });
-  } // nuk duhet
-
-  const existingUser = await getUserByEmail(email);
-  let user;
-  let verified = true;
-
-  if (existingUser) {
-    user = await getAndUpdateUser(existingUser.id, { verified });
-    if (!user) {
-      log.error(
-        JSON.stringify({ action: "Confirm updateUser Req", data: user })
-      );
-      return res.json({ error: true, message: "Failed to update user!" });
-    }
-  } else {
-    user = await createUser(redisObj, verified);
-    if (!user) {
-      log.error(
-        JSON.stringify({ action: "Confirm createUser Req", data: user })
-      );
-      return res.json({ error: true, message: "Failed to register user!" });
-    }
   }
 
-  await redisCLI.del(`verify_email_pending_${email}`);
+  const { accessToken, refreshToken } = await signToken(user);
+  user.password = undefined;
 
   res.json({
     error: false,
-    message: "Congratulation! Your account has been created.",
+    message: "Login successful",
+    data: { aToken: accessToken, rToken: refreshToken, user },
   });
 };
 
