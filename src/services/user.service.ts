@@ -143,7 +143,7 @@ export const signToken = async (
       "accessTokenPrivateKey",
       {
         // expiresIn: `${rememberRefreshTokenExpiresIn}d`,
-        expiresIn: "1d",
+        expiresIn: "1m",
       }
     );
 
