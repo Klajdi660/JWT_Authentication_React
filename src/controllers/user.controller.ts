@@ -56,11 +56,22 @@ export const saveAuthUser = async (
 
   const { saveAuthUserToken } = await signToken(user, remember);
 
+  let newUser = await getUserById(+user.id);
+  if (!newUser) {
+    return res.json({
+      error: true,
+      message: "User does not exist in our database!",
+    });
+  }
+
+  newUser.password = undefined;
+
   res.json({
     error: false,
     message: "Save auth user successful",
     data: {
       saveAuthUserToken,
+      newUser,
     },
   });
 };
