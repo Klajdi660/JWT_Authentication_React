@@ -133,12 +133,17 @@ export const signToken = async (
   user: DocumentType<User | any>,
   remember?: boolean
 ) => {
+  // const refreshTokenExpiration = remember
+  //   ? rememberRefreshTokenExpiresIn
+  //   : refreshTokenExpiresIn;
+
   if (remember) {
     const saveAuthUserToken = signJwt(
       { id: user.id },
-      "refreshTokenPrivateKey",
+      "accessTokenPrivateKey",
       {
-        expiresIn: `${rememberRefreshTokenExpiresIn}d`,
+        // expiresIn: `${rememberRefreshTokenExpiresIn}d`,
+        expiresIn: "1d",
       }
     );
 

@@ -10,8 +10,14 @@ import {
   resetPasswordHandler,
   verifyEmailHandler,
   googleOauthHandler,
+  loginWithSavedUserHandler,
 } from "../controllers";
-import { deserializeUser, requireUser, validate } from "../middleware";
+import {
+  authenticateUser,
+  deserializeUser,
+  requireUser,
+  validate,
+} from "../middleware";
 import {
   createUserSchema,
   loginUserSchema,
@@ -29,20 +35,24 @@ router.post("/register", validate(createUserSchema), registerHandler);
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmailHandler);
 router.post("/login", validate(loginUserSchema), loginHandler);
 router.post(
+  "/reset-password",
+  validate(resetPasswordSchema),
+  resetPasswordHandler
+);
+router.post(
   "/forgot-password",
   validate(forgotPasswordSchema),
   forgotPasswordHandler
 );
 
 // router.get("/refresh", refreshAccessTokenHandler);
-router.get("/logout", deserializeUser, requireUser, logoutHandler);
-
-router.post(
-  "/reset-password",
-  validate(resetPasswordSchema),
-  resetPasswordHandler
+router.get(
+  "/login-saved-user",
+  authenticateUser,
+  requireUser,
+  loginWithSavedUserHandler
 );
-
+router.get("/logout", deserializeUser, requireUser, logoutHandler);
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })

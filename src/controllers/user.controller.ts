@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getUserById, signToken } from "../services";
+import { getUserById, signToken, getAndUpdateUser } from "../services";
 import { User } from "../models";
 
 export const getMeHandler = async (req: Request, res: Response) => {
@@ -54,23 +54,24 @@ export const saveAuthUser = async (
   const { remember } = req.body;
   const { user } = res.locals;
 
-  console.log("req.body :>> ", req.body);
+  const { saveAuthUserToken } = await signToken(user, remember);
 
-  if (!user) {
+  let newUser = await getUserById(+user.id);
+  if (!newUser) {
     return res.json({
       error: true,
-      message: "User is not Registered with us, please Sign Up to continue.",
+      message: "User does not exist in our database!",
     });
   }
 
-  const { saveAuthUserToken } = await signToken(user, remember);
-  user.password = undefined;
-
-  console.log("saveAuthUserToken :>> ", saveAuthUserToken);
+  newUser.password = undefined;
 
   res.json({
     error: false,
     message: "Save auth user successful",
-    data: { saveAuthUserToken },
+    data: {
+      saveAuthUserToken,
+      user: newUser,
+    },
   });
 };

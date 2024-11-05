@@ -29,3 +29,14 @@ export const createHash = (password: string, email: string | any) => {
     .update(password + email)
     .digest("hex");
 };
+
+export const isTokenExpired = (token: string) => {
+  const hasToken = atob(token.split(".")[1]);
+
+  if (hasToken) {
+    const currentTime = dayjs().unix();
+    const tokenExpirationTime = JSON.parse(token).exp;
+    return currentTime > parseInt(tokenExpirationTime);
+  }
+  return false;
+};
