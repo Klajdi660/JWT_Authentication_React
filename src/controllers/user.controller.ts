@@ -71,7 +71,7 @@ export const saveAuthUser = async (
     message: "Save auth user successful",
     data: {
       saveAuthUserToken,
-      newUser,
+      user: newUser,
     },
   });
 };
