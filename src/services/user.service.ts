@@ -1,5 +1,6 @@
 import config from "config";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
 import otpGenerator from "otp-generator";
 import { DocumentType } from "@typegoose/typegoose";
 import { Op } from "sequelize";
@@ -14,6 +15,8 @@ const {
   refreshTokenExpiresIn,
   rememberRefreshTokenExpiresIn,
 } = config.get<TokenConfig>("token");
+
+dayjs.extend(timezone);
 
 export const getUserById = async (id: number): Promise<User | any> => {
   return User.findOne({
@@ -171,7 +174,15 @@ export const signToken = async (
 };
 
 export const getUserLastLogin = async (id: number) => {
-  const currentTimestamp = dayjs().toDate();
+  // const currentTimestamp = dayjs().toDate();
+  // await getAndUpdateUser(id, { lastLogin: currentTimestamp });
+  // return;
+
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const currentTimestamp = dayjs().tz(userTimeZone).toDate();
+  console.log("userTimeZone :>> ", userTimeZone);
+  console.log("currentTimestamp :>> ", currentTimestamp);
+
   await getAndUpdateUser(id, { lastLogin: currentTimestamp });
   return;
 };

@@ -24,7 +24,7 @@
     "host": "localhost",
     "user": "root",
     "port": 3306,
-    "password": "",
+    "password": "Klajdi1996",
     "database": "groove"
   }
 }
