@@ -1,5 +1,6 @@
 import config from "config";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { NextFunction, Request, Response } from "express";
 import {
   LoginUserInput,
@@ -14,6 +15,7 @@ import {
   createVerificationCode,
   signToken,
   getUserById,
+  getUserLastLogin,
 } from "../services";
 import { redisCLI } from "../clients";
 import {
@@ -26,9 +28,12 @@ import {
 } from "../utils";
 import { AppConfig, TokenConfig, UserParams } from "../types";
 import { EMAIL_PROVIDER } from "../constants";
+import { User } from "../models";
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
 const { origin, prefix } = config.get<AppConfig>("app");
+
+dayjs.extend(utc);
 
 export const registerHandler = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
@@ -232,12 +237,16 @@ export const loginHandler = async (
   }
 
   const { accessToken, refreshToken } = await signToken(user, remember);
-  user.password = undefined;
+
+  await getUserLastLogin(user.id);
+
+  const newUser = await getUserById(user.id);
+  newUser.password = undefined;
 
   res.json({
     error: false,
     message: "Login successful",
-    data: { aToken: accessToken, rToken: refreshToken, user },
+    data: { aToken: accessToken, rToken: refreshToken, user: newUser },
   });
 };
 
@@ -255,12 +264,16 @@ export const loginWithSavedUserHandler = async (
   }
 
   const { accessToken, refreshToken } = await signToken(user);
-  user.password = undefined;
+
+  await getUserLastLogin(user.id);
+
+  const newUser = await getUserById(user.id);
+  newUser.password = undefined;
 
   res.json({
     error: false,
     message: "Login successful",
-    data: { aToken: accessToken, rToken: refreshToken, user },
+    data: { aToken: accessToken, rToken: refreshToken, user: newUser },
   });
 };
 
@@ -451,7 +464,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 };
 
 export const googleOauthHandler = async (req: Request, res: Response) => {
-  const user = req.user;
+  const user: User | any = req.user;
 
   const { accessToken, refreshToken } = await signToken(user);
 
@@ -460,9 +473,16 @@ export const googleOauthHandler = async (req: Request, res: Response) => {
     rToken: refreshToken,
   };
 
+  if (!user) return;
+
+  await getUserLastLogin(user.id);
+
+  const newUser = await getUserById(user.id);
+  newUser.password = undefined;
+
   const params = new URLSearchParams({
     token: JSON.stringify(token),
-    user: JSON.stringify(user),
+    user: JSON.stringify(newUser),
   }).toString();
 
   res.redirect(`${origin}/social-auth?${params}`);

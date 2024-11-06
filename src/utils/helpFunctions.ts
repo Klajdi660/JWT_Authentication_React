@@ -40,3 +40,5 @@ export const isTokenExpired = (token: string) => {
   }
   return false;
 };
+
+export const currentTimestamps = dayjs().toDate();

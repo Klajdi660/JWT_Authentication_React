@@ -170,6 +170,12 @@ export const signToken = async (
   return { accessToken, refreshToken };
 };
 
+export const getUserLastLogin = async (id: number) => {
+  const currentTimestamp = dayjs().toDate();
+  await getAndUpdateUser(id, { lastLogin: currentTimestamp });
+  return;
+};
+
 const saveRefreshToken = async (userId: string, token: string) => {
   await redisCLI.set(`refreshToken_${userId}`, token);
   await redisCLI.expire(

@@ -11,6 +11,7 @@ export class User extends Model {
   provider: string;
   extra: string;
   verified: boolean;
+  lastLogin: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,6 +54,10 @@ User.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    lastLogin: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
