@@ -273,7 +273,11 @@ export const loginWithSavedUserHandler = async (
   res.json({
     error: false,
     message: "Login successful",
-    data: { aToken: accessToken, rToken: refreshToken, user: newUser },
+    data: {
+      aToken: accessToken,
+      rToken: refreshToken,
+      user: newUser,
+    },
   });
 };
 

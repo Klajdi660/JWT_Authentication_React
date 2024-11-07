@@ -1,11 +1,10 @@
 import config from "config";
 import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone";
 import otpGenerator from "otp-generator";
 import { DocumentType } from "@typegoose/typegoose";
 import { Op } from "sequelize";
 import { User } from "../models";
-import { log, signJwt } from "../utils";
+import { log, signJwt, convertTZ } from "../utils";
 import { OtpConfig, TokenConfig, UserParams } from "../types";
 import { redisCLI } from "../clients";
 
@@ -15,8 +14,6 @@ const {
   refreshTokenExpiresIn,
   rememberRefreshTokenExpiresIn,
 } = config.get<TokenConfig>("token");
-
-dayjs.extend(timezone);
 
 export const getUserById = async (id: number): Promise<User | any> => {
   return User.findOne({
@@ -174,16 +171,12 @@ export const signToken = async (
 };
 
 export const getUserLastLogin = async (id: number) => {
-  // const currentTimestamp = dayjs().toDate();
-  // await getAndUpdateUser(id, { lastLogin: currentTimestamp });
-  // return;
+  const currentTimestamp = dayjs().toDate();
 
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const currentTimestamp = dayjs().tz(userTimeZone).toDate();
-  console.log("userTimeZone :>> ", userTimeZone);
-  console.log("currentTimestamp :>> ", currentTimestamp);
+  let { date, time } = convertTZ(currentTimestamp);
+  const lastLogin = `${date} ${time}`;
 
-  await getAndUpdateUser(id, { lastLogin: currentTimestamp });
+  await getAndUpdateUser(id, { lastLogin });
   return;
 };
 

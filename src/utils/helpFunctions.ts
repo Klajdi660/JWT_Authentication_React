@@ -2,6 +2,10 @@ import logger from "pino";
 import dayjs from "dayjs";
 import config from "config";
 import crypto from "crypto";
+import moment from "moment-timezone";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const level = config.get<string>("logLevel");
 
@@ -41,4 +45,15 @@ export const isTokenExpired = (token: string) => {
   return false;
 };
 
-export const currentTimestamps = dayjs().toDate();
+// export const currentTimestamps = dayjs().toDate();
+export const convertTZ = (
+  currDate: any,
+  timezone: string = "Europe/Tirane"
+) => {
+  const dateFormat = "DD-MM-YYYY HH:mm:ss";
+  let [date, time] = moment
+    .tz(currDate, timezone)
+    .format(dateFormat)
+    .split(" ");
+  return { date, time };
+};

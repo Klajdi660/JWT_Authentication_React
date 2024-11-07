@@ -56,7 +56,7 @@ User.init(
       defaultValue: false,
     },
     lastLogin: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     createdAt: {

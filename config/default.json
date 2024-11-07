@@ -6,7 +6,7 @@
   },
   "logLevel": "info",
   "token": {
-    "accessTokenExpiresIn": 1,
+    "accessTokenExpiresIn": 10,
     "refreshTokenExpiresIn": 5,
     "rememberRefreshTokenExpiresIn": 30
   },
@@ -24,7 +24,7 @@
     "host": "localhost",
     "user": "root",
     "port": 3306,
-    "password": "Klajdi1996",
+    "password": "",
     "database": "groove"
   }
 }

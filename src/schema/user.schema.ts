@@ -47,6 +47,7 @@ export const loginUserSchema = object({
       required_error: "Password is required",
     }),
     remember: boolean().optional(),
+    timezone: string(),
   }),
 });
 
