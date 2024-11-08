@@ -6,7 +6,7 @@
   },
   "logLevel": "info",
   "token": {
-    "accessTokenExpiresIn": 10,
+    "accessTokenExpiresIn": 30,
     "refreshTokenExpiresIn": 5,
     "rememberRefreshTokenExpiresIn": 30
   },
