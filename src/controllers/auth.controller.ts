@@ -31,7 +31,7 @@ import { EMAIL_PROVIDER } from "../constants";
 import { User } from "../models";
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
-const { origin, prefix } = config.get<AppConfig>("app");
+const { origin } = config.get<AppConfig>("app");
 
 dayjs.extend(utc);
 
