@@ -18,11 +18,9 @@ export const rwgApi = {
     await HttpClient.get<GameListParams>(rwgType, params),
 };
 
-export const getGameList = async (page: string | any) => {
+export const getGameList = async (params: object) => {
   try {
-    const gameListResp = await HttpClient.get<GameListParams>("games", {
-      page,
-    });
+    const gameListResp = await HttpClient.get<GameListParams>("games", params);
 
     return gameListResp;
   } catch (e: any) {
@@ -173,6 +171,19 @@ export const getGameGenreList = async () => {
       JSON.stringify({
         action: "getGameGenreList catch",
         message: "Failed to get game genre list",
+      })
+    );
+  }
+};
+
+export const getGamePlatformList = async () => {
+  try {
+    return await HttpClient.get<any>("platforms/lists/parents");
+  } catch (e) {
+    log.error(
+      JSON.stringify({
+        action: "getGamePlatformList catch",
+        message: "Failed to get game platform list",
       })
     );
   }

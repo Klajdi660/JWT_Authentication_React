@@ -6,13 +6,12 @@ import {
   getGameReviews,
   getGamesSliderList,
   getGameGenreList,
+  getGamePlatformList,
 } from "../services";
 import { log } from "../utils";
 
 export const gameListHandler = async (req: Request, res: Response) => {
-  const { page } = req.query;
-
-  const gameListResp = await getGameList(page);
+  const gameListResp = await getGameList(req.query);
   // if (!gameListResp) {
   //   return res.json({ error: true, message: "Failed to get games list" });
   // }
@@ -91,5 +90,15 @@ export const gameGenreListHandler = async (req: Request, res: Response) => {
     error: false,
     message: "Success get gendre list",
     data: genreList?.results,
+  });
+};
+
+export const gamePlatformList = async (req: Request, res: Response) => {
+  const platformList = await getGamePlatformList();
+
+  res.json({
+    error: false,
+    message: "Success get platform list",
+    data: platformList?.results,
   });
 };
