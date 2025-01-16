@@ -12,12 +12,10 @@ import { log } from "../utils";
 
 export const gameListHandler = async (req: Request, res: Response) => {
   const gameListResp = await getGameList(req.query);
-  // if (!gameListResp) {
-  //   return res.json({ error: true, message: "Failed to get games list" });
-  // }
   if (!gameListResp) {
     log.error(JSON.stringify({ action: "getGameList", data: gameListResp }));
-    return null;
+    return res.json({ error: true, message: "Failed to get games list" });
+    // return null;
   }
 
   res.json({
@@ -32,8 +30,7 @@ export const gameDetailHandler = async (req: Request, res: Response) => {
 
   const gameDetailResp = await getGameDetail(gameId);
   if (!gameDetailResp) {
-    return;
-    // return res.json({ error: true, message: "Failed to get game details" });
+    return res.json({ error: true, message: "Failed to get game details" });
   }
 
   res.json({
@@ -48,12 +45,12 @@ export const gameVideosHandler = async (req: Request, res: Response) => {
 
   const gameVideosResp = await getGameVideos(gameId);
   if (!gameVideosResp) {
-    return res.json({ error: true, message: "Failed to get game details" });
+    return res.json({ error: true, message: "Failed to get game videos" });
   }
 
   res.json({
     error: false,
-    message: "Success get games details",
+    message: "Success get games videos",
     data: gameVideosResp,
   });
 };
@@ -63,42 +60,51 @@ export const gameReviewsHandler = async (req: Request, res: Response) => {
 
   const gameReviewsResp = await getGameReviews(gameId);
   if (!gameReviewsResp) {
-    return res.json({ error: true, message: "Failed to get game revies" });
+    return res.json({ error: true, message: "Failed to get game reviews" });
   }
 
   res.json({
     error: false,
-    message: "Success get games details",
+    message: "Success get game reviews",
     data: gameReviewsResp?.results,
   });
 };
 
 export const gameSliderHandler = async (req: Request, res: Response) => {
-  const games = await getGamesSliderList();
+  const gameSliderResp = await getGamesSliderList();
+  if (!gameSliderResp) {
+    return res.json({ error: true, message: "Failed to get game slider" });
+  }
 
   res.json({
     error: false,
-    message: "Success get games details",
-    data: games,
+    message: "Success get game slider",
+    data: gameSliderResp,
   });
 };
 
 export const gameGenreListHandler = async (req: Request, res: Response) => {
   const genreList = await getGameGenreList();
+  if (!genreList) {
+    return res.json({ error: true, message: "Failed to get game list" });
+  }
 
   res.json({
     error: false,
-    message: "Success get gendre list",
+    message: "Success get genre list",
     data: genreList?.results,
   });
 };
 
 export const gamePlatformList = async (req: Request, res: Response) => {
   const platformList = await getGamePlatformList();
+  if (!platformList) {
+    return res.json({ error: true, message: "Failed to get platforms list" });
+  }
 
   res.json({
     error: false,
-    message: "Success get platform list",
+    message: "Success get platforms list",
     data: platformList?.results,
   });
 };

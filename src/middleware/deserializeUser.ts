@@ -23,7 +23,6 @@ export const deserializeUser = async (
       return next({ error: true, message: "You are not logged in" });
     }
 
-    // Validate Access Token
     const decoded = verifyJwt<{ id: string }>(
       accessToken,
       "accessTokenPublicKey"
@@ -35,13 +34,11 @@ export const deserializeUser = async (
       });
     }
 
-    // Check if user has a valid session
     const session = await redisCLI.get(`session_${decoded.id}`);
     if (!session) {
       return next({ error: true, message: "User session has expired" });
     }
 
-    // Check if user still exist
     const user = await getUserById(JSON.parse(session).id);
     if (!user) {
       return next({
@@ -50,7 +47,6 @@ export const deserializeUser = async (
       });
     }
 
-    // This is really important (Helps us know if the user is logged in from other controllers)
     // You can do: (req.user or res.locals.user)
     res.locals.user = user;
 
@@ -86,7 +82,6 @@ export const authenticateUser = async (
       return next({ error: true, message: "You are not logged in" });
     }
 
-    // Validate Access Token
     const decoded = verifyJwt<{ id: string }>(
       accessToken,
       "accessTokenPublicKey"

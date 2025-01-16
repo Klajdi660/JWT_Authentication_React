@@ -1,28 +1,10 @@
-import config from "config";
-import dayjs from "dayjs";
-import { HttpClient } from "../clients";
 import { log } from "../utils";
-import { GameConfig, GameListParams } from "../types";
-
-const { twAuthUrl, twUrl, twClientId, twClientSecret } =
-  config.get<GameConfig>("gamesConfig");
-
-interface TwAuthResponse {
-  access_token: string;
-  expires_in: number;
-  token_type: string;
-}
-
-export const rwgApi = {
-  gameList: async (rwgType: string | any, params: object) =>
-    await HttpClient.get<GameListParams>(rwgType, params),
-};
+import { HttpClient } from "../clients";
+import { GameListParams } from "../types";
 
 export const getGameList = async (params: object) => {
   try {
-    const gameListResp = await HttpClient.get<GameListParams>("games", params);
-
-    return gameListResp;
+    return await HttpClient.get<GameListParams>("games", params);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -35,11 +17,7 @@ export const getGameList = async (params: object) => {
 
 export const getGameDetail = async (gameId: string | any) => {
   try {
-    const gameDetailResp = await HttpClient.get<GameListParams>(
-      `games/${gameId}`
-    );
-
-    return gameDetailResp;
+    return await HttpClient.get<GameListParams>(`games/${gameId}`);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -52,11 +30,7 @@ export const getGameDetail = async (gameId: string | any) => {
 
 export const getGameVideos = async (gameId: string | any) => {
   try {
-    const gameVideosResp = await HttpClient.get<GameListParams>(
-      `games/${gameId}/movies`
-    );
-
-    return gameVideosResp;
+    return await HttpClient.get<GameListParams>(`games/${gameId}/movies`);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -69,43 +43,11 @@ export const getGameVideos = async (gameId: string | any) => {
 
 export const getGameReviews = async (gameId: string | any) => {
   try {
-    const gameReviewsResp = await HttpClient.get<GameListParams>(
-      `games/${gameId}/reviews`
-    );
-
-    return gameReviewsResp;
+    return await HttpClient.get<GameListParams>(`games/${gameId}/reviews`);
   } catch (e: any) {
     log.error(
       JSON.stringify({
         action: "getGameReviews catch",
-        message: e.response.data,
-      })
-    );
-  }
-};
-
-export const getTwAuthToken = async () => {
-  try {
-    const headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-
-    const params = {
-      client_id: twClientId,
-      client_secret: twClientSecret,
-      grant_type: "client_credentials",
-    };
-
-    const data = await HttpClient.post<TwAuthResponse>(twAuthUrl, null, {
-      headers,
-      params,
-    });
-
-    return data.access_token;
-  } catch (e: any) {
-    log.error(
-      JSON.stringify({
-        action: "authTwToken catch",
         message: e.response.data,
       })
     );
@@ -163,9 +105,7 @@ export const getGamesSliderList = async () => {
 
 export const getGameGenreList = async () => {
   try {
-    const gameGenreListResp = await HttpClient.get<any>("genres");
-
-    return gameGenreListResp;
+    return await HttpClient.get<any>("genres");
   } catch (e: any) {
     log.error(
       JSON.stringify({

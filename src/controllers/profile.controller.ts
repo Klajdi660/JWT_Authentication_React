@@ -103,7 +103,6 @@ export const deleteAccountHandler = async (req: Request, res: Response) => {
   }
 
   const { daysDifference } = scheduleAccountDeletion(user.id);
-  // scheduleAccountDeletion(user.id);
 
   res.json({
     error: false,
