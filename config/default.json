@@ -25,6 +25,7 @@
     "user": "root",
     "port": 3306,
     "password": "",
-    "database": "groove"
+    "database": "groove",
+    "dbDriver": "mysql"
   }
 }

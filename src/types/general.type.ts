@@ -1,3 +1,4 @@
+import { Dialect } from "sequelize";
 export interface AppConfig {
   port: number;
   prefix: string;
@@ -30,6 +31,7 @@ export interface DatabaseConfig {
   user: string;
   password: string;
   database: string;
+  dbDriver: Dialect;
 }
 
 export interface GameConfig {

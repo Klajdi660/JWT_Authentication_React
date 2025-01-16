@@ -1,7 +1,5 @@
 import config from "config";
-// import mongoose from "mongoose";
 import { Sequelize } from "sequelize";
-// import { log } from "../../utils";
 import { DatabaseConfig } from "../../types";
 
 const {
@@ -10,10 +8,8 @@ const {
   user: dbUser,
   password: dbPassword,
   database: dbName,
+  dbDriver,
 } = config.get<DatabaseConfig>("mysql");
-// } = config.get<DatabaseConfig>("database");
-
-const dbDriver = "mysql";
 
 export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
@@ -26,23 +22,3 @@ export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
     raw: true,
   },
 });
-
-// export const connectDB = async () => {
-//   try {
-//     await mongoose.connect(dbUrl);
-//     log.info(
-//       `${JSON.stringify({
-//         action: "Database Run",
-//         message: "Database connection has been established successfully.",
-//       })}`
-//     );
-//   } catch (error: any) {
-//     log.error(
-//       `${JSON.stringify({
-//         action: "connectDB Catch",
-//         messsage: `Cannot connect to the database: ${error.message}`,
-//       })}`
-//     );
-//     setTimeout(connectDB, 5000);
-//   }
-// };
