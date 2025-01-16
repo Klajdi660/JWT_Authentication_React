@@ -26,4 +26,19 @@ export class HttpClient {
     const response = await this.instance.post<T>(url, data, options);
     return response.data;
   }
+
+  static async put<T>(url: string, data: unknown, options?: object) {
+    const response = await this.instance.put<T>(url, data, options);
+    return response.data;
+  }
+
+  static async patch<T>(url: string, data: unknown) {
+    const response = await this.instance.patch<T>(url, data);
+    return response.data;
+  }
+
+  static async delete<T>(url: string, data?: any) {
+    const response = await this.instance.delete<T>(url, { data });
+    return response.data;
+  }
 }

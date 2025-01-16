@@ -1,7 +1,7 @@
 import config from "config";
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryConfig } from "../../types";
 import { log } from "../../utils";
+import { CloudinaryConfig } from "../../types";
 
 const { cloudName, cloudApiKey, cloudApiSecret } =
   config.get<CloudinaryConfig>("cloudinaryConfig");

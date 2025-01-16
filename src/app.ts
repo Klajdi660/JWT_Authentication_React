@@ -1,31 +1,21 @@
 require("dotenv").config();
 import express, { Express, NextFunction, Request, Response } from "express";
-// import session from "express-session";
-import fileUpload from "express-fileupload";
-// import SequelizeStore from "connect-session-sequelize";
-import cookieParser from "cookie-parser";
 import path from "path";
-// import morgan from "morgan";
-import config from "config";
 import cors from "cors";
+import config from "config";
 import helmet from "helmet";
 import passport from "passport";
-import routes from "./routes";
-import { connectCloudinary, sequelizeConnection } from "./clients";
+import cookieParser from "cookie-parser";
+import fileUpload from "express-fileupload";
 import { log } from "./utils";
-import passportConfig from "../config/passport";
+import routes from "./routes";
 import { AppConfig } from "./types";
+import { connectCloudinary, sequelizeConnection } from "./clients";
+import passportConfig from "../config/passport";
 
 const { port, origin, prefix } = config.get<AppConfig>("app");
 
 const app: Express = express();
-
-// Initialize SequelizeStore for session storage
-// const SequelizeSessionStore = SequelizeStore(session.Store);
-// const sessionStore = new SequelizeSessionStore({
-//   db: sequelizeConnection,
-//   expiration: 24 * 60 * 60 * 1000,
-// });
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -40,15 +30,6 @@ app.use(
 );
 app.options("*", cors());
 app.disable("x-powered-by");
-
-// app.use(
-//   session({
-//     secret: "keyboard cat",
-//     resave: false,
-//     saveUninitialized: false,
-//     store: sessionStore,
-//   })
-// );
 
 app.use(
   fileUpload({
@@ -90,9 +71,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 passportConfig(passport);
-// app.use(passport.initialize());
-// app.use(passport.session());
-
 connectCloudinary();
 
 sequelizeConnection
