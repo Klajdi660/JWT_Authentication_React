@@ -61,8 +61,6 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    // failureRedirect: `${origin}/login`,
-    // session: false,
     failureRedirect: `${prefix}/auth/google/error`,
     session: false,
   }),
