@@ -1,6 +1,9 @@
+import config from "config";
 import { DataTypes, Model } from "sequelize";
 import { sequelizeConnection } from "../clients/db/database";
-import { EMAIL_PROVIDER } from "../constants";
+import { EmailProviderConfig } from "../types";
+
+const emailProvider = config.get<EmailProviderConfig>("emailProvider");
 
 export class User extends Model {
   id: number;
@@ -44,7 +47,7 @@ User.init(
     provider: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: EMAIL_PROVIDER.Email,
+      defaultValue: emailProvider.email,
     },
     extra: {
       type: DataTypes.TEXT,

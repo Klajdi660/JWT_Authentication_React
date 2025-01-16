@@ -4,23 +4,12 @@ import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "../src/models";
-import { EMAIL_PROVIDER } from "../src/constants";
 import { log } from "../src/utils";
-import { GoogleConfig } from "../src/types";
+import { EmailProviderConfig, GoogleConfig } from "../src/types";
 
 const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
   config.get<GoogleConfig>("googleConfig");
-
-type ProfileType = {
-  [key: string]: any;
-};
-
-interface VerifyCallbackParams {
-  accessToken: string;
-  refreshToken: string;
-  profile: ProfileType;
-  done: () => void;
-}
+const emailProvider = config.get<EmailProviderConfig>("emailProvider");
 
 const secret = "Klajdi96@";
 let opts = {} as any;
@@ -74,13 +63,12 @@ const googleAuth = async () => {
         email: emails[0].value,
         username,
         password: "",
-        provider: EMAIL_PROVIDER.Google,
+        provider: emailProvider.google,
         extra: JSON.stringify(extraData),
         verified: true,
       };
 
       try {
-        // let user = await User.findOne({ where: { googleId: id } });
         let user = await User.findOne({
           where: {
             extra: {

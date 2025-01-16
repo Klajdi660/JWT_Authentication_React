@@ -64,3 +64,10 @@ export interface GoogleConfig {
   googleClientSecret: string;
   googleOauthCallbackUrl: string;
 }
+
+export interface EmailProviderConfig {
+  email: string;
+  google: string;
+  linkedin: string;
+  facebook: string;
+}

@@ -25,6 +25,22 @@ export const getUserById = async (id: number): Promise<User | any> => {
   });
 };
 
+export const getUserByProviderId = async (
+  providerId: number
+): Promise<User | any> => {
+  return User.findOne({
+    where: {
+      extra: {
+        [Op.like]: `%${providerId}%`,
+      },
+    },
+  }).catch((error) => {
+    log.error(
+      `${JSON.stringify({ action: "getUserByProviderId catch", data: error })}`
+    );
+  });
+};
+
 export const getUserByEmail = async (email: string): Promise<User | any> => {
   return User.findOne({
     where: { email },

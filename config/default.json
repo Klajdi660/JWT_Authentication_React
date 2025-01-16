@@ -11,6 +11,12 @@
     "rememberRefreshTokenExpiresIn": 30
   },
   "emailFrom": "contact@codevoweb.com",
+  "emailProvider": {
+    "email": "Email",
+    "google": "Google",
+    "linkedin": "Linkedin",
+    "facebook": "Facebook"
+  },
   "otp": {
     "otpLength": 6,
     "otpConfig": {

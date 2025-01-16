@@ -26,12 +26,17 @@ import {
   accessTokenCookieOptions,
   createHash,
 } from "../utils";
-import { AppConfig, TokenConfig, UserParams } from "../types";
-import { EMAIL_PROVIDER } from "../constants";
+import {
+  AppConfig,
+  EmailProviderConfig,
+  TokenConfig,
+  UserParams,
+} from "../types";
 import { User } from "../models";
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
 const { origin } = config.get<AppConfig>("app");
+const emailProvider = config.get<EmailProviderConfig>("emailProvider");
 
 dayjs.extend(utc);
 
@@ -180,7 +185,7 @@ export const loginHandler = async (
     });
   }
 
-  if (user && user.provider !== EMAIL_PROVIDER.Email) {
+  if (user && user.provider !== emailProvider.email) {
     return res.json({
       error: true,
       message: `That email address is already in use using ${user.provider} provider.`,
