@@ -6,7 +6,7 @@ import {
   getGameReviews,
   getGamesSliderList,
   getGameGenreList,
-  getGamePlatformList,
+  getGamePlatformsList,
 } from "../services";
 import { log } from "../utils";
 
@@ -111,15 +111,15 @@ export const gameGenreListHandler = async (req: Request, res: Response) => {
   });
 };
 
-export const gamePlatformListHandler = async (req: Request, res: Response) => {
-  const platformList = await getGamePlatformList();
-  if (!platformList) {
+export const gamePlatformsListHandler = async (req: Request, res: Response) => {
+  const platformsList = await getGamePlatformsList();
+  if (!platformsList) {
     return res.json({ error: true, message: "Failed to get platforms list" });
   }
 
   res.json({
     error: false,
     message: "Success get platforms list",
-    data: platformList.results,
+    data: platformsList.results,
   });
 };

@@ -67,6 +67,32 @@ export const getGameReviews = async (gameId: string | any) => {
   }
 };
 
+export const getGameGenreList = async () => {
+  try {
+    return await HttpClient.get<any>("genres");
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "getGameGenreList catch",
+        message: "Failed to get game genre list",
+      })
+    );
+  }
+};
+
+export const getGamePlatformsList = async () => {
+  try {
+    return await HttpClient.get<any>("platforms/lists/parents");
+  } catch (e) {
+    log.error(
+      JSON.stringify({
+        action: "getGamePlatformsList catch",
+        message: "Failed to get game platforms list",
+      })
+    );
+  }
+};
+
 let cachedGameList: GameListParams[] = [];
 let lastFetchTime: number = 0;
 const CACHE_DURATION: number = 5 * 60 * 1000;
@@ -114,30 +140,4 @@ export const getGamesSliderList = async () => {
   }
 
   return cachedGameList;
-};
-
-export const getGameGenreList = async () => {
-  try {
-    return await HttpClient.get<any>("genres");
-  } catch (e: any) {
-    log.error(
-      JSON.stringify({
-        action: "getGameGenreList catch",
-        message: "Failed to get game genre list",
-      })
-    );
-  }
-};
-
-export const getGamePlatformList = async () => {
-  try {
-    return await HttpClient.get<any>("platforms/lists/parents");
-  } catch (e) {
-    log.error(
-      JSON.stringify({
-        action: "getGamePlatformList catch",
-        message: "Failed to get game platform list",
-      })
-    );
-  }
 };

@@ -6,7 +6,7 @@ import {
   gameReviewsHandler,
   gameSliderHandler,
   gameGenreListHandler,
-  gamePlatformListHandler,
+  gamePlatformsListHandler,
   gameImagesHandler,
 } from "../controllers";
 
@@ -19,6 +19,6 @@ router.get("/game-images", gameImagesHandler);
 router.get("/game-reviews", gameReviewsHandler);
 router.get("/game-slider", gameSliderHandler);
 router.get("/game-genre-list", gameGenreListHandler);
-router.get("/game-platform-list", gamePlatformListHandler);
+router.get("/game-platform-list", gamePlatformsListHandler);
 
 export default router;
