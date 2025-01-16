@@ -1,4 +1,3 @@
-import { Op } from "sequelize";
 import config from "config";
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
@@ -6,6 +5,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "../models";
 import { log } from "../utils";
 import { EmailProviderConfig, GoogleConfig } from "../types";
+import { getUserByProviderId } from "./user.service";
 
 const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
   config.get<GoogleConfig>("googleConfig");
@@ -69,14 +69,7 @@ const googleAuth = async () => {
       };
 
       try {
-        let user = await User.findOne({
-          where: {
-            extra: {
-              [Op.like]: `%${googleId}%`,
-            },
-          },
-        });
-
+        let user = await getUserByProviderId(googleId);
         if (user) {
           done(null, user);
         } else {
