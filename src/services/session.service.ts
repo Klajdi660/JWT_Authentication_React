@@ -1,182 +1,106 @@
+import { Op } from "sequelize";
 import config from "config";
-import axios from "axios";
-import qs from "qs";
+import passport from "passport";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { User } from "../models";
 import { log } from "../utils";
+import { EmailProviderConfig, GoogleConfig } from "../types";
 
-interface GoogleOauthToken {
-  access_token: string;
-  id_token: string;
-  expires_in: number;
-  refresh_token: string;
-  token_type: string;
-  scope: string;
-}
+const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
+  config.get<GoogleConfig>("googleConfig");
+const emailProvider = config.get<EmailProviderConfig>("emailProvider");
 
-export const getGoogleOauthToken = async ({
-  code,
-}: {
-  code: string;
-}): Promise<GoogleOauthToken> => {
-  const rootURl = "https://oauth2.googleapis.com/token";
+const secret = "Klajdi96@";
+let opts = {} as any;
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = secret;
 
-  const options = {
-    code,
-    client_id: config.get<string>("googleClientId"),
-    client_secret: config.get<string>("googleClientSecret"),
-    redirect_uri: config.get<string>("googleOauthRedirect"),
-    grant_type: "authorization_code",
-  };
-  try {
-    const { data } = await axios.post<GoogleOauthToken>(
-      rootURl,
-      qs.stringify(options),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+passport.use(
+  new JwtStrategy(opts, async (payload, done) => {
+    try {
+      const user = await User.findByPk(payload.id);
+      if (user) {
+        return done(null, user);
       }
-    );
 
-    return data;
-  } catch (err: any) {
+      return done(null, false);
+    } catch (err) {
+      return done(err, false);
+    }
+  })
+);
+
+const googleAuth = async () => {
+  try {
+    const strategyOptions = {
+      clientID: googleClientId,
+      clientSecret: googleClientSecret,
+      callbackURL: googleOauthCallbackUrl,
+    };
+
+    const verifyCallback = async (
+      accessToken: string,
+      refreshToken: string,
+      profile: { [key: string]: any },
+      done: any
+    ) => {
+      const { displayName, photos, emails, id: googleId, _json } = profile;
+      const { email_verified } = _json;
+
+      if (!email_verified) {
+        return { error: true, message: "Google account not verified" };
+      }
+
+      const username = displayName.replace(/\s/g, "").toLowerCase();
+      const extraData = {
+        name: displayName,
+        avatar: photos[0].value,
+        googleId,
+      };
+
+      const newUser = {
+        email: emails[0].value,
+        username,
+        password: "",
+        provider: emailProvider.google,
+        extra: JSON.stringify(extraData),
+        verified: true,
+      };
+
+      try {
+        let user = await User.findOne({
+          where: {
+            extra: {
+              [Op.like]: `%${googleId}%`,
+            },
+          },
+        });
+
+        if (user) {
+          done(null, user);
+        } else {
+          user = await User.create(newUser);
+          done(null, user);
+        }
+      } catch (err) {
+        log.error(err);
+      }
+    };
+
+    passport.use(new GoogleStrategy(strategyOptions, verifyCallback));
+  } catch (error) {
     log.error(
       JSON.stringify({
-        action: "getGoogleOauthToken catch",
-        message: "Failed to fetch Google Oauth Tokens",
-        data: err,
+        action: "googleAuthCatch",
+        message: "Missing google keys!",
+        data: error,
       })
     );
-    throw new Error(err);
   }
 };
 
-interface GoogleUserResult {
-  id: string;
-  email: string;
-  verified_email: boolean;
-  name: string;
-  given_name: string;
-  family_name: string;
-  picture: string;
-  locale: string;
-}
-
-export async function getGoogleUser({
-  id_token,
-  access_token,
-}: {
-  id_token: string;
-  access_token: string;
-}): Promise<GoogleUserResult> {
-  try {
-    const { data } = await axios.get<GoogleUserResult>(
-      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
-      {
-        headers: {
-          Authorization: `Bearer ${id_token}`,
-        },
-      }
-    );
-
-    return data;
-  } catch (err: any) {
-    log.error(
-      JSON.stringify({
-        action: "getGoogleUSer catch",
-        message: "Failed to get User",
-        data: err,
-      })
-    );
-    throw Error(err);
-  }
-}
-
-// 👇 GitHub OAuth
-type GitHubOauthToken = {
-  access_token: string;
-};
-
-interface GitHubUser {
-  login: string;
-  id: number;
-  node_id: string;
-  avatar_url: string;
-  gravatar_id: string;
-  url: string;
-  html_url: string;
-  followers_url: string;
-  following_url: string;
-  gists_url: string;
-  starred_url: string;
-  subscriptions_url: string;
-  organizations_url: string;
-  repos_url: string;
-  events_url: string;
-  received_events_url: string;
-  type: string;
-  site_admin: boolean;
-  name: string;
-  company: string;
-  blog: string;
-  location: null;
-  email: string;
-  hireable: boolean;
-  bio: string;
-  twitter_username: string;
-  public_repos: number;
-  public_gists: number;
-  followers: number;
-  following: number;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export const getGithubOathToken = async ({
-  code,
-}: {
-  code: string;
-}): Promise<GitHubOauthToken> => {
-  const rootUrl = "https://github.com/login/oauth/access_token";
-  const options = {
-    client_id: config.get<string>("githubClientId"),
-    client_secret: config.get<string>("githubClientSecret"),
-    code,
-  };
-
-  const queryString = qs.stringify(options);
-
-  try {
-    const { data } = await axios.post(`${rootUrl}?${queryString}`, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
-
-    const decoded = qs.parse(data) as GitHubOauthToken;
-
-    return decoded;
-  } catch (err: any) {
-    throw Error(err);
-  }
-};
-
-export const getGithubUser = async ({
-  access_token,
-}: {
-  access_token: string;
-}): Promise<GitHubUser> => {
-  try {
-    const { data } = await axios.get<GitHubUser>(
-      "https://api.github.com/user",
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      }
-    );
-
-    return data;
-  } catch (err: any) {
-    throw Error(err);
-  }
+export default async (app: any) => {
+  app.use(passport.initialize());
+  await googleAuth();
 };

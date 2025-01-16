@@ -15,7 +15,7 @@ export const getGameList = async (params: object) => {
   }
 };
 
-export const getGameDetail = async (gameId: string | any) => {
+export const getGameDetails = async (gameId: string | any) => {
   try {
     return await HttpClient.get<GameListParams>(`games/${gameId}`);
   } catch (e: any) {
@@ -35,6 +35,19 @@ export const getGameVideos = async (gameId: string | any) => {
     log.error(
       JSON.stringify({
         action: "getGameVideos catch",
+        message: e.response.data,
+      })
+    );
+  }
+};
+
+export const getGameImages = async (gameId: string | any) => {
+  try {
+    return await HttpClient.get<GameListParams>(`games/${gameId}/screenshots`);
+  } catch (e: any) {
+    log.error(
+      JSON.stringify({
+        action: "getGameImages catch",
         message: e.response.data,
       })
     );

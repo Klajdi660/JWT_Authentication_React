@@ -11,7 +11,7 @@ import { log } from "./utils";
 import routes from "./routes";
 import { AppConfig } from "./types";
 import { connectCloudinary, sequelizeConnection } from "./clients";
-import passportConfig from "../config/passport";
+import passportConfig from "./services/session.service";
 
 const { port, origin, prefix } = config.get<AppConfig>("app");
 
