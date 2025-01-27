@@ -167,7 +167,6 @@ export const updateDisplayPictureHandler = async (
 
   const { user } = res.locals;
   const { displayPicture } = req.files;
-  const { photoType } = req.query;
 
   const image = (await uploadImageToCloudinary(
     displayPicture,
@@ -178,11 +177,7 @@ export const updateDisplayPictureHandler = async (
 
   const extraData = JSON.parse(user.extra || "{}");
 
-  if (photoType === "cover") {
-    extraData.cover = image.secure_url;
-  } else {
-    extraData.avatar = image.secure_url;
-  }
+  extraData.avatar = image.secure_url;
 
   const updatedProfileUser = await getAndUpdateUser(user.id, {
     extra: JSON.stringify(extraData),
@@ -208,14 +203,13 @@ export const removeDisplayPictureHandler = async (
   req: Request,
   res: Response
 ) => {
-  const { photoType } = req.query;
   const { user } = res.locals;
 
   const extraData = JSON.parse(user.extra || "{}");
 
-  const avatar = photoType === "cover" ? extraData.cover : extraData.avatar;
-
-  const removedImgFromCloudinary = await removeImageFromCloudinary(avatar);
+  const removedImgFromCloudinary = await removeImageFromCloudinary(
+    extraData.avatar
+  );
 
   if (!removedImgFromCloudinary) {
     return res.json({
@@ -224,11 +218,7 @@ export const removeDisplayPictureHandler = async (
     });
   }
 
-  if (photoType === "cover") {
-    extraData.cover = null;
-  } else {
-    extraData.avatar = null;
-  }
+  extraData.avatar = null;
 
   const updatedProfileUser = await getAndUpdateUser(user.id, {
     extra: JSON.stringify(extraData),
