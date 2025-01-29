@@ -240,3 +240,38 @@ export const removeDisplayPictureHandler = async (
     data: updatedUser,
   });
 };
+
+export const addNewCreditCardHandler = async (req: Request, res: Response) => {
+  const { cardNr } = req.body;
+  const { user } = res.locals;
+
+  const existingUser = await getUserById(user.id);
+
+  let extraData;
+  try {
+    extraData = existingUser.extra
+      ? JSON.parse(existingUser.extra)
+      : { creditCards: {} };
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: true, message: "Failed to parse extra data." });
+  }
+
+  if (!extraData.creditCards) {
+    extraData.creditCards = {};
+  }
+
+  if (extraData.creditCards[cardNr]) {
+    return res.json({
+      error: true,
+      message: "This card number already exists, please add another card.",
+    });
+  }
+
+  extraData.creditCards[cardNr] = { ...req.body };
+
+  await getAndUpdateUser(user.id, { extra: JSON.stringify(extraData) });
+
+  return res.json({ success: true, message: "Card added successfully." });
+};

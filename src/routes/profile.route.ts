@@ -7,6 +7,7 @@ import {
   cancelDeletionHandler,
   changeUsernameHandler,
   removeDisplayPictureHandler,
+  addNewCreditCardHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
 import {
@@ -35,6 +36,7 @@ router.post(
   deleteAccountHandler
 );
 router.post("/cancel-deletion", cancelDeletionHandler);
+router.post("/add-credit-card", addNewCreditCardHandler);
 
 router.post("/update-profile", updateProfileHandler);
 router.put("/update-display-picture", updateDisplayPictureHandler);

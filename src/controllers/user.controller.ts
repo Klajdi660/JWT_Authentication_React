@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { getUserById, signToken, getAndUpdateUser } from "../services";
 import { User } from "../models";
 
-export const getMeHandler = async (req: Request, res: Response) => {
+export const getUserDetailsHandler = async (req: Request, res: Response) => {
   // const user = res.locals.user;
   const { id } = req.params;
 
@@ -19,7 +19,7 @@ export const getMeHandler = async (req: Request, res: Response) => {
   res.json({ error: false, data: user });
 };
 
-export const getAllUsersHandler = async (req: Request, res: Response) => {
+export const getUsersListHandler = async (req: Request, res: Response) => {
   const { page, limit } = req.query;
 
   const parsedPage = Number(page) || 1;

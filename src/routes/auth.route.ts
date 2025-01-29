@@ -27,7 +27,7 @@ import {
 } from "../schema";
 import { AppConfig } from "../types";
 
-const { origin, prefix } = config.get<AppConfig>("app");
+const { prefix } = config.get<AppConfig>("app");
 
 const router = Router();
 
