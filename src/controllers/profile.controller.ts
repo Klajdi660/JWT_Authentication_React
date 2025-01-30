@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import config from "config";
+import dayjs from "dayjs";
 import { UploadApiResponse } from "cloudinary";
 import {
   getUserById,
@@ -27,6 +28,16 @@ export const changeUsernameHandler = async (req: Request, res: Response) => {
         "User with this username exists, please choose another username.",
     });
   }
+
+  // const twoWeeksAgo = dayjs().subtract(2, "week");
+  // const lastUsernameChange = user.updatedAt ? dayjs(user.updatedAt) : dayjs(0);
+  // if (lastUsernameChange.isAfter(twoWeeksAgo)) {
+  //   return res.json({
+  //     error: true,
+  //     message:
+  //       "You cannot change your username again for 2 weeks after confirming this change.",
+  //   });
+  // }
 
   const updateUser = await getAndUpdateUser(user.id, { username });
   if (!updateUser) {
@@ -126,9 +137,9 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
   const updates = req.body;
   const { user } = res.locals;
 
-  const { extra } = updates;
+  // const { extra } = updates;
 
-  const extraData = { ...JSON.parse(user.extra || "{}"), ...extra };
+  const extraData = { ...JSON.parse(user.extra || "{}"), ...updates };
   // const extraData = Object.assign({}, JSON.parse(user.extra || "{}"), extra);
 
   const updatedProfileUser = await getAndUpdateUser(user.id, {
@@ -143,7 +154,7 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
 
   const updatedUser = await getUserById(user.id);
   updatedUser.password = undefined;
-
+  console.log("updatedUser :>> ", updatedUser);
   res.json({
     error: false,
     message: "Profile updated successfully!",
