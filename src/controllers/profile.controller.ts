@@ -29,16 +29,6 @@ export const changeUsernameHandler = async (req: Request, res: Response) => {
     });
   }
 
-  // const twoWeeksAgo = dayjs().subtract(2, "week");
-  // const lastUsernameChange = user.updatedAt ? dayjs(user.updatedAt) : dayjs(0);
-  // if (lastUsernameChange.isAfter(twoWeeksAgo)) {
-  //   return res.json({
-  //     error: true,
-  //     message:
-  //       "You cannot change your username again for 2 weeks after confirming this change.",
-  //   });
-  // }
-
   const updateUser = await getAndUpdateUser(user.id, { username });
   if (!updateUser) {
     return res.json({
