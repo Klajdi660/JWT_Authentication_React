@@ -181,7 +181,9 @@ export const loginHandler = async (
   if (!user) {
     return res.json({
       error: true,
-      message: "User is not Registered with us, please Sign Up to continue.",
+      // message: "User is not Registered with us, please Sign Up to continue.",
+      message:
+        "Sorry, your password was incorrect. Please double-check your password.",
     });
   }
 
