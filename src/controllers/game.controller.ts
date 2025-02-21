@@ -51,7 +51,7 @@ export const gameVideosHandler = async (req: Request, res: Response) => {
   res.json({
     error: false,
     message: "Success get games videos",
-    data: gameVideos,
+    data: gameVideos.results,
   });
 };
 
