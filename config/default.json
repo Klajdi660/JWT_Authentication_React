@@ -3,13 +3,5 @@
     "accessTokenExpiresIn": 30,
     "refreshTokenExpiresIn": 5,
     "rememberRefreshTokenExpiresIn": 30
-  },
-  "otp": {
-    "otpLength": 6,
-    "otpConfig": {
-      "lowerCaseAlphabets": false,
-      "upperCaseAlphabets": true,
-      "specialChars": false
-    }
   }
 }

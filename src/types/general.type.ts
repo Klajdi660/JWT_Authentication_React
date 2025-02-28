@@ -6,27 +6,24 @@ export interface AppConfigs {
   logLevel: string;
 }
 
+export interface GoogleConfigs {
+  googleClientId: string;
+  googleClientSecret: string;
+  googleOauthCallbackUrl: string;
+}
+
 export interface TokenConfig {
   accessTokenExpiresIn: number;
   refreshTokenExpiresIn: number;
   rememberRefreshTokenExpiresIn: number;
 }
 
-export interface OtpConfig {
-  otpLength: number;
-  otpConfig: {
-    lowerCaseAlphabets: boolean;
-    upperCaseAlphabets: boolean;
-    specialChars: boolean;
-  };
-}
-
-export interface RedisConfig {
+export interface RedisConfigs {
   redisHost: string;
   redisPort: number;
 }
 
-export interface DatabaseConfig {
+export interface MysqlConfigs {
   dbHost: string;
   dbUser: string;
   dbPassword: string;
@@ -34,19 +31,23 @@ export interface DatabaseConfig {
   dbDriver: Dialect;
 }
 
-export interface GameConfig {
-  rwgUrl?: string;
-  rwgKey?: string;
+export interface RWGConfigs {
+  rwgUrl: string;
+  rwgKey: string;
+}
+export interface TWConfig {
   twAuthUrl: string;
   twUrl: string;
   twClientId: string;
   twClientSecret: string;
 }
 
-export interface SmtpConfig {
+export interface SmtpConfigs {
   smtpPort: number;
   smtpEmail: string;
   smtpPassword: string;
+  smtpService: string;
+  smtpHost: string;
 }
 
 export interface CloudinaryConfig {
@@ -54,17 +55,4 @@ export interface CloudinaryConfig {
   cloudApiKey: string;
   cloudApiSecret: string;
   cloudFolderName: string;
-}
-
-export interface GoogleConfig {
-  googleClientId: string;
-  googleClientSecret: string;
-  googleOauthCallbackUrl: string;
-}
-
-export interface EmailProviderConfig {
-  email: string;
-  google: string;
-  linkedin: string;
-  facebook: string;
 }

@@ -1,9 +1,11 @@
 import config from "config";
 import { createClient } from "redis";
 import { log } from "../../utils";
-import { RedisConfig } from "../../types";
+import { RedisConfigs } from "../../types";
 
-const { redisHost, redisPort } = config.get<RedisConfig>("redisConfig");
+const { redisHost, redisPort } = config.get<RedisConfigs>(
+  "databaseConfigs.redis"
+);
 
 export const redisCLI = createClient({
   url: `redis://${redisHost}:${redisPort}`,

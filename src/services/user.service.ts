@@ -5,10 +5,9 @@ import { DocumentType } from "@typegoose/typegoose";
 import { Op } from "sequelize";
 import { User } from "../models";
 import { log, signJwt, convertTZ } from "../utils";
-import { OtpConfig, TokenConfig, UserParams } from "../types";
+import { TokenConfig, UserParams } from "../types";
 import { redisCLI } from "../clients";
 
-const { otpLength, otpConfig } = config.get<OtpConfig>("otp");
 const {
   accessTokenExpiresIn,
   refreshTokenExpiresIn,
@@ -138,8 +137,10 @@ export const deleteUser = async (id: number): Promise<User | any> => {
 };
 
 export const createVerificationCode = () => {
-  const otp = otpGenerator.generate(otpLength, {
-    ...otpConfig,
+  const otp = otpGenerator.generate(6, {
+    lowerCaseAlphabets: false,
+    upperCaseAlphabets: true,
+    specialChars: false,
   });
 
   return otp;

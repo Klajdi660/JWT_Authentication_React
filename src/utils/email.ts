@@ -4,13 +4,11 @@ import pug from "pug";
 import { convert } from "html-to-text";
 import { User } from "../models/user.model";
 import { log } from "./helpFunctions";
+import { SmtpConfigs } from "../types";
 
-const smtp = config.get<{
-  host: string;
-  port: number;
-  user: string;
-  pass: string;
-}>("smtp");
+const { smtpEmail, smtpPassword, smtpPort } = config.get<SmtpConfigs>(
+  "providersConfigs.smtp"
+);
 
 export default class Email {
   firstName: string;
@@ -19,15 +17,18 @@ export default class Email {
   constructor(public user: User, public url: string) {
     // this.firstName = user.name.split(" ")[0];
     this.to = user.email;
-    this.from = `Codevo ${config.get<string>("emailFrom")}`;
+    this.from = `Codevo ${smtpEmail}`;
   }
 
   private newTransport() {
     return nodemailer.createTransport({
-      ...smtp,
+      service: "gmail",
+      host: "smtp.gmail.com",
+      port: smtpPort,
+      secure: false,
       auth: {
-        user: smtp.user,
-        pass: smtp.pass,
+        user: smtpEmail,
+        pass: smtpPassword,
       },
     });
   }

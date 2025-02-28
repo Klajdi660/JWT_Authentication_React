@@ -3,8 +3,9 @@ import { v2 as cloudinary } from "cloudinary";
 import { log } from "../../utils";
 import { CloudinaryConfig } from "../../types";
 
-const { cloudName, cloudApiKey, cloudApiSecret } =
-  config.get<CloudinaryConfig>("cloudinaryConfig");
+const { cloudName, cloudApiKey, cloudApiSecret } = config.get<CloudinaryConfig>(
+  "providersConfigs.cloudinary"
+);
 
 const cloudinaryConnect = () => {
   cloudinary.config({

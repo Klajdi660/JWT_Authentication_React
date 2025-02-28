@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import config from "config";
-import dayjs from "dayjs";
 import { UploadApiResponse } from "cloudinary";
 import {
   getUserById,
@@ -14,7 +13,9 @@ import {
 import { CloudinaryConfig } from "../types";
 import { createHash, log } from "../utils";
 
-const { cloudFolderName } = config.get<CloudinaryConfig>("cloudinaryConfig");
+const { cloudFolderName } = config.get<CloudinaryConfig>(
+  "providersConfigs.cloudinary"
+);
 
 export const changeUsernameHandler = async (req: Request, res: Response) => {
   const { username } = req.body;

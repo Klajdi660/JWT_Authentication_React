@@ -1,9 +1,9 @@
 import config from "config";
 import { Sequelize } from "sequelize";
-import { DatabaseConfig } from "../../types";
+import { MysqlConfigs } from "../../types";
 
 const { dbHost, dbUser, dbPassword, dbName, dbDriver } =
-  config.get<DatabaseConfig>("dbConfig");
+  config.get<MysqlConfigs>("databaseConfigs.mysql");
 
 export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,

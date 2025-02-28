@@ -2,15 +2,15 @@ import config from "config";
 import path from "path";
 import hbs from "nodemailer-express-handlebars";
 import { createTransport } from "nodemailer";
-import { SmtpConfig } from "../types";
+import { SmtpConfigs } from "../types";
 
-const { smtpEmail, smtpPassword, smtpPort } =
-  config.get<SmtpConfig>("smtpConfig");
+const { smtpEmail, smtpPassword, smtpPort, smtpService, smtpHost } =
+  config.get<SmtpConfigs>("providersConfigs.smtp");
 
 export const sendEmail = async (templatePath: string, templateData: any) => {
   let transporter = createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
+    service: smtpService,
+    host: smtpHost,
     port: smtpPort,
     secure: false,
     auth: {
