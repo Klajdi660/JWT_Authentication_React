@@ -1,3 +1,3 @@
 export * from "./game.type";
-export * from "./general.type";
+export * from "./configs.type";
 export * from "./user.type";

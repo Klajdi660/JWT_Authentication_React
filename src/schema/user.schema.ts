@@ -28,14 +28,7 @@ export const createUserSchema = object({
       .refine((value) => sepecialCharacter.test(value), {
         message: "Password must contain at least one special character",
       }),
-    // passwordConfirm: string({
-    //   required_error: "Password confirmation is required",
-    // }),
   }),
-  // .refine((data) => data.password === data.passwordConfirm, {
-  //   message: "Passwords do not match",
-  //   path: ["passwordConfirmation"],
-  // }),
 });
 
 export const loginUserSchema = object({

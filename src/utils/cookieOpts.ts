@@ -1,7 +1,7 @@
 import { CookieOptions } from "express";
 import config from "config";
 import dayjs from "dayjs";
-import { TokensConfigs } from "../types/general.type";
+import { TokensConfigs } from "../types/configs.type";
 
 const { accessTokenExpiresIn, refreshTokenExpiresIn } =
   config.get<TokensConfigs>("tokensConfigs");

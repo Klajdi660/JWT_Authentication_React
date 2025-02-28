@@ -1,5 +1,4 @@
 require("dotenv").config();
-import express, { Express, NextFunction, Request, Response } from "express";
 import path from "path";
 import cors from "cors";
 import config from "config";
@@ -7,11 +6,12 @@ import helmet from "helmet";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
+import express, { Express, NextFunction, Request, Response } from "express";
 import { log } from "./utils";
 import routes from "./routes";
 import { AppConfigs } from "./types";
-import { connectCloudinary, sequelizeConnection } from "./clients";
 import passportConfig from "./services/session.service";
+import { connectCloudinary, sequelizeConnection } from "./clients";
 
 const { port, prefix, clientUrl } = config.get<AppConfigs>("appConfigs");
 
