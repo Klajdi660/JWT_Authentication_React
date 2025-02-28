@@ -1,4 +1,4 @@
 export { validate } from "./validate";
-export { restrictTo } from "./restrictTo";
+export { checkRole } from "./role.middleware";
 export { requireUser } from "./requireUser";
 export { deserializeUser, authenticateUser } from "./deserializeUser";
