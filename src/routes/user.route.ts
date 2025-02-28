@@ -13,6 +13,6 @@ router.use(deserializeUser, requireUser);
 
 router.get("/:id", getUserDetailsHandler);
 router.post("/save-auth-user", saveAuthUser);
-router.get("/all-users", checkRole(ROLES.admin), getUsersListHandler);
+router.get("/all-users", checkRole(ROLES.Admin), getUsersListHandler);
 
 export default router;

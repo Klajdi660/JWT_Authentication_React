@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { EMAIL_PROVIDER } from "../constants";
+import { EMAIL_PROVIDERS } from "../constants";
 import { sequelizeConnection } from "../clients/db/database";
 
 export class User extends Model {
@@ -44,7 +44,7 @@ User.init(
     provider: {
       allowNull: false,
       type: DataTypes.STRING,
-      defaultValue: EMAIL_PROVIDER.email,
+      defaultValue: EMAIL_PROVIDERS.Email,
     },
     extra: {
       allowNull: false,

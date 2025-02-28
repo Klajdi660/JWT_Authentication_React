@@ -5,7 +5,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { log } from "../utils";
 import { User } from "../models";
 import { GoogleConfigs } from "../types";
-import { EMAIL_PROVIDER } from "../constants";
+import { EMAIL_PROVIDERS } from "../constants";
 import { getUserByProviderId } from "./user.service";
 
 const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
@@ -63,7 +63,7 @@ const googleAuth = async () => {
         email: emails[0].value,
         username,
         password: "",
-        provider: EMAIL_PROVIDER.google,
+        provider: EMAIL_PROVIDERS.Google,
         extra: JSON.stringify(extraData),
         verified: true,
       };

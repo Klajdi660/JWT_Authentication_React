@@ -1,12 +1,14 @@
-export const ROLES: Record<string, string> = {
-  admin: "admin",
-  user: "user",
-  guest: "guest",
-  merchant: "merchant",
+import { RoleParams, EmailProvidersParams } from "../types";
+
+export const ROLES: RoleParams = {
+  Admin: "admin",
+  User: "user",
+  Guest: "guest",
+  Merchant: "merchant",
 };
 
-export const EMAIL_PROVIDER: Record<string, string> = {
-  email: "email",
-  google: "google",
-  facebook: "facebook",
+export const EMAIL_PROVIDERS: EmailProvidersParams = {
+  Email: "email",
+  Google: "google",
+  Facebook: "facebook",
 };

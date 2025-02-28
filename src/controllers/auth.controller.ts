@@ -27,7 +27,7 @@ import {
 } from "../services";
 import { User } from "../models";
 import { redisCLI } from "../clients";
-import { EMAIL_PROVIDER } from "../constants";
+import { EMAIL_PROVIDERS } from "../constants";
 import { AppConfigs, TokensConfigs, UserParams } from "../types";
 
 dayjs.extend(utc);
@@ -175,7 +175,7 @@ export const loginHandler = async (
     });
   }
 
-  if (user && user.provider !== EMAIL_PROVIDER.email) {
+  if (user && user.provider !== EMAIL_PROVIDERS.Email) {
     return res.json({
       error: true,
       message: `That email address is already in use using ${user.provider} provider.`,
