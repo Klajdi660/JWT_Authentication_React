@@ -26,12 +26,11 @@
     }
   },
   "mysql": {
-    "connectionLimit": 10,
-    "host": "localhost",
-    "user": "root",
-    "port": 3306,
-    "password": "",
-    "database": "groove",
+    "dbHost": "localhost",
+    "dbUser": "root",
+    "dbPort": 3306,
+    "dbPassword": "",
+    "dbName": "groove",
     "dbDriver": "mysql"
   }
 }

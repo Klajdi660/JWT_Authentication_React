@@ -2,14 +2,8 @@ import config from "config";
 import { Sequelize } from "sequelize";
 import { DatabaseConfig } from "../../types";
 
-const {
-  //   dbUrl,
-  host: dbHost,
-  user: dbUser,
-  password: dbPassword,
-  database: dbName,
-  dbDriver,
-} = config.get<DatabaseConfig>("mysql");
+const { dbHost, dbUser, dbPassword, dbName, dbDriver } =
+  config.get<DatabaseConfig>("dbConfig");
 
 export const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,

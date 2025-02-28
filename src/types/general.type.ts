@@ -26,11 +26,10 @@ export interface RedisConfig {
 }
 
 export interface DatabaseConfig {
-  dbUrl?: string;
-  host: string;
-  user: string;
-  password: string;
-  database: string;
+  dbHost: string;
+  dbUser: string;
+  dbPassword: string;
+  dbName: string;
   dbDriver: Dialect;
 }
 

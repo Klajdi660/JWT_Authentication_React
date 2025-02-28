@@ -27,11 +27,11 @@
     "redisPort": "REDIS_PORT"
   },
   "dbConfig": {
-    "dbUrl": "DATABASE_URL",
     "dbHost": "DATABASE_HOST",
     "dbUser": "DATABASE_USER",
     "dbPassword": "DATABASE_PASSWORD",
-    "dbName": "DATABASE_NAME"
+    "dbName": "DATABASE_NAME",
+    "dbDriver": "DATABASE_DRIVER"
   },
   "gamesConfig": {
     "rwgUrl": "RWG_URL",
