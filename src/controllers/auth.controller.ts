@@ -70,10 +70,6 @@ export const registerHandler = async (req: Request, res: Response) => {
   userRegistration["otpCode"] = code;
   userRegistration["expiredCodeAt"] = codeExpire;
 
-  // const addedToRedis = await redisCLI.setnx(
-  //   `verify_email_pending_${email}`,
-  //   JSON.stringify(user_registration)
-  // ); // ioredis
   const addedToRedis = await redisCLI.set(
     `verify_email_pending_${email}`,
     JSON.stringify(userRegistration)
@@ -83,7 +79,7 @@ export const registerHandler = async (req: Request, res: Response) => {
     return res.json({ error: true, message: "Email already registered." });
   }
 
-  await redisCLI.expire(`verify_email_pending_${email}`, 180); // 3 min
+  await redisCLI.expire(`verify_email_pending_${email}`, 180);
 
   const { fullName } = userRegistration;
   const subject = "OTP Verification Email";
@@ -245,13 +241,12 @@ export const loginHandler = async (
 
   await getUserLastLogin(user.id);
 
-  const newUser = await getUserById(user.id);
-  newUser.password = undefined;
+  user.password = undefined;
 
   res.json({
     error: false,
     message: "Login successful",
-    data: { aToken: accessToken, rToken: refreshToken, user: newUser },
+    data: { aToken: accessToken, rToken: refreshToken, user },
   });
 };
 
@@ -260,7 +255,6 @@ export const loginWithSavedUserHandler = async (
   res: Response
 ) => {
   const { user } = res.locals;
-
   if (!user) {
     return res.json({
       error: true,
@@ -272,8 +266,7 @@ export const loginWithSavedUserHandler = async (
 
   await getUserLastLogin(user.id);
 
-  const newUser = await getUserById(user.id);
-  newUser.password = undefined;
+  user.password = undefined;
 
   res.json({
     error: false,
@@ -281,7 +274,7 @@ export const loginWithSavedUserHandler = async (
     data: {
       aToken: accessToken,
       rToken: refreshToken,
-      user: newUser,
+      user,
     },
   });
 };
@@ -347,6 +340,7 @@ export const logoutHandler = async (
   }
 
   await redisCLI.del(`session_${user.id}`);
+  await getUserLastLogin(user.id);
 
   res.json({ error: false, message: "Logout success." });
 };
@@ -474,6 +468,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
 export const googleOauthHandler = async (req: Request, res: Response) => {
   const user: User | any = req.user;
+  if (!user) return;
 
   const { accessToken, refreshToken } = await signToken(user);
 
@@ -482,16 +477,13 @@ export const googleOauthHandler = async (req: Request, res: Response) => {
     rToken: refreshToken,
   };
 
-  if (!user) return;
-
   await getUserLastLogin(user.id);
 
-  const newUser = await getUserById(user.id);
-  newUser.password = undefined;
+  user.password = undefined;
 
   const params = new URLSearchParams({
     token: JSON.stringify(token),
-    user: JSON.stringify(newUser),
+    user: JSON.stringify(user),
   }).toString();
 
   res.redirect(`${origin}/social-auth?${params}`);
