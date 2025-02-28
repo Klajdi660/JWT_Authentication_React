@@ -1,10 +1,10 @@
 import { CookieOptions } from "express";
 import config from "config";
 import dayjs from "dayjs";
-import { TokenConfig } from "../types/general.type";
+import { TokensConfigs } from "../types/general.type";
 
 const { accessTokenExpiresIn, refreshTokenExpiresIn } =
-  config.get<TokenConfig>("token");
+  config.get<TokensConfigs>("tokensConfigs");
 
 const accessTokenExpitesAt = dayjs()
   .add(accessTokenExpiresIn, "minute")

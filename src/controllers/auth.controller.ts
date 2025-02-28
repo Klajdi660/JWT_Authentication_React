@@ -26,11 +26,11 @@ import {
   accessTokenCookieOptions,
   createHash,
 } from "../utils";
-import { AppConfigs, TokenConfig, UserParams } from "../types";
+import { AppConfigs, TokensConfigs, UserParams } from "../types";
 import { User } from "../models";
 import { EMAIL_PROVIDER } from "../constants";
 
-const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
+const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
 const { clientUrl } = config.get<AppConfigs>("appConfigs");
 
 dayjs.extend(utc);
@@ -305,7 +305,7 @@ export const refreshAccessTokenHandler = async (
 
   // Sign new access token
   const atoken = signJwt({ sub: user.id }, "accessTokenPrivateKey", {
-    expiresIn: `${accessTokenExpiresIn}m`,
+    expiresIn: `${+accessTokenExpiresIn}m`,
   });
 
   // Send the access token as cookie

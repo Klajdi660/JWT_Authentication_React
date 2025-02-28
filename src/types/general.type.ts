@@ -1,4 +1,5 @@
 import { Dialect } from "sequelize";
+
 export interface AppConfigs {
   port: number;
   prefix: string;
@@ -6,16 +7,20 @@ export interface AppConfigs {
   logLevel: string;
 }
 
+export interface TokensConfigs {
+  accessTokenPrivateKey: string;
+  accessTokenPublicKey: string;
+  refreshTokenPrivateKey: string;
+  refreshTokenPublicKey: string;
+  accessTokenExpiresIn: number;
+  refreshTokenExpiresIn: number;
+  rememberRefreshTokenExpiresIn: number;
+}
+
 export interface GoogleConfigs {
   googleClientId: string;
   googleClientSecret: string;
   googleOauthCallbackUrl: string;
-}
-
-export interface TokenConfig {
-  accessTokenExpiresIn: number;
-  refreshTokenExpiresIn: number;
-  rememberRefreshTokenExpiresIn: number;
 }
 
 export interface RedisConfigs {

@@ -1,7 +1,1 @@
-{
-  "token": {
-    "accessTokenExpiresIn": 30,
-    "refreshTokenExpiresIn": 5,
-    "rememberRefreshTokenExpiresIn": 30
-  }
-}
+{}

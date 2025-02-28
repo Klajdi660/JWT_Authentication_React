@@ -5,14 +5,14 @@ import { DocumentType } from "@typegoose/typegoose";
 import { Op } from "sequelize";
 import { User } from "../models";
 import { log, signJwt, convertTZ } from "../utils";
-import { TokenConfig, UserParams } from "../types";
+import { TokensConfigs, UserParams } from "../types";
 import { redisCLI } from "../clients";
 
 const {
   accessTokenExpiresIn,
   refreshTokenExpiresIn,
   rememberRefreshTokenExpiresIn,
-} = config.get<TokenConfig>("token");
+} = config.get<TokensConfigs>("tokensConfigs");
 
 export const getUserById = async (id: number): Promise<User | any> => {
   return User.findOne({
