@@ -1,12 +1,12 @@
-import config from "config";
 import dayjs from "dayjs";
+import config from "config";
+import { Op } from "sequelize";
 import otpGenerator from "otp-generator";
 import { DocumentType } from "@typegoose/typegoose";
-import { Op } from "sequelize";
 import { User } from "../models";
+import { redisCLI } from "../clients";
 import { log, signJwt, convertTZ } from "../utils";
 import { TokensConfigs, UserParams } from "../types";
-import { redisCLI } from "../clients";
 
 const {
   accessTokenExpiresIn,

@@ -1,39 +1,39 @@
-import { Router } from "express";
 import config from "config";
+import { Router } from "express";
 import passport from "passport";
 import {
-  forgotPasswordHandler,
-  loginHandler,
-  logoutHandler,
-  // refreshAccessTokenHandler,
-  registerHandler,
-  resetPasswordHandler,
-  verifyEmailHandler,
-  googleOauthHandler,
-  loginWithSavedUserHandler,
-} from "../controllers";
-import {
-  authenticateUser,
-  deserializeUser,
-  requireUser,
   validate,
+  requireUser,
+  deserializeUser,
+  authenticateUser,
 } from "../middleware";
 import {
-  createUserSchema,
   loginUserSchema,
+  createUserSchema,
   verifyEmailSchema,
-  forgotPasswordSchema,
   resetPasswordSchema,
+  forgotPasswordSchema,
 } from "../schema";
+import {
+  loginHandler,
+  logoutHandler,
+  registerHandler,
+  verifyEmailHandler,
+  googleOauthHandler,
+  resetPasswordHandler,
+  forgotPasswordHandler,
+  loginWithSavedUserHandler,
+  // refreshAccessTokenHandler,
+} from "../controllers";
 import { AppConfigs } from "../types";
 
 const { prefix } = config.get<AppConfigs>("appConfigs");
 
 const router = Router();
 
+router.post("/login", validate(loginUserSchema), loginHandler);
 router.post("/register", validate(createUserSchema), registerHandler);
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmailHandler);
-router.post("/login", validate(loginUserSchema), loginHandler);
 router.post(
   "/reset-password",
   validate(resetPasswordSchema),

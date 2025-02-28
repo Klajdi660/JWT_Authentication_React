@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { getUserById, signToken, getAndUpdateUser } from "../services";
 import { User } from "../models";
+import { getUserById, signToken } from "../services";
 
 export const getUserDetailsHandler = async (req: Request, res: Response) => {
-  // const user = res.locals.user;
   const { id } = req.params;
 
   let user = await getUserById(+id);
@@ -56,22 +55,14 @@ export const saveAuthUser = async (
 
   const { saveAuthUserToken } = await signToken(user, remember);
 
-  let newUser = await getUserById(+user.id);
-  if (!newUser) {
-    return res.json({
-      error: true,
-      message: "User does not exist in our database!",
-    });
-  }
-
-  newUser.password = undefined;
+  user.password = undefined;
 
   res.json({
     error: false,
     message: "Save auth user successful",
     data: {
       saveAuthUserToken,
-      user: newUser,
+      user,
     },
   });
 };

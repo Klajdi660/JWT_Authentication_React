@@ -1,9 +1,9 @@
 import { boolean, object, string, TypeOf } from "zod";
 
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const usernameRegex = /^[a-zA-Z0-9]+$/;
 const uppercaseRegex = /[A-Z]/;
+const usernameRegex = /^[a-zA-Z0-9]+$/;
 const sepecialCharacter = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export const createUserSchema = object({
   body: object({
@@ -132,12 +132,12 @@ export const deleteAccountSchema = object({
   }),
 });
 
-export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
-export type LoginUserInput = TypeOf<typeof loginUserSchema>["body"];
-export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["body"];
-export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
-export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
 // export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;
+export type LoginUserInput = TypeOf<typeof loginUserSchema>["body"];
+export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
+export type VerifyEmailInput = TypeOf<typeof verifyEmailSchema>["body"];
+export type DeleteAccountInput = TypeOf<typeof deleteAccountSchema>["body"];
+export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
+export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type ChangeUsernameInput = TypeOf<typeof changeUsernameSchema>["body"];
 export type ChangePasswordInput = TypeOf<typeof changePasswordSchema>["body"];
-export type DeleteAccountInput = TypeOf<typeof deleteAccountSchema>["body"];

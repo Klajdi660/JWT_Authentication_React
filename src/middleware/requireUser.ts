@@ -18,7 +18,7 @@ export const requireUser = (
     next();
   } catch (e: any) {
     log.error(
-      `${JSON.stringify({ action: "requireUser catch", message: e.message })}`
+      `${JSON.stringify({ action: "requireUser-catch", message: e.message })}`
     );
     next(e);
   }

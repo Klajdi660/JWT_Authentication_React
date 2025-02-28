@@ -2,25 +2,25 @@
   "appConfigs": {
     "port": "PORT",
     "prefix": "PREFIX",
-    "clientUrl": "CLIENT_URL",
-    "logLevel": "LOG_LEVEL"
+    "logLevel": "LOG_LEVEL",
+    "clientUrl": "CLIENT_URL"
   },
   "tokensConfigs": {
-    "accessTokenPrivateKey": "ACCESS_TOKEN_PRIVATE_KEY",
-    "accessTokenPublicKey": "ACCESS_TOKEN_PUBLIC_KEY",
-    "refreshTokenPrivateKey": "REFRESH_TOKEN_PRIVATE_KEY",
-    "refreshTokenPublicKey": "REFRESH_TOKEN_PUBLIC_KEY",
     "accessTokenExpiresIn": "ACCESS_TOKEN_EXPIRES",
     "refreshTokenExpiresIn": "REFRESH_TOKEN_EXPIRES",
+    "accessTokenPublicKey": "ACCESS_TOKEN_PUBLIC_KEY",
+    "accessTokenPrivateKey": "ACCESS_TOKEN_PRIVATE_KEY",
+    "refreshTokenPublicKey": "REFRESH_TOKEN_PUBLIC_KEY",
+    "refreshTokenPrivateKey": "REFRESH_TOKEN_PRIVATE_KEY",
     "rememberRefreshTokenExpiresIn": "ACCESS_TOKEN_EXPIRES"
   },
   "databaseConfigs": {
     "mysql": {
       "dbHost": "DATABASE_HOST",
       "dbUser": "DATABASE_USER",
-      "dbPassword": "DATABASE_PASSWORD",
       "dbName": "DATABASE_NAME",
-      "dbDriver": "DATABASE_DRIVER"
+      "dbDriver": "DATABASE_DRIVER",
+      "dbPassword": "DATABASE_PASSWORD"
     },
     "redis": {
       "redisHost": "REDIS_HOST",
@@ -40,19 +40,19 @@
       "cloudFolderName": "CLOUD_FOLDER_NAME"
     },
     "smtp": {
-      "smtpPassword": "SMTP_PASSWORD",
+      "smtpHOST": "SMTP_HOST",
       "smtpPort": "SMTP_PORT",
       "smtpEmail": "SMTP_EMAIL",
       "smtpService": "SMTP_SERVICE",
-      "smtpHOST": "SMTP_HOST"
+      "smtpPassword": "SMTP_PASSWORD"
     },
     "rwg": {
       "rwgUrl": "RWG_URL",
       "rwgKey": "RWG_KEY"
     },
     "tw": {
-      "twAuthUrl": "TW_AUTH_URL",
       "twUrl": "TW_URL",
+      "twAuthUrl": "TW_AUTH_URL",
       "twClientId": "TW_CLIENT_ID",
       "twClientSecret": "TW_CLIENT_SECRET"
     }

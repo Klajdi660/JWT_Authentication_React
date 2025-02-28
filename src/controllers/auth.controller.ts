@@ -3,37 +3,36 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { NextFunction, Request, Response } from "express";
 import {
+  log,
+  signJwt,
+  sendEmail,
+  verifyJwt,
+  createHash,
+  accessTokenCookieOptions,
+} from "../utils";
+import {
   LoginUserInput,
   VerifyEmailInput,
   ForgotPasswordInput,
 } from "../schema";
 import {
-  getUserByEmail,
-  getUserByEmailOrUsername,
-  createUser,
-  getAndUpdateUser,
-  createVerificationCode,
   signToken,
+  createUser,
   getUserById,
+  getUserByEmail,
+  getAndUpdateUser,
   getUserLastLogin,
+  createVerificationCode,
+  getUserByEmailOrUsername,
 } from "../services";
-import { redisCLI } from "../clients";
-import {
-  signJwt,
-  verifyJwt,
-  log,
-  sendEmail,
-  accessTokenCookieOptions,
-  createHash,
-} from "../utils";
-import { AppConfigs, TokensConfigs, UserParams } from "../types";
 import { User } from "../models";
+import { redisCLI } from "../clients";
 import { EMAIL_PROVIDER } from "../constants";
-
-const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
-const { clientUrl } = config.get<AppConfigs>("appConfigs");
+import { AppConfigs, TokensConfigs, UserParams } from "../types";
 
 dayjs.extend(utc);
+const { clientUrl } = config.get<AppConfigs>("appConfigs");
+const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
 
 export const registerHandler = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
@@ -42,7 +41,7 @@ export const registerHandler = async (req: Request, res: Response) => {
   if (existingUser) {
     log.info(
       `${JSON.stringify({
-        action: "createUser existingUser",
+        action: "register-existingUser",
         data: existingUser,
       })}`
     );

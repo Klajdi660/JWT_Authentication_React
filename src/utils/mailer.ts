@@ -1,7 +1,7 @@
 import config from "config";
 import path from "path";
-import hbs from "nodemailer-express-handlebars";
 import { createTransport } from "nodemailer";
+import hbs from "nodemailer-express-handlebars";
 import { SmtpConfigs } from "../types";
 
 const { smtpEmail, smtpPassword, smtpPort, smtpService, smtpHost } =

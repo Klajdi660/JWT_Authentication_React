@@ -1,6 +1,6 @@
-import jwt, { SignOptions } from "jsonwebtoken";
 import config from "config";
 import { log } from "./helpFunctions";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 export const signJwt = (
   payload: Object,

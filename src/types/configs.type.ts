@@ -3,17 +3,17 @@ import { Dialect } from "sequelize";
 export interface AppConfigs {
   port: number;
   prefix: string;
-  clientUrl: string;
   logLevel: string;
+  clientUrl: string;
 }
 
 export interface TokensConfigs {
-  accessTokenPrivateKey: string;
-  accessTokenPublicKey: string;
-  refreshTokenPrivateKey: string;
-  refreshTokenPublicKey: string;
   accessTokenExpiresIn: number;
+  accessTokenPublicKey: string;
   refreshTokenExpiresIn: number;
+  refreshTokenPublicKey: string;
+  accessTokenPrivateKey: string;
+  refreshTokenPrivateKey: string;
   rememberRefreshTokenExpiresIn: number;
 }
 
@@ -31,9 +31,9 @@ export interface RedisConfigs {
 export interface MysqlConfigs {
   dbHost: string;
   dbUser: string;
-  dbPassword: string;
   dbName: string;
   dbDriver: Dialect;
+  dbPassword: string;
 }
 
 export interface RWGConfigs {
@@ -41,18 +41,18 @@ export interface RWGConfigs {
   rwgKey: string;
 }
 export interface TWConfig {
-  twAuthUrl: string;
   twUrl: string;
+  twAuthUrl: string;
   twClientId: string;
   twClientSecret: string;
 }
 
 export interface SmtpConfigs {
+  smtpHost: string;
   smtpPort: number;
   smtpEmail: string;
-  smtpPassword: string;
   smtpService: string;
-  smtpHost: string;
+  smtpPassword: string;
 }
 
 export interface CloudinaryConfig {

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import {
   getGameList,
-  getGameDetails,
   getGameVideos,
   getGameReviews,
-  getGamesSliderList,
+  getGameDetails,
   getGameGenreList,
+  getGamesSliderList,
   getGamePlatformsList,
 } from "../services";
 import { log } from "../utils";
@@ -15,7 +15,6 @@ export const gameListHandler = async (req: Request, res: Response) => {
   if (!gameList) {
     log.error(JSON.stringify({ action: "getGameList", data: gameList }));
     return res.json({ error: true, message: "Failed to get games list" });
-    // return null;
   }
 
   res.json({

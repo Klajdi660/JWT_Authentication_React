@@ -2,11 +2,11 @@ import config from "config";
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { User } from "../models";
 import { log } from "../utils";
+import { User } from "../models";
 import { GoogleConfigs } from "../types";
-import { getUserByProviderId } from "./user.service";
 import { EMAIL_PROVIDER } from "../constants";
+import { getUserByProviderId } from "./user.service";
 
 const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
   config.get<GoogleConfigs>("providersConfigs.google");

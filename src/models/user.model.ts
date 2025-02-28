@@ -1,73 +1,73 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelizeConnection } from "../clients/db/database";
 import { EMAIL_PROVIDER } from "../constants";
+import { sequelizeConnection } from "../clients/db/database";
 
 export class User extends Model {
   id: number;
-  email: string;
-  username: string;
-  password: string | any;
   role: string;
-  provider: string;
+  email: string;
   extra: string;
+  username: string;
+  provider: string;
   verified: boolean;
   lastLogin: string;
   createdAt: string;
   updatedAt: string;
+  password: string | any;
 }
 
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
+      type: DataTypes.INTEGER,
     },
     email: {
-      type: DataTypes.STRING,
-      allowNull: false,
       unique: true,
+      allowNull: false,
+      type: DataTypes.STRING,
     },
     username: {
-      type: DataTypes.STRING,
-      allowNull: false,
       unique: true,
+      allowNull: false,
+      type: DataTypes.STRING,
     },
     password: {
-      type: DataTypes.STRING,
       allowNull: false,
+      type: DataTypes.STRING,
     },
     role: {
-      type: DataTypes.STRING,
       defaultValue: "user",
+      type: DataTypes.STRING,
     },
     provider: {
-      type: DataTypes.STRING,
       allowNull: false,
+      type: DataTypes.STRING,
       defaultValue: EMAIL_PROVIDER.email,
     },
     extra: {
-      type: DataTypes.TEXT,
       allowNull: false,
+      type: DataTypes.TEXT,
     },
     verified: {
-      type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+      type: DataTypes.BOOLEAN,
     },
     lastLogin: {
-      type: DataTypes.STRING,
       allowNull: true,
+      type: DataTypes.STRING,
     },
     createdAt: {
+      allowNull: false,
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
-      allowNull: false,
     },
     updatedAt: {
+      allowNull: true,
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
-      allowNull: true,
     },
   },
   {

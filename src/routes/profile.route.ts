@@ -1,25 +1,30 @@
 import { Router } from "express";
 import {
-  changePasswordHandler,
-  deleteAccountHandler,
-  updateProfileHandler,
-  updateDisplayPictureHandler,
-  cancelDeletionHandler,
-  changeUsernameHandler,
-  removeDisplayPictureHandler,
-  addNewCreditCardHandler,
-} from "../controllers";
-import { deserializeUser, requireUser, validate } from "../middleware";
-import {
   deleteAccountSchema,
   changePasswordSchema,
   changeUsernameSchema,
 } from "../schema";
+import {
+  deleteAccountHandler,
+  updateProfileHandler,
+  cancelDeletionHandler,
+  changeUsernameHandler,
+  changePasswordHandler,
+  addNewCreditCardHandler,
+  removeDisplayPictureHandler,
+  updateDisplayPictureHandler,
+} from "../controllers";
+import { deserializeUser, requireUser, validate } from "../middleware";
 
 const router = Router();
 
 router.use(deserializeUser, requireUser);
 
+router.post(
+  "/delete-account",
+  validate(deleteAccountSchema),
+  deleteAccountHandler
+);
 router.post(
   "/change-username",
   validate(changeUsernameSchema),
@@ -30,17 +35,10 @@ router.post(
   validate(changePasswordSchema),
   changePasswordHandler
 );
-router.post(
-  "/delete-account",
-  validate(deleteAccountSchema),
-  deleteAccountHandler
-);
+router.post("/update-profile", updateProfileHandler);
 router.post("/cancel-deletion", cancelDeletionHandler);
 router.post("/add-credit-card", addNewCreditCardHandler);
-
-router.post("/update-profile", updateProfileHandler);
 router.put("/update-display-picture", updateDisplayPictureHandler);
-
 router.delete("/remove-display-picture", removeDisplayPictureHandler);
 
 export default router;

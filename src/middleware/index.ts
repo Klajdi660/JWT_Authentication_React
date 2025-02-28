@@ -1,4 +1,4 @@
-export { deserializeUser, authenticateUser } from "./deserializeUser";
-export { requireUser } from "./requireUser";
-export { restrictTo } from "./restrictTo";
 export { validate } from "./validate";
+export { restrictTo } from "./restrictTo";
+export { requireUser } from "./requireUser";
+export { deserializeUser, authenticateUser } from "./deserializeUser";

@@ -1,17 +1,17 @@
-import { Request, Response } from "express";
 import config from "config";
+import { Request, Response } from "express";
 import { UploadApiResponse } from "cloudinary";
 import {
   getUserById,
   getAndUpdateUser,
-  scheduleAccountDeletion,
-  cancelAccountDeletion,
   getUserByUsername,
+  cancelAccountDeletion,
+  scheduleAccountDeletion,
   uploadImageToCloudinary,
   removeImageFromCloudinary,
 } from "../services";
-import { CloudinaryConfig } from "../types";
 import { createHash, log } from "../utils";
+import { CloudinaryConfig } from "../types";
 
 const { cloudFolderName } = config.get<CloudinaryConfig>(
   "providersConfigs.cloudinary"

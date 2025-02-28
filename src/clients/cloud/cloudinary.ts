@@ -9,8 +9,8 @@ const { cloudName, cloudApiKey, cloudApiSecret } = config.get<CloudinaryConfig>(
 
 const cloudinaryConnect = () => {
   cloudinary.config({
-    cloud_name: cloudName,
     api_key: cloudApiKey,
+    cloud_name: cloudName,
     api_secret: cloudApiSecret,
   });
 };
