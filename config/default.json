@@ -10,13 +10,6 @@
     "refreshTokenExpiresIn": 5,
     "rememberRefreshTokenExpiresIn": 30
   },
-  "emailFrom": "contact@codevoweb.com",
-  "emailProvider": {
-    "email": "Email",
-    "google": "Google",
-    "linkedin": "Linkedin",
-    "facebook": "Facebook"
-  },
   "otp": {
     "otpLength": 6,
     "otpConfig": {
@@ -24,13 +17,5 @@
       "upperCaseAlphabets": true,
       "specialChars": false
     }
-  },
-  "mysql": {
-    "dbHost": "localhost",
-    "dbUser": "root",
-    "dbPort": 3306,
-    "dbPassword": "",
-    "dbName": "groove",
-    "dbDriver": "mysql"
   }
 }

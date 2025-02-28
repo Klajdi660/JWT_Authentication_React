@@ -33,10 +33,11 @@ import {
   UserParams,
 } from "../types";
 import { User } from "../models";
+import { EMAIL_PROVIDER } from "../constants";
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
 const { origin } = config.get<AppConfig>("app");
-const emailProvider = config.get<EmailProviderConfig>("emailProvider");
+// const emailProvider = config.get<EmailProviderConfig>("emailProvider");
 
 dayjs.extend(utc);
 
@@ -181,7 +182,7 @@ export const loginHandler = async (
     });
   }
 
-  if (user && user.provider !== emailProvider.email) {
+  if (user && user.provider !== EMAIL_PROVIDER.email) {
     return res.json({
       error: true,
       message: `That email address is already in use using ${user.provider} provider.`,

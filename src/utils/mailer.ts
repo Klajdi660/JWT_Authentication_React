@@ -4,14 +4,18 @@ import hbs from "nodemailer-express-handlebars";
 import { createTransport } from "nodemailer";
 import { SmtpConfig } from "../types";
 
-const smtp = config.get<SmtpConfig>("smtpConfig");
+const { smtpEmail, smtpPassword, smtpPort } =
+  config.get<SmtpConfig>("smtpConfig");
 
 export const sendEmail = async (templatePath: string, templateData: any) => {
   let transporter = createTransport({
-    ...smtp,
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: smtpPort,
+    secure: false,
     auth: {
-      user: smtp.email,
-      pass: smtp.password,
+      user: smtpEmail,
+      pass: smtpPassword,
     },
   });
 
@@ -30,7 +34,7 @@ export const sendEmail = async (templatePath: string, templateData: any) => {
   transporter.use("compile", hbs(handlebarOptions as any));
 
   const mailOptions = {
-    from: `GrooveIT <${smtp.email}>`,
+    from: `GrooveIT <${smtpEmail}>`,
     to: "klajdixhafkollari36@gmail.com",
     subject: templateData.title,
     template: templatePath,

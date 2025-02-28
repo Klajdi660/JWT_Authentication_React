@@ -13,7 +13,8 @@ import { AppConfig } from "./types";
 import { connectCloudinary, sequelizeConnection } from "./clients";
 import passportConfig from "./services/session.service";
 
-const { port, origin, prefix } = config.get<AppConfig>("app");
+const { origin, prefix } = config.get<AppConfig>("app");
+const { port } = config.get<{ port: number }>("appE");
 
 const app: Express = express();
 

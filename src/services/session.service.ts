@@ -6,10 +6,11 @@ import { User } from "../models";
 import { log } from "../utils";
 import { EmailProviderConfig, GoogleConfig } from "../types";
 import { getUserByProviderId } from "./user.service";
+import { EMAIL_PROVIDER } from "../constants";
 
 const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
   config.get<GoogleConfig>("googleConfig");
-const emailProvider = config.get<EmailProviderConfig>("emailProvider");
+// const emailProvider = config.get<EmailProviderConfig>("emailProvider");
 
 const secret = "Klajdi96@";
 let opts = {} as any;
@@ -63,7 +64,7 @@ const googleAuth = async () => {
         email: emails[0].value,
         username,
         password: "",
-        provider: emailProvider.google,
+        provider: EMAIL_PROVIDER.google,
         extra: JSON.stringify(extraData),
         verified: true,
       };

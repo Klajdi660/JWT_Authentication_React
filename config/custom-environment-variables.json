@@ -1,4 +1,5 @@
 {
+  "appE": { "port": "PORT" },
   "accessTokenPrivateKey": "ACCESS_TOKEN_PRIVATE_KEY",
   "accessTokenPublicKey": "ACCESS_TOKEN_PUBLIC_KEY",
   "refreshTokenPrivateKey": "REFRESH_TOKEN_PRIVATE_KEY",
@@ -15,12 +16,9 @@
     "githubOauthRedirect": "GITHUB_OAUTH_REDIRECT_URL"
   },
   "smtpConfig": {
-    "service": "EMAIL_SERVICE",
-    "secure": "EMAIL_SECURE",
-    "host": "EMAIL_HOST",
-    "password": "EMAIL_PASS",
-    "port": "EMAIL_PORT",
-    "email": "EMAIL_USER"
+    "smtpPassword": "SMTP_EMAIL_PASS",
+    "smtpPort": "SMTP_EMAIL_PORT",
+    "smtpEmail": "SMTP_EMAIL_USER"
   },
   "redisConfig": {
     "redisHost": "REDIS_HOST",

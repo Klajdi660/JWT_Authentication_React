@@ -43,12 +43,9 @@ export interface GameConfig {
 }
 
 export interface SmtpConfig {
-  service: string;
-  host: string;
-  port: number;
-  secure: boolean;
-  email: string;
-  password: string;
+  smtpPort: number;
+  smtpEmail: string;
+  smtpPassword: string;
 }
 
 export interface CloudinaryConfig {
