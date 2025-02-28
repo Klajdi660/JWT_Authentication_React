@@ -1,10 +1,4 @@
 {
-  "app": {
-    "port": 8080,
-    "prefix": "/api",
-    "origin": "http://localhost:3000"
-  },
-  "logLevel": "info",
   "token": {
     "accessTokenExpiresIn": 30,
     "refreshTokenExpiresIn": 5,

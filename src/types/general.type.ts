@@ -1,8 +1,9 @@
 import { Dialect } from "sequelize";
-export interface AppConfig {
+export interface AppConfigs {
   port: number;
   prefix: string;
-  origin: string;
+  clientUrl: string;
+  logLevel: string;
 }
 
 export interface TokenConfig {

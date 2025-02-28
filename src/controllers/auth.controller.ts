@@ -26,18 +26,12 @@ import {
   accessTokenCookieOptions,
   createHash,
 } from "../utils";
-import {
-  AppConfig,
-  EmailProviderConfig,
-  TokenConfig,
-  UserParams,
-} from "../types";
+import { AppConfigs, TokenConfig, UserParams } from "../types";
 import { User } from "../models";
 import { EMAIL_PROVIDER } from "../constants";
 
 const { accessTokenExpiresIn } = config.get<TokenConfig>("token");
-const { origin } = config.get<AppConfig>("app");
-// const emailProvider = config.get<EmailProviderConfig>("emailProvider");
+const { clientUrl } = config.get<AppConfigs>("appConfigs");
 
 dayjs.extend(utc);
 
@@ -487,5 +481,5 @@ export const googleOauthHandler = async (req: Request, res: Response) => {
     user: JSON.stringify(user),
   }).toString();
 
-  res.redirect(`${origin}/social-auth?${params}`);
+  res.redirect(`${clientUrl}/social-auth?${params}`);
 };

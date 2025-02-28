@@ -144,7 +144,7 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
 
   const updatedUser = await getUserById(user.id);
   updatedUser.password = undefined;
-  console.log("updatedUser :>> ", updatedUser);
+
   res.json({
     error: false,
     message: "Profile updated successfully!",

@@ -4,13 +4,12 @@ import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "../models";
 import { log } from "../utils";
-import { EmailProviderConfig, GoogleConfig } from "../types";
+import { GoogleConfig } from "../types";
 import { getUserByProviderId } from "./user.service";
 import { EMAIL_PROVIDER } from "../constants";
 
 const { googleClientId, googleClientSecret, googleOauthCallbackUrl } =
   config.get<GoogleConfig>("googleConfig");
-// const emailProvider = config.get<EmailProviderConfig>("emailProvider");
 
 const secret = "Klajdi96@";
 let opts = {} as any;

@@ -4,9 +4,9 @@ import authRoutes from "./auth.route";
 import gameRoutes from "./game.route";
 import userRoutes from "./user.route";
 import profileRoutes from "./profile.route";
-import { AppConfig } from "../types";
+import { AppConfigs } from "../types";
 
-const { prefix } = config.get<AppConfig>("app");
+const { prefix } = config.get<AppConfigs>("appConfigs");
 
 const routes = Router();
 

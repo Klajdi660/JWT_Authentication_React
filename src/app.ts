@@ -9,12 +9,11 @@ import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 import { log } from "./utils";
 import routes from "./routes";
-import { AppConfig } from "./types";
+import { AppConfigs } from "./types";
 import { connectCloudinary, sequelizeConnection } from "./clients";
 import passportConfig from "./services/session.service";
 
-const { origin, prefix } = config.get<AppConfig>("app");
-const { port } = config.get<{ port: number }>("appE");
+const { port, prefix, clientUrl } = config.get<AppConfigs>("appConfigs");
 
 const app: Express = express();
 
@@ -25,7 +24,7 @@ app.use(helmet({ contentSecurityPolicy: false, frameguard: true }));
 app.use(
   cors({
     credentials: true,
-    origin: [origin],
+    origin: [clientUrl],
     optionsSuccessStatus: 200,
   })
 );

@@ -4,10 +4,11 @@ import config from "config";
 import crypto from "crypto";
 import moment from "moment-timezone";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { AppConfigs } from "../types";
 
 dayjs.extend(customParseFormat);
 
-const level = config.get<string>("logLevel");
+const { logLevel } = config.get<AppConfigs>("appConfigs");
 
 export const asyncHandler = (fn: any) =>
   function asyncUtilWrap(...args: any) {
@@ -20,7 +21,7 @@ export const log = logger({
   transport: {
     target: "pino-pretty",
   },
-  level,
+  level: logLevel,
   base: {
     pid: false,
   },

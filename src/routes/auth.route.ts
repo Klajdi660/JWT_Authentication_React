@@ -25,9 +25,9 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
 } from "../schema";
-import { AppConfig } from "../types";
+import { AppConfigs } from "../types";
 
-const { prefix } = config.get<AppConfig>("app");
+const { prefix } = config.get<AppConfigs>("appConfigs");
 
 const router = Router();
 
