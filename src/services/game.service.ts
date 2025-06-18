@@ -8,7 +8,7 @@ export const getGameList = async (params: object) => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameList catch",
+        action: "game_list_catch",
         message: "Failed to get game list",
       })
     );
@@ -21,7 +21,7 @@ export const getGameDetails = async (gameId: string | any) => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameDetails catch",
+        action: "game_details_catch",
         message: "Failed to get game detail",
       })
     );
@@ -34,7 +34,7 @@ export const getGameVideos = async (gameId: string | any) => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameVideos catch",
+        action: "game_videos_catch",
         message: e.response.data,
       })
     );
@@ -47,7 +47,7 @@ export const getGameImages = async (gameId: string | any) => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameImages catch",
+        action: "game_images_catch",
         message: e.response.data,
       })
     );
@@ -60,7 +60,7 @@ export const getGameReviews = async (gameId: string | any) => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameReviews catch",
+        action: "game_reviews_catch",
         message: e.response.data,
       })
     );
@@ -73,7 +73,7 @@ export const getGameGenreList = async () => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameGenreList catch",
+        action: "game_genre_list_catch",
         message: "Failed to get game genre list",
       })
     );
@@ -86,7 +86,7 @@ export const getGamePlatformsList = async () => {
   } catch (e) {
     log.error(
       JSON.stringify({
-        action: "getGamePlatformsList catch",
+        action: "game_platforms_list_catch",
         message: "Failed to get game platforms list",
       })
     );
@@ -106,7 +106,7 @@ export const fetchGameList = async () => {
   } catch (e: any) {
     log.error(
       JSON.stringify({
-        action: "getGameList catch",
+        action: "fetch_game_list_catch",
         message: e.response.data,
       })
     );

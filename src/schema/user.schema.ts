@@ -2,7 +2,7 @@ import { boolean, object, string, TypeOf } from "zod";
 
 const uppercaseRegex = /[A-Z]/;
 const usernameRegex = /^[a-zA-Z0-9]+$/;
-const sepecialCharacter = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+const sepecialCharacterRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export const createUserSchema = object({
@@ -25,7 +25,7 @@ export const createUserSchema = object({
       .refine((value) => uppercaseRegex.test(value), {
         message: "Password must contain at least one capital letter",
       })
-      .refine((value) => sepecialCharacter.test(value), {
+      .refine((value) => sepecialCharacterRegex.test(value), {
         message: "Password must contain at least one special character",
       }),
   }),
@@ -78,7 +78,7 @@ export const resetPasswordSchema = object({
       .refine((value) => uppercaseRegex.test(value), {
         message: "Password must contain at least one capital letter",
       })
-      .refine((value) => sepecialCharacter.test(value), {
+      .refine((value) => sepecialCharacterRegex.test(value), {
         message: "Password must contain at least one special character",
       }),
     confirmPassword: string({
@@ -112,7 +112,7 @@ export const changePasswordSchema = object({
       .refine((value) => uppercaseRegex.test(value), {
         message: "Password must contain at least one capital letter",
       })
-      .refine((value) => sepecialCharacter.test(value), {
+      .refine((value) => sepecialCharacterRegex.test(value), {
         message: "Password must contain at least one special character",
       }),
     confirmNewPassword: string({

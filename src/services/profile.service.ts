@@ -12,7 +12,12 @@ export const scheduleAccountDeletion = (id: number) => {
   const job = schedule.scheduleJob(deleteDate, async () => {
     const deletedUser = await deleteUser(id);
     if (!deletedUser) {
-      log.error(`Unable to delete user with id: ${id}`);
+      log.error(
+        JSON.stringify({
+          action: "schedule_account_deletion_error",
+          message: `Unable to delete user with id: ${id}`,
+        })
+      );
     }
 
     scheduledJobs.delete(id);
@@ -73,7 +78,7 @@ export const uploadImageToCloudinary = async (
   if (!updateImgToCloudinary) {
     log.error(
       JSON.stringify({
-        action: "updatedImgToCloudinary error",
+        action: "updated_img_to_cloudinary_error",
         message: "Error uploading image to Cloudinary:",
       })
     );

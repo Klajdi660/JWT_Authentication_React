@@ -31,7 +31,7 @@ export const verifyJwt = <T>(
     const decoded = jwt.verify(token, publicKey) as T;
     return decoded;
   } catch (error) {
-    log.error(`${JSON.stringify({ action: "verifyJWT catch", data: error })}`);
+    log.error(JSON.stringify({ action: "verify_jwt_catch", data: error }));
     return null;
   }
 };

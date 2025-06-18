@@ -18,9 +18,7 @@ export const getUserById = async (id: number): Promise<User | any> => {
   return User.findOne({
     where: { id },
   }).catch((error) => {
-    log.error(
-      `${JSON.stringify({ action: "getUserById catch", data: error })}`
-    );
+    log.error(JSON.stringify({ action: "user_by_id_catch", data: error }));
   });
 };
 
@@ -35,7 +33,7 @@ export const getUserByProviderId = async (
     },
   }).catch((error) => {
     log.error(
-      `${JSON.stringify({ action: "getUserByProviderId catch", data: error })}`
+      JSON.stringify({ action: "user_by_provider_id_catch", data: error })
     );
   });
 };
@@ -44,9 +42,7 @@ export const getUserByEmail = async (email: string): Promise<User | any> => {
   return User.findOne({
     where: { email },
   }).catch((error) => {
-    log.error(
-      `${JSON.stringify({ action: "getUserByEmail catch", data: error })}`
-    );
+    log.error(JSON.stringify({ action: "user_by_email_catch", data: error }));
   });
 };
 
@@ -57,7 +53,7 @@ export const getUserByUsername = async (
     where: { username },
   }).catch((error) => {
     log.error(
-      `${JSON.stringify({ action: "getUserByEmail catch", data: error })}`
+      JSON.stringify({ action: "user_by_username_catch", data: error })
     );
   });
 };
@@ -72,10 +68,10 @@ export const getUserByEmailOrUsername = async (
     },
   }).catch((error) => {
     log.error(
-      `${JSON.stringify({
-        action: "getUserByEmailOrUsername catch",
+      JSON.stringify({
+        action: "user_by_email_or_username_catch",
         data: error,
-      })}`
+      })
     );
   });
 };
@@ -104,13 +100,13 @@ export const createUser = async (
     email,
     username,
     password,
-    googleId: "",
+    // googleId: "",
     extra: JSON.stringify(extraData),
     verified,
   });
 
   return newUser.save().catch((error) => {
-    log.error(`${JSON.stringify({ action: "createUser catch", data: error })}`);
+    log.error(JSON.stringify({ action: "create_user_catch", data: error }));
   });
 };
 
@@ -123,7 +119,7 @@ export const getAndUpdateUser = async (
 
   return User.update(updatedField, { where: { id } }).catch((error) => {
     log.error(
-      `${JSON.stringify({ action: "getAndUpdateUser catch", data: error })}`
+      JSON.stringify({ action: "get_and_update_user_catch", data: error })
     );
   });
 };
@@ -132,7 +128,7 @@ export const deleteUser = async (id: number): Promise<User | any> => {
   return User.destroy({
     where: { id },
   }).catch((error) => {
-    log.error(`${JSON.stringify({ action: "deleteUser catch", data: error })}`);
+    log.error(JSON.stringify({ action: "delete_user_catch", data: error }));
   });
 };
 

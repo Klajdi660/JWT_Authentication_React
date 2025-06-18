@@ -15,9 +15,7 @@ export const validate =
       next();
     } catch (e: any) {
       if (e instanceof ZodError) {
-        log.error(
-          `${JSON.stringify({ action: "validate catch", data: e.errors })}`
-        );
+        log.error(JSON.stringify({ action: "validate_catch", data: e.errors }));
         return res.json({
           error: true,
           message: e.errors[0].message,

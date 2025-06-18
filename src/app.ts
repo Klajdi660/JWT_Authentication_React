@@ -52,14 +52,12 @@ app.get(
   }
 );
 
-// UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   const err = new Error(`Route ${req.originalUrl} not found`) as any;
   err.statusCode = 404;
   next(err);
 });
 
-// Global Error Handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   err.status = err.status || "error";
   err.statusCode = err.statusCode || 500;
@@ -77,27 +75,27 @@ sequelizeConnection
   .authenticate()
   .then(() => {
     log.info(
-      `${JSON.stringify({
-        action: "Database Run",
+      JSON.stringify({
+        action: "database_run",
         message: "Database connection has been established successfully.",
-      })}`
+      })
     );
 
     app.listen(port, () => {
       log.info(
-        `${JSON.stringify({
-          action: "Server Run",
+        JSON.stringify({
+          action: "server_run",
           messsage: `Server is running at port:${port}`,
-        })}`
+        })
       );
     });
   })
   .catch((error) => {
     log.error(
-      `${JSON.stringify({
-        action: "Server Catch",
+      JSON.stringify({
+        action: "server_catch",
         messsage: "Cannot connect to the server",
         data: error,
-      })}`
+      })
     );
   });

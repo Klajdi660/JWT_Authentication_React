@@ -85,7 +85,7 @@ const googleAuth = async () => {
   } catch (error) {
     log.error(
       JSON.stringify({
-        action: "googleAuthCatch",
+        action: "google_auth_catch",
         message: "Missing google keys!",
         data: error,
       })

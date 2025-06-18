@@ -28,7 +28,7 @@ export const log = logger({
   timestamp: () => `,"time":"${dayjs().format()}"`,
 });
 
-export const createHash = (password: string, email: string | any) => {
+export const createHash = (password: string, email: string) => {
   return crypto
     .createHash("sha1")
     .update(password + email)
@@ -46,7 +46,8 @@ export const isTokenExpired = (token: string) => {
   return false;
 };
 
-// export const currentTimestamps = dayjs().toDate();
+export const currentTimestamps = dayjs().toDate();
+
 export const convertTZ = (
   currDate: any,
   timezone: string = "Europe/Tirane"

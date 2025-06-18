@@ -19,17 +19,17 @@ export const connectCloudinary = () => {
   try {
     cloudinaryConnect();
     log.info(
-      `${JSON.stringify({
-        action: "Cloudinary Connect",
+      JSON.stringify({
+        action: "cloudinary_connect",
         message: "Cloudinary connection has been established successfully.",
-      })}`
+      })
     );
   } catch (error: any) {
     log.error(
-      `${JSON.stringify({
-        action: "connectCloud Catch",
+      JSON.stringify({
+        action: "cloudinary_connect_catch",
         messsage: `Cannot connect to the cloudinary: ${error.message}`,
-      })}`
+      })
     );
   }
 };

@@ -53,10 +53,10 @@ export const deserializeUser = async (
     next();
   } catch (e: any) {
     log.error(
-      `${JSON.stringify({
-        action: "deserializeUser catch",
+      JSON.stringify({
+        action: "deserialize_user_catch",
         message: e.message,
-      })}`
+      })
     );
     next(e);
   }
@@ -100,10 +100,10 @@ export const authenticateUser = async (
     next();
   } catch (e: any) {
     log.error(
-      `${JSON.stringify({
-        action: "authenticateUser catch",
+      JSON.stringify({
+        action: "authenticate_user_catch",
         message: e.message,
-      })}`
+      })
     );
     next(e);
   }

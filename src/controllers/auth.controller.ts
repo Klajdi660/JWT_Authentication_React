@@ -40,10 +40,10 @@ export const registerHandler = async (req: Request, res: Response) => {
   const existingUser = await getUserByEmailOrUsername(email, username);
   if (existingUser) {
     log.info(
-      `${JSON.stringify({
-        action: "register-existingUser",
+      JSON.stringify({
+        action: "existing_user",
         data: existingUser,
-      })}`
+      })
     );
     return res.json({
       error: true,
@@ -70,7 +70,7 @@ export const registerHandler = async (req: Request, res: Response) => {
   );
 
   if (!addedToRedis) {
-    return res.json({ error: true, message: "Email already registered." });
+    return res.json({ error: true, message: "Email already registered" });
   }
 
   await redisCLI.expire(`verify_email_pending_${email}`, 180);
@@ -124,7 +124,7 @@ export const verifyEmailHandler = async (
   const isExpired = currentDateTime.isAfter(expiresAtDateTime);
 
   if (isExpired) {
-    log.error(`${JSON.stringify({ action: "expired User", data: redisObj })}`);
+    log.error(`${JSON.stringify({ action: "expired_user", data: redisObj })}`);
     return res.json({
       error: true,
       message: "Your OTP code has expired. Please request a new OTP code",
@@ -139,7 +139,7 @@ export const verifyEmailHandler = async (
     user = await getAndUpdateUser(existingUser.id, { verified });
     if (!user) {
       log.error(
-        JSON.stringify({ action: "Confirm updateUser Req", data: user })
+        JSON.stringify({ action: "confirm_update_user_error", data: user })
       );
       return res.json({ error: true, message: "Failed to update user!" });
     }
@@ -147,7 +147,7 @@ export const verifyEmailHandler = async (
     user = await createUser(redisObj, verified);
     if (!user) {
       log.error(
-        JSON.stringify({ action: "Confirm createUser Req", data: user })
+        JSON.stringify({ action: "confirm_create_user_error", data: user })
       );
       return res.json({ error: true, message: "Failed to register user!" });
     }
@@ -425,7 +425,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const hashPass = createHash(password, email);
+  const hashPass = createHash(password, email as string);
 
   const newPassword = await getAndUpdateUser(+id, { password: hashPass });
   if (!newPassword) {

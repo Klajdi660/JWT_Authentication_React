@@ -13,7 +13,7 @@ import { log } from "../utils";
 export const gameListHandler = async (req: Request, res: Response) => {
   const gameList = await getGameList(req.query);
   if (!gameList) {
-    log.error(JSON.stringify({ action: "getGameList", data: gameList }));
+    log.error(JSON.stringify({ action: "game_list_error", data: gameList }));
     return res.json({ error: true, message: "Failed to get games list" });
   }
 

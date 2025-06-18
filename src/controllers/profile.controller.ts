@@ -160,7 +160,7 @@ export const updateDisplayPictureHandler = async (
   if (!req.files || Object.keys(req.files).length === 0) {
     log.error(
       JSON.stringify({
-        action: "Error ploading file",
+        action: "uploading_file_error",
         message: "No files were uploaded.",
       })
     );
