@@ -361,7 +361,7 @@ export const forgotPasswordHandler = async (
   }
 
   const { accessToken } = await signToken(user);
-  const resetPassordUrl = `${origin}/reset-password/${user.email}/${accessToken}`;
+  const resetPassordUrl = `${clientUrl}/reset-password/${user.email}/${accessToken}`;
 
   const addedToRedis = await redisCLI.set(
     `reset_password_pending_${user.email}`,
