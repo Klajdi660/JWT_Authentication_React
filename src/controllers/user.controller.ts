@@ -1,6 +1,20 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../models";
-import { getUserById, signToken } from "../services";
+import { getUserById, getUserByUsername, signToken } from "../services";
+
+export const getUserByUsernameHandler = async (req: Request, res: Response) => {
+  const { username } = req.params;
+
+  const user = await getUserByUsername(username);
+  if (user) {
+    return res.json({
+      error: true,
+      message: "This username exists, please choose another username",
+    });
+  }
+
+  return;
+};
 
 export const getUserDetailsHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
