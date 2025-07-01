@@ -8,6 +8,7 @@ export interface AppConfigs {
 }
 
 export interface TokensConfigs {
+  registerSecretKey: string;
   accessTokenExpiresIn: number;
   accessTokenPublicKey: string;
   refreshTokenExpiresIn: number;

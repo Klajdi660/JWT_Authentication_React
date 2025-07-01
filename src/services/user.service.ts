@@ -6,7 +6,7 @@ import { DocumentType } from "@typegoose/typegoose";
 import { User } from "../models";
 import { redisCLI } from "../clients";
 import { log, signJwt, convertTZ } from "../utils";
-import { TokensConfigs, UserParams } from "../types";
+import { TokensConfigs, NewUserParams } from "../types";
 
 const {
   accessTokenExpiresIn,
@@ -58,6 +58,33 @@ export const getUserByUsername = async (
   });
 };
 
+export const getUserByEmailOrUsernameOrMobile = async (
+  request: Record<string, any>
+): Promise<User | any> => {
+  const { email, username, mobile } = request;
+
+  return User.findOne({
+    where: {
+      [Op.or]: [
+        { email },
+        { username },
+        {
+          extra: {
+            [Op.like]: `%\"mobile\":\"${mobile}\"%`,
+          },
+        },
+      ],
+    },
+  }).catch((error) => {
+    log.error(
+      JSON.stringify({
+        action: "user_by_email_username_or_mobile_catch",
+        data: error,
+      })
+    );
+  });
+};
+
 export const getUserByEmailOrUsername = async (
   email: string,
   username: string
@@ -77,7 +104,7 @@ export const getUserByEmailOrUsername = async (
 };
 
 export const createUser = async (
-  data: UserParams,
+  data: NewUserParams,
   verified: boolean
 ): Promise<User | any> => {
   const { email, username, fullName, password } = data;

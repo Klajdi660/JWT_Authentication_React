@@ -10,7 +10,7 @@ import {
 import {
   loginUserSchema,
   createUserSchema,
-  verifyEmailSchema,
+  registerConfirmSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
 } from "../schema";
@@ -18,7 +18,7 @@ import {
   loginHandler,
   logoutHandler,
   registerHandler,
-  verifyEmailHandler,
+  registerConfirmHandler,
   googleOauthHandler,
   resetPasswordHandler,
   forgotPasswordHandler,
@@ -33,7 +33,11 @@ const router = Router();
 
 router.post("/login", validate(loginUserSchema), loginHandler);
 router.post("/register", validate(createUserSchema), registerHandler);
-router.post("/verify-email", validate(verifyEmailSchema), verifyEmailHandler);
+router.post(
+  "/register-confirm",
+  validate(registerConfirmSchema),
+  registerConfirmHandler
+);
 router.post(
   "/reset-password",
   validate(resetPasswordSchema),

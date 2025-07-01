@@ -6,6 +6,7 @@
     "clientUrl": "CLIENT_URL"
   },
   "tokensConfigs": {
+    "registerSecretKey": "REGISTER_SECRET_KEY",
     "accessTokenExpiresIn": "ACCESS_TOKEN_EXPIRES",
     "refreshTokenExpiresIn": "REFRESH_TOKEN_EXPIRES",
     "accessTokenPublicKey": "ACCESS_TOKEN_PUBLIC_KEY",

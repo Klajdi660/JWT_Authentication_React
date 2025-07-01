@@ -12,7 +12,7 @@ import {
 } from "../utils";
 import {
   LoginUserInput,
-  VerifyEmailInput,
+  RegisterConfirmInput,
   ForgotPasswordInput,
 } from "../schema";
 import {
@@ -24,36 +24,38 @@ import {
   getUserLastLogin,
   createVerificationCode,
   getUserByEmailOrUsername,
+  getUserByEmailOrUsernameOrMobile,
+  getUserByUsername,
 } from "../services";
 import { User } from "../models";
 import { redisCLI } from "../clients";
 import { EMAIL_PROVIDERS } from "../constants";
-import { AppConfigs, TokensConfigs, UserParams } from "../types";
+import { AppConfigs, TokensConfigs, NewUserParams } from "../types";
 
 dayjs.extend(utc);
 const { clientUrl } = config.get<AppConfigs>("appConfigs");
 const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
 
 export const registerHandler = async (req: Request, res: Response) => {
-  const { email, username, password } = req.body;
+  const { username, password, mobile, fullname } = req.body;
 
-  const existingUser = await getUserByEmailOrUsername(email, username);
-  if (existingUser) {
+  const user = await getUserByEmailOrUsernameOrMobile(req.body);
+  if (user) {
     log.info(
       JSON.stringify({
         action: "existing_user",
-        data: existingUser,
+        data: user,
       })
     );
     return res.json({
       error: true,
-      message: "User with the provided email or username already exists",
+      message: "This user already exists, please enter another user",
     });
   }
 
-  const hash = createHash(password, email);
+  const hash = createHash(password);
 
-  const userRegistration: UserParams = {
+  const newUser: NewUserParams = {
     ...req.body,
     password: hash,
   };
@@ -61,26 +63,34 @@ export const registerHandler = async (req: Request, res: Response) => {
   const code = createVerificationCode();
   const codeExpire = dayjs().add(180, "s");
 
-  userRegistration["otpCode"] = code;
-  userRegistration["expiredCodeAt"] = codeExpire;
+  newUser["otpCode"] = code;
+  newUser["expiredCodeAt"] = codeExpire;
 
   const addedToRedis = await redisCLI.set(
-    `verify_email_pending_${email}`,
-    JSON.stringify(userRegistration)
+    `register_confirm_${username}`,
+    JSON.stringify(newUser)
   );
 
   if (!addedToRedis) {
-    return res.json({ error: true, message: "Email already registered" });
+    return res.json({ error: true, message: "User already registered" });
   }
 
-  await redisCLI.expire(`verify_email_pending_${email}`, 180);
+  await redisCLI.expire(`register_confirm_${username}`, 180);
 
-  const { fullName } = userRegistration;
+  if (mobile) {
+    return res.json({
+      error: false,
+      message:
+        "An sms with a verification code has been sent to your mobile. Please enter this code to proceed",
+      data: { username, codeExpire },
+    });
+  }
+
   const subject = "OTP Verification Email";
   const templatePath = "OTP";
   const templateData = {
     title: subject,
-    name: fullName,
+    name: fullname,
     code,
   };
 
@@ -96,25 +106,23 @@ export const registerHandler = async (req: Request, res: Response) => {
     error: false,
     message:
       "An email with a verification code has been sent to your email. Please enter this code to proceed",
-    data: { email, codeExpire },
+    data: { username, codeExpire },
   });
 };
 
-export const verifyEmailHandler = async (
-  req: Request<VerifyEmailInput>,
+export const registerConfirmHandler = async (
+  req: Request<RegisterConfirmInput>,
   res: Response
 ) => {
-  const { code } = req.body;
+  const { code, username } = req.body;
 
-  let redisObj: any = await redisCLI.get(
-    `verify_email_pending_${req.body.email}`
-  );
+  let redisObj: any = await redisCLI.get(`register_confirm_${username}`);
   redisObj = JSON.parse(redisObj);
   if (!redisObj) {
     return res.json({ error: true, message: "Confirmation time expired!" });
   }
 
-  const { email, otpCode, expiredCodeAt } = redisObj;
+  const { otpCode, expiredCodeAt } = redisObj;
   if (code !== otpCode) {
     return res.json({ error: true, message: "Confirmation code incorrect!" });
   }
@@ -131,33 +139,51 @@ export const verifyEmailHandler = async (
     });
   } // nuk duhet
 
-  const existingUser = await getUserByEmail(email);
-  let user;
-  let verified = true;
+  const verified = true;
+  const user = await getUserByUsername(username);
 
-  if (existingUser) {
-    user = await getAndUpdateUser(existingUser.id, { verified });
-    if (!user) {
-      log.error(
-        JSON.stringify({ action: "confirm_update_user_error", data: user })
-      );
-      return res.json({ error: true, message: "Failed to update user!" });
-    }
-  } else {
-    user = await createUser(redisObj, verified);
-    if (!user) {
-      log.error(
-        JSON.stringify({ action: "confirm_create_user_error", data: user })
-      );
-      return res.json({ error: true, message: "Failed to register user!" });
-    }
+  const newUser = user
+    ? await getAndUpdateUser(user.id, { verified })
+    : await createUser(redisObj, verified);
+
+  if (!newUser) {
+    const action = user
+      ? "register_confirm_update_user_error"
+      : "register_confirm_create_user_error";
+    const message = user ? "Failed to update user" : "Failed to create user";
+    const data = user || redisObj;
+
+    log.error(JSON.stringify({ action, data }));
+    return res.json({ error: true, message });
   }
 
-  await redisCLI.del(`verify_email_pending_${email}`);
+  // const existingUser = await getUserByEmail(email);
+  // let user;
+  // let verified = true;
+
+  // if (existingUser) {
+  //   user = await getAndUpdateUser(existingUser.id, { verified });
+  //   if (!user) {
+  //     log.error(
+  //       JSON.stringify({ action: "confirm_update_user_error", data: user })
+  //     );
+  //     return res.json({ error: true, message: "Failed to update user!" });
+  //   }
+  // } else {
+  //   user = await createUser(redisObj, verified);
+  //   if (!user) {
+  //     log.error(
+  //       JSON.stringify({ action: "confirm_create_user_error", data: user })
+  //     );
+  //     return res.json({ error: true, message: "Failed to register user!" });
+  //   }
+  // }
+
+  await redisCLI.del(`register_confirm_${username}`);
 
   res.json({
     error: false,
-    message: "Congratulation! Your account has been created.",
+    message: "Congratulation, your account has been created",
   });
 };
 
@@ -165,28 +191,29 @@ export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
   res: Response
 ) => {
-  const { identifier, password, remember } = req.body;
+  const { password, remember } = req.body;
 
-  const user = await getUserByEmailOrUsername(identifier, identifier);
+  const user = await getUserByEmailOrUsernameOrMobile(req.body);
   if (!user) {
     return res.json({
       error: true,
-      message: "Invalid Password! Please enter valid password.",
+      message:
+        "Sorry, we can't find an account with this credentials, please try again or create a new account",
     });
   }
 
   if (user && user.provider !== EMAIL_PROVIDERS.Email) {
     return res.json({
       error: true,
-      message: `That email address is already in use using ${user.provider} provider.`,
+      message: `This user is already in use using ${user.provider} provider`,
     });
   }
 
-  const expectedHash = createHash(password, user.email);
-  if (user.password !== expectedHash) {
+  const hash = createHash(password);
+  if (user.password !== hash) {
     return res.json({
       error: true,
-      message: "Invalid Password! Please enter valid password.",
+      message: "Invalid password, please enter valid password",
     });
   }
 
@@ -199,17 +226,17 @@ export const loginHandler = async (
     };
 
     const addedToRedis = await redisCLI.set(
-      `verify_email_pending_${user.email}`,
+      `register_confirm_${user.username}`,
       JSON.stringify(user_registration)
     );
     if (!addedToRedis) {
-      return res.json({ error: true, message: "Email already registered." });
+      return res.json({ error: true, message: "User already registered" });
     }
 
-    await redisCLI.expire(`register_pending_${user.email}`, 3600);
+    await redisCLI.expire(`register_confirm_${user.username}`, 3600);
 
     const extra = JSON.parse(user.extra);
-    let subject = "OTP Verification Email";
+    let subject = "OTP Verification User";
     let templatePath = "OTP";
     const templateData = {
       title: subject,
@@ -233,7 +260,7 @@ export const loginHandler = async (
 
   const { accessToken, refreshToken } = await signToken(user, remember);
 
-  await getUserLastLogin(user.id);
+  // await getUserLastLogin(user.id);
 
   user.password = undefined;
 
@@ -425,7 +452,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const hashPass = createHash(password, email as string);
+  const hashPass = createHash(password);
 
   const newPassword = await getAndUpdateUser(+id, { password: hashPass });
   if (!newPassword) {

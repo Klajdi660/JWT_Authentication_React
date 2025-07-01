@@ -4,11 +4,12 @@ import config from "config";
 import crypto from "crypto";
 import moment from "moment-timezone";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { AppConfigs } from "../types";
+import { AppConfigs, TokensConfigs } from "../types";
 
 dayjs.extend(customParseFormat);
 
 const { logLevel } = config.get<AppConfigs>("appConfigs");
+const { registerSecretKey } = config.get<TokensConfigs>("tokensConfigs");
 
 export const asyncHandler = (fn: any) =>
   function asyncUtilWrap(...args: any) {
@@ -28,10 +29,10 @@ export const log = logger({
   timestamp: () => `,"time":"${dayjs().format()}"`,
 });
 
-export const createHash = (password: string, email: string) => {
+export const createHash = (password: string) => {
   return crypto
     .createHash("sha1")
-    .update(password + email)
+    .update(password + registerSecretKey)
     .digest("hex");
 };
 
