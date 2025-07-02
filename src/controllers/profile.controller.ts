@@ -57,7 +57,7 @@ export const changePasswordHandler = async (req: Request, res: Response) => {
   // const parseExtra = JSON.parse(extra);
   // const { name } = parseExtra;
 
-  const expectedHash = createHash(currentPassword, user.email);
+  const expectedHash = createHash(currentPassword);
   if (user.password !== expectedHash) {
     return res.json({
       error: true,
@@ -65,7 +65,7 @@ export const changePasswordHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const hash = createHash(newPassword, email);
+  const hash = createHash(newPassword);
   const newPasswordResp = await getAndUpdateUser(+id, { password: hash });
   if (!newPasswordResp) {
     return res.json({

@@ -47,6 +47,11 @@
       "smtpService": "SMTP_SERVICE",
       "smtpPassword": "SMTP_PASSWORD"
     },
+    "sms": {
+      "smsAccoutSId": "SMS_ACCOUNT_SID",
+      "smsAuthToken": "SMS_AUTH_TOKEN",
+      "smsPhoneNumber": "SMS_PHONE_NUMBER"
+    },
     "rwg": {
       "rwgUrl": "RWG_URL",
       "rwgKey": "RWG_KEY"

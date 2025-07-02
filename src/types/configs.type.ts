@@ -56,6 +56,12 @@ export interface SmtpConfigs {
   smtpPassword: string;
 }
 
+export interface SMSConfigs {
+  smsAccoutSId: string;
+  smsAuthToken: string;
+  smsPhoneNumber: string;
+}
+
 export interface CloudinaryConfig {
   cloudName: string;
   cloudApiKey: string;

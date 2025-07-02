@@ -14,7 +14,7 @@ export const createUserSchema = object({
       .regex(emailRegex, "Not a valid email")
       .or(string().length(0)),
 
-    mobile: string({
+    phoneNumber: string({
       required_error: "Email or phone number is required",
     })
       .regex(phoneRegex, "Not a valid phone number")
@@ -42,9 +42,11 @@ export const createUserSchema = object({
       }),
   }).refine(
     (data) => {
-      const hasEmail = data.email.length > 0 && emailRegex.test(data.email);
-      const hasPhone = data.mobile.length > 0 && phoneRegex.test(data.mobile);
-      return hasEmail || hasPhone;
+      const { email, phoneNumber } = data;
+      const hasEmail = email.length > 0 && emailRegex.test(email);
+      const hasPhoneNumber =
+        phoneNumber.length > 0 && phoneRegex.test(phoneNumber);
+      return hasEmail || hasPhoneNumber;
     },
     {
       message: "Either email or phone number must be provided",
@@ -86,7 +88,7 @@ export const loginUserSchema = object({
     })
       .regex(emailRegex, "Not a valid email")
       .or(string().length(0)),
-    mobile: string({
+    phoneNumber: string({
       required_error: "Email, phone number or username is required",
     })
       .regex(phoneRegex, "Not a valid phone number")
@@ -104,17 +106,18 @@ export const loginUserSchema = object({
     timezone: string().optional(),
   }).refine(
     (data) => {
-      const { email, mobile, username } = data;
+      const { email, phoneNumber, username } = data;
 
       const hasEmail = email.length > 0 && emailRegex.test(email);
-      const hasPhone = mobile.length > 0 && phoneRegex.test(mobile);
+      const hasPhoneNumber =
+        phoneNumber.length > 0 && phoneRegex.test(phoneNumber);
       const hasUsername = username.length > 0 && usernameRegex.test(username);
 
-      return hasEmail || hasPhone || hasUsername;
+      return hasEmail || hasPhoneNumber || hasUsername;
     },
     {
       message: "Either email, phone number or username must be provided",
-      path: ["email"],
+      // path: ["email"],
     }
   ),
 });

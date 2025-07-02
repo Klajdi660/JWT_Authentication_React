@@ -9,6 +9,7 @@ import {
   verifyJwt,
   createHash,
   accessTokenCookieOptions,
+  sendSms,
 } from "../utils";
 import {
   LoginUserInput,
@@ -37,7 +38,7 @@ const { clientUrl } = config.get<AppConfigs>("appConfigs");
 const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
 
 export const registerHandler = async (req: Request, res: Response) => {
-  const { username, password, mobile, fullname } = req.body;
+  const { username, password, phoneNumber, fullname } = req.body;
 
   const user = await getUserByEmailOrUsernameOrMobile(req.body);
   if (user) {
@@ -77,7 +78,17 @@ export const registerHandler = async (req: Request, res: Response) => {
 
   await redisCLI.expire(`register_confirm_${username}`, 180);
 
-  if (mobile) {
+  if (phoneNumber) {
+    const message = `Your GrooveIT verification code is: ${code}`;
+
+    const smsSent = await sendSms(message, phoneNumber);
+    if (!smsSent) {
+      return res.json({
+        error: true,
+        message: "There was an error sending sms, please try again",
+      });
+    }
+
     return res.json({
       error: false,
       message:

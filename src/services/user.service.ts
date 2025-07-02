@@ -61,7 +61,7 @@ export const getUserByUsername = async (
 export const getUserByEmailOrUsernameOrMobile = async (
   request: Record<string, any>
 ): Promise<User | any> => {
-  const { email, username, mobile } = request;
+  const { email, username, phoneNumber } = request;
 
   return User.findOne({
     where: {
@@ -70,7 +70,7 @@ export const getUserByEmailOrUsernameOrMobile = async (
         { username },
         {
           extra: {
-            [Op.like]: `%\"mobile\":\"${mobile}\"%`,
+            [Op.like]: `%\"phoneNumber\":\"${phoneNumber}\"%`,
           },
         },
       ],
@@ -119,7 +119,7 @@ export const createUser = async (
     gender: null,
     dateOfBirth: null,
     about: null,
-    contactNumber: null,
+    phoneNumber: null,
     photo: null,
   };
 
@@ -162,7 +162,8 @@ export const deleteUser = async (id: number): Promise<User | any> => {
 export const createVerificationCode = () => {
   const otp = otpGenerator.generate(6, {
     lowerCaseAlphabets: false,
-    upperCaseAlphabets: true,
+    // upperCaseAlphabets: true,
+    upperCaseAlphabets: false,
     specialChars: false,
   });
 
