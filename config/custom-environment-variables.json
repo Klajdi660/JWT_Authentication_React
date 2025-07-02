@@ -50,7 +50,8 @@
     "sms": {
       "smsAccoutSId": "SMS_ACCOUNT_SID",
       "smsAuthToken": "SMS_AUTH_TOKEN",
-      "smsPhoneNumber": "SMS_PHONE_NUMBER"
+      "smsPhoneNumber": "SMS_PHONE_NUMBER",
+      "smsApiKey": "SMS_API_KEY"
     },
     "rwg": {
       "rwgUrl": "RWG_URL",

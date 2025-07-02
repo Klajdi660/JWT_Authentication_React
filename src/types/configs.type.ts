@@ -60,6 +60,7 @@ export interface SMSConfigs {
   smsAccoutSId: string;
   smsAuthToken: string;
   smsPhoneNumber: string;
+  smsApiKey: string;
 }
 
 export interface CloudinaryConfig {
