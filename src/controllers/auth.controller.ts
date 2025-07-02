@@ -82,12 +82,12 @@ export const registerHandler = async (req: Request, res: Response) => {
     const message = `Your GrooveIT verification code is: ${code}`;
 
     const smsSent = await sendSms(message, phoneNumber);
-    // if (!smsSent) {
-    //   return res.json({
-    //     error: true,
-    //     message: "There was an error sending sms, please try again",
-    //   });
-    // }
+    if (!smsSent) {
+      return res.json({
+        error: true,
+        message: "There was an error sending sms, please try again",
+      });
+    }
 
     return res.json({
       error: false,

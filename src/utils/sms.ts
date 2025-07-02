@@ -4,7 +4,7 @@ import { log } from "../utils";
 import { SMSConfigs } from "../types";
 import { MailerSend, SMSParams } from "mailersend";
 
-const { smsAccoutSId, smsAuthToken, smsPhoneNumber, smsApiKey } =
+const { smsAccoutSId, smsAuthToken, smsPhoneNumber, smsApiKey, smsFrom } =
   config.get<SMSConfigs>("providersConfigs.sms");
 
 const client = twilio(smsAccoutSId, smsAuthToken);
@@ -25,18 +25,18 @@ export const sendSms = async (message: string, phoneNumber: string) => {
   //       );
   //     });
 
-  const smsParams = new SMSParams()
-    .setFrom("+355693595147")
-    .setTo([phoneNumber])
-    .setText(message);
-
   try {
-    const response = await mailerSend.sms.send(smsParams);
-    console.log("Survey SMS sent successfully:", response);
+    const smsParams = new SMSParams()
+      .setFrom(smsFrom)
+      .setTo([phoneNumber])
+      .setText(message);
+    return mailerSend.sms.send(smsParams);
   } catch (error: any) {
-    console.error(
-      "Error sending survey SMS:",
-      error.response?.data || error.message || error
+    log.error(
+      JSON.stringify({
+        action: "send_sms_catch",
+        message: error.response?.data || error.message || error,
+      })
     );
   }
 };
