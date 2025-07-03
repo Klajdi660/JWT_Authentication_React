@@ -2,27 +2,17 @@ import { object, string, TypeOf } from "zod";
 
 export const createPostSchema = object({
   body: object({
-    title: string({
-      required_error: "Title is required",
-    }),
-    content: string({
-      required_error: "Content is required",
-    }),
-    image: string({
-      required_error: "Image is required",
-    }),
+    title: string({ required_error: "Title is required" }),
+    content: string({ required_error: "Content is required" }),
+    image: string({ required_error: "Image is required" }),
   }),
 });
 
 const params = {
-  params: object({
-    postId: string(),
-  }),
+  params: object({ postId: string() }),
 };
 
-export const getPostSchema = object({
-  ...params,
-});
+export const getPostSchema = object({ ...params });
 
 export const updatePostSchema = object({
   ...params,
@@ -33,9 +23,7 @@ export const updatePostSchema = object({
   }).partial(),
 });
 
-export const deletePostSchema = object({
-  ...params,
-});
+export const deletePostSchema = object({ ...params });
 
 export type UpdatePostInput = TypeOf<typeof updatePostSchema>;
 export type GetPostInput = TypeOf<typeof getPostSchema>["params"];

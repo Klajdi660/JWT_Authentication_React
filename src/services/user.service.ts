@@ -6,7 +6,7 @@ import { DocumentType } from "@typegoose/typegoose";
 import { User } from "../models";
 import { redisCLI } from "../clients";
 import { log, signJwt, convertTZ } from "../utils";
-import { TokensConfigs, NewUserParams } from "../types";
+import { TokensConfigs, NewUserTypes } from "../types";
 
 const {
   accessTokenExpiresIn,
@@ -18,7 +18,9 @@ export const getUserById = async (id: number): Promise<User | any> => {
   return User.findOne({
     where: { id },
   }).catch((error) => {
-    log.error(JSON.stringify({ action: "user_by_id_catch", data: error }));
+    log.error(
+      JSON.stringify({ action: "user_by_id_catch", message: error.message })
+    );
   });
 };
 
@@ -33,7 +35,10 @@ export const getUserByProviderId = async (
     },
   }).catch((error) => {
     log.error(
-      JSON.stringify({ action: "user_by_provider_id_catch", data: error })
+      JSON.stringify({
+        action: "user_by_provider_id_catch",
+        message: error.message,
+      })
     );
   });
 };
@@ -42,7 +47,9 @@ export const getUserByEmail = async (email: string): Promise<User | any> => {
   return User.findOne({
     where: { email },
   }).catch((error) => {
-    log.error(JSON.stringify({ action: "user_by_email_catch", data: error }));
+    log.error(
+      JSON.stringify({ action: "user_by_email_catch", message: error.message })
+    );
   });
 };
 
@@ -53,7 +60,10 @@ export const getUserByUsername = async (
     where: { username },
   }).catch((error) => {
     log.error(
-      JSON.stringify({ action: "user_by_username_catch", data: error })
+      JSON.stringify({
+        action: "user_by_username_catch",
+        message: error.message,
+      })
     );
   });
 };
@@ -79,7 +89,7 @@ export const getUserByEmailOrUsernameOrMobile = async (
     log.error(
       JSON.stringify({
         action: "user_by_email_username_or_mobile_catch",
-        data: error,
+        message: error.message,
       })
     );
   });
@@ -97,23 +107,19 @@ export const getUserByEmailOrUsername = async (
     log.error(
       JSON.stringify({
         action: "user_by_email_or_username_catch",
-        data: error,
+        message: error.message,
       })
     );
   });
 };
 
-export const createUser = async (
-  data: NewUserParams,
-  verified: boolean
-): Promise<User | any> => {
-  const { email, username, fullName, password } = data;
+export const createUser = async (data: NewUserTypes): Promise<User | any> => {
+  const { email, username, fullname, password, verified } = data;
 
-  const [firstName, ...rest] = fullName.split(" ");
+  const [firstName, ...rest] = fullname.split(" ");
   const lastName = rest.join(" ");
 
   const extraData = {
-    // name: fullName,
     firstName,
     lastName,
     gender: null,
@@ -137,16 +143,15 @@ export const createUser = async (
   });
 };
 
-export const getAndUpdateUser = async (
+export const updateUser = async (
   id: number,
   updatedField: { [key: string]: any }
 ): Promise<User | any> => {
-  const currentTimestamp = dayjs().toDate();
-  updatedField.updatedAt = currentTimestamp;
+  // updatedField.updatedAt = dayjs().toDate();
 
   return User.update(updatedField, { where: { id } }).catch((error) => {
     log.error(
-      JSON.stringify({ action: "get_and_update_user_catch", data: error })
+      JSON.stringify({ action: "update_user_catch", message: error.message })
     );
   });
 };
@@ -155,14 +160,15 @@ export const deleteUser = async (id: number): Promise<User | any> => {
   return User.destroy({
     where: { id },
   }).catch((error) => {
-    log.error(JSON.stringify({ action: "delete_user_catch", data: error }));
+    log.error(
+      JSON.stringify({ action: "delete_user_catch", message: error.message })
+    );
   });
 };
 
 export const createVerificationCode = () => {
   const otp = otpGenerator.generate(6, {
     lowerCaseAlphabets: false,
-    // upperCaseAlphabets: true,
     upperCaseAlphabets: false,
     specialChars: false,
   });
@@ -217,7 +223,7 @@ export const getUserLastLogin = async (id: number) => {
   let { date, time } = convertTZ(currentTimestamp);
   const lastLogin = `${date} ${time}`;
 
-  await getAndUpdateUser(id, { lastLogin });
+  await updateUser(id, { lastLogin });
   return;
 };
 

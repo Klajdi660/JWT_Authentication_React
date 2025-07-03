@@ -13,7 +13,7 @@ import {
 } from "../utils";
 import {
   LoginUserInput,
-  RegisterConfirmInput,
+  VerifyAccountInput,
   ForgotPasswordInput,
 } from "../schema";
 import {
@@ -21,7 +21,7 @@ import {
   createUser,
   getUserById,
   getUserByEmail,
-  getAndUpdateUser,
+  updateUser,
   getUserLastLogin,
   createVerificationCode,
   getUserByEmailOrUsername,
@@ -31,13 +31,13 @@ import {
 import { User } from "../models";
 import { redisCLI } from "../clients";
 import { EMAIL_PROVIDERS } from "../constants";
-import { AppConfigs, TokensConfigs, NewUserParams } from "../types";
+import { AppConfigs, TokensConfigs, NewUserTypes } from "../types";
 
 dayjs.extend(utc);
 const { clientUrl } = config.get<AppConfigs>("appConfigs");
 const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
 
-export const registerHandler = async (req: Request, res: Response) => {
+export const createUserHandler = async (req: Request, res: Response) => {
   const { username, password, phoneNumber, fullname } = req.body;
 
   const user = await getUserByEmailOrUsernameOrMobile(req.body);
@@ -54,11 +54,12 @@ export const registerHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const hash = createHash(password);
+  const hashePassword = createHash(password);
 
-  const newUser: NewUserParams = {
+  const newUser: NewUserTypes = {
     ...req.body,
-    password: hash,
+    password: hashePassword,
+    verified: false,
   };
 
   const code = createVerificationCode();
@@ -68,7 +69,7 @@ export const registerHandler = async (req: Request, res: Response) => {
   newUser["expiredCodeAt"] = codeExpire;
 
   const addedToRedis = await redisCLI.set(
-    `register_confirm_${username}`,
+    `verify_account_${username}`,
     JSON.stringify(newUser)
   );
 
@@ -76,7 +77,7 @@ export const registerHandler = async (req: Request, res: Response) => {
     return res.json({ error: true, message: "User already registered" });
   }
 
-  await redisCLI.expire(`register_confirm_${username}`, 180);
+  await redisCLI.expire(`verify_account_${username}`, 180);
 
   if (phoneNumber) {
     const message = `Your GrooveIT verification code is: ${code}`;
@@ -97,7 +98,7 @@ export const registerHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const subject = "OTP Verification Email";
+  const subject = "User Verification";
   const templatePath = "OTP";
   const templateData = {
     title: subject,
@@ -116,18 +117,18 @@ export const registerHandler = async (req: Request, res: Response) => {
   res.json({
     error: false,
     message:
-      "An email with a verification code has been sent to your email. Please enter this code to proceed",
+      "An email with a verification code has been sent to your email, please enter this code to proceed",
     data: { username, codeExpire },
   });
 };
 
-export const registerConfirmHandler = async (
-  req: Request<RegisterConfirmInput>,
+export const verfyAccountHandler = async (
+  req: Request<VerifyAccountInput>,
   res: Response
 ) => {
   const { code, username } = req.body;
 
-  let redisObj: any = await redisCLI.get(`register_confirm_${username}`);
+  let redisObj: any = await redisCLI.get(`verify_account_${username}`);
   redisObj = JSON.parse(redisObj);
   if (!redisObj) {
     return res.json({ error: true, message: "Confirmation time expired!" });
@@ -150,17 +151,18 @@ export const registerConfirmHandler = async (
     });
   } // nuk duhet
 
-  const verified = true;
   const user = await getUserByUsername(username);
 
+  redisObj.verified = true;
+
   const newUser = user
-    ? await getAndUpdateUser(user.id, { verified })
-    : await createUser(redisObj, verified);
+    ? await updateUser(user.id, { verified: true })
+    : await createUser(redisObj);
 
   if (!newUser) {
     const action = user
-      ? "register_confirm_update_user_error"
-      : "register_confirm_create_user_error";
+      ? "verify_account_update_user_error"
+      : "verify_account_create_user_error";
     const message = user ? "Failed to update user" : "Failed to create user";
     const data = user || redisObj;
 
@@ -168,41 +170,22 @@ export const registerConfirmHandler = async (
     return res.json({ error: true, message });
   }
 
-  // const existingUser = await getUserByEmail(email);
-  // let user;
-  // let verified = true;
+  await redisCLI.del(`verify_account_${username}`);
 
-  // if (existingUser) {
-  //   user = await getAndUpdateUser(existingUser.id, { verified });
-  //   if (!user) {
-  //     log.error(
-  //       JSON.stringify({ action: "confirm_update_user_error", data: user })
-  //     );
-  //     return res.json({ error: true, message: "Failed to update user!" });
-  //   }
-  // } else {
-  //   user = await createUser(redisObj, verified);
-  //   if (!user) {
-  //     log.error(
-  //       JSON.stringify({ action: "confirm_create_user_error", data: user })
-  //     );
-  //     return res.json({ error: true, message: "Failed to register user!" });
-  //   }
-  // }
+  const message = user
+    ? "Congratulations, your account has been verified"
+    : "Congratulations, your account has been created";
 
-  await redisCLI.del(`register_confirm_${username}`);
-
-  res.json({
-    error: false,
-    message: "Congratulation, your account has been created",
-  });
+  res.json({ error: false, message });
 };
+
+export const verifyOTPCode = async (req: Request, res: Response) => {};
 
 export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
   res: Response
 ) => {
-  const { password, remember } = req.body;
+  const { password, remember, phoneNumber } = req.body;
 
   const user = await getUserByEmailOrUsernameOrMobile(req.body);
   if (!user) {
@@ -237,17 +220,35 @@ export const loginHandler = async (
     };
 
     const addedToRedis = await redisCLI.set(
-      `register_confirm_${user.username}`,
+      `verify_account_${user.username}`,
       JSON.stringify(user_registration)
     );
     if (!addedToRedis) {
       return res.json({ error: true, message: "User already registered" });
     }
 
-    await redisCLI.expire(`register_confirm_${user.username}`, 3600);
+    await redisCLI.expire(`verify_account_${user.username}`, 3600);
+
+    if (phoneNumber) {
+      const message = `Your GrooveIT verification code is: ${code}`;
+
+      const smsSent = await sendSms(message, phoneNumber);
+      if (!smsSent) {
+        return res.json({
+          error: true,
+          message: "There was an error sending sms, please try again",
+        });
+      }
+
+      return res.json({
+        error: true,
+        message:
+          "User not verified, an sms with a verification code has been sent to your phone",
+      });
+    }
 
     const extra = JSON.parse(user.extra);
-    let subject = "OTP Verification User";
+    let subject = "User Verification";
     let templatePath = "OTP";
     const templateData = {
       title: subject,
@@ -265,13 +266,12 @@ export const loginHandler = async (
 
     return res.json({
       error: true,
-      message: `Email ${user.email} not verified. An email with a verification code has been sent to your email`,
+      message:
+        "User not verified. An email with a verification code has been sent to your email",
     });
   }
 
   const { accessToken, refreshToken } = await signToken(user, remember);
-
-  // await getUserLastLogin(user.id);
 
   user.password = undefined;
 
@@ -290,7 +290,7 @@ export const loginWithSavedUserHandler = async (
   if (!user) {
     return res.json({
       error: true,
-      message: "User is not Registered with us, please Sign Up to continue.",
+      message: "User is not Registered with us, please Sign Up to continue",
     });
   }
 
@@ -367,14 +367,14 @@ export const logoutHandler = async (
   if (!user) {
     return res.json({
       error: true,
-      message: "User is not Registered with us, please Sign Up to continue.",
+      message: "User is not registered with us, please sign up to continue",
     });
   }
 
   await redisCLI.del(`session_${user.id}`);
   await getUserLastLogin(user.id);
 
-  res.json({ error: false, message: "Logout success." });
+  res.json({ error: false, message: "Logout success" });
 };
 
 export const forgotPasswordHandler = async (
@@ -408,8 +408,7 @@ export const forgotPasswordHandler = async (
   if (!addedToRedis) {
     return res.json({
       error: true,
-      message:
-        "New password waiting for confirmation. Please check your inbox!",
+      message: "New password waiting for confirmation, please check your inbox",
     });
   }
   await redisCLI.expire(`reset_password_pending_${user.email}`, 180);
@@ -433,7 +432,7 @@ export const forgotPasswordHandler = async (
   res.json({
     error: false,
     message:
-      "Email Sent Successfully, Please Check Your Email to Continue Further.",
+      "Email sent successfully, please check your email to continue further",
   });
 };
 
@@ -447,7 +446,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     return res.json({
       error: true,
       message:
-        "Your token has expired. Please attempt to reset your password again.",
+        "Your token has expired, please attempt to reset your password again",
     });
   }
 
@@ -465,12 +464,12 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
   const hashPass = createHash(password);
 
-  const newPassword = await getAndUpdateUser(+id, { password: hashPass });
+  const newPassword = await updateUser(+id, { password: hashPass });
   if (!newPassword) {
     return res.json({
       error: true,
       message:
-        "Something went wrong changing the password. Please try again later.",
+        "Something went wrong changing the password, please try again later",
     });
   }
 
@@ -487,7 +486,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
   if (!mailSent) {
     return res.json({
       error: true,
-      message: "Somenthing went wrong. Email not sent.",
+      message: "Somenthing went wrong, email not sent",
     });
   }
 

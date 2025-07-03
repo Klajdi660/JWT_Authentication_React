@@ -23,7 +23,7 @@ export const getUserDetailsHandler = async (req: Request, res: Response) => {
   if (!user) {
     return res.json({
       error: true,
-      message: "User does not exist in our database!",
+      message: "User does not exist in our database",
     });
   }
 

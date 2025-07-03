@@ -10,15 +10,15 @@ import {
 import {
   loginUserSchema,
   createUserSchema,
-  registerConfirmSchema,
+  verifyAccountSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
 } from "../schema";
 import {
   loginHandler,
   logoutHandler,
-  registerHandler,
-  registerConfirmHandler,
+  createUserHandler,
+  verfyAccountHandler,
   googleOauthHandler,
   resetPasswordHandler,
   forgotPasswordHandler,
@@ -32,11 +32,11 @@ const { prefix } = config.get<AppConfigs>("appConfigs");
 const router = Router();
 
 router.post("/login", validate(loginUserSchema), loginHandler);
-router.post("/register", validate(createUserSchema), registerHandler);
+router.post("/register", validate(createUserSchema), createUserHandler);
 router.post(
-  "/register-confirm",
-  validate(registerConfirmSchema),
-  registerConfirmHandler
+  "/verify-account",
+  validate(verifyAccountSchema),
+  verfyAccountHandler
 );
 router.post(
   "/reset-password",

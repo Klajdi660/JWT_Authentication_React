@@ -1,10 +1,11 @@
-export interface NewUserParams {
+export interface NewUserTypes {
   id: number;
-  email?: string;
-  mobile?: string;
+  email: string;
+  phoneNumber: string;
   username: string;
-  fullName: string;
+  fullname: string;
   password: string;
+  verified: boolean;
   otpCode?: string;
   expiredCodeAt?: any;
 }

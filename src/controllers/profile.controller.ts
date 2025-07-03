@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { UploadApiResponse } from "cloudinary";
 import {
   getUserById,
-  getAndUpdateUser,
+  updateUser,
   getUserByUsername,
   cancelAccountDeletion,
   scheduleAccountDeletion,
@@ -25,17 +25,16 @@ export const changeUsernameHandler = async (req: Request, res: Response) => {
   if (existingUser) {
     return res.json({
       error: true,
-      message:
-        "User with this username exists, please choose another username.",
+      message: "User with this username exists, please choose another username",
     });
   }
 
-  const updateUser = await getAndUpdateUser(user.id, { username });
-  if (!updateUser) {
+  const userUpdated = await updateUser(user.id, { username });
+  if (!userUpdated) {
     return res.json({
       error: true,
       message:
-        "Something went wrong changing the username. Please try again later.",
+        "Something went wrong changing the username, please try again later",
     });
   }
 
@@ -44,7 +43,7 @@ export const changeUsernameHandler = async (req: Request, res: Response) => {
 
   res.json({
     error: false,
-    message: "Username changed successfully.",
+    message: "Username changed successfully",
     data: newUser,
   });
 };
@@ -61,17 +60,17 @@ export const changePasswordHandler = async (req: Request, res: Response) => {
   if (user.password !== expectedHash) {
     return res.json({
       error: true,
-      message: "The password is incorrect. Please enter the correct password.",
+      message: "The password is incorrect, please enter the correct password",
     });
   }
 
   const hash = createHash(newPassword);
-  const newPasswordResp = await getAndUpdateUser(+id, { password: hash });
+  const newPasswordResp = await updateUser(+id, { password: hash });
   if (!newPasswordResp) {
     return res.json({
       error: true,
       message:
-        "Something went wrong changing the password. Please try again later.",
+        "Something went wrong changing the password, please try again later",
     });
   }
 
@@ -86,11 +85,11 @@ export const changePasswordHandler = async (req: Request, res: Response) => {
   // if (!mailSent) {
   //   return res.json({
   //     error: true,
-  //     message: "Somenthing went wrong. Email not sent.",
+  //     message: "Somenthing went wrong, email not sent",
   //   });
   // }
 
-  res.json({ error: false, message: "Password changed successfully." });
+  res.json({ error: false, message: "Password changed successfully" });
 };
 
 export const deleteAccountHandler = async (req: Request, res: Response) => {
@@ -100,7 +99,7 @@ export const deleteAccountHandler = async (req: Request, res: Response) => {
   if (confirmDelete !== "delete") {
     return res.json({
       error: true,
-      message: "Please type 'delete' to confirm account deletion.",
+      message: "Please type 'delete' to confirm account deletion",
     });
   }
 
@@ -108,7 +107,7 @@ export const deleteAccountHandler = async (req: Request, res: Response) => {
 
   res.json({
     error: false,
-    message: "Your profile will be deleted in 14 days.",
+    message: "Your profile will be deleted in 14 days",
     data: { daysDifference },
   });
 };
@@ -133,13 +132,13 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
   const extraData = { ...JSON.parse(user.extra || "{}"), ...updates };
   // const extraData = Object.assign({}, JSON.parse(user.extra || "{}"), extra);
 
-  const updatedProfileUser = await getAndUpdateUser(user.id, {
+  const updatedProfileUser = await updateUser(user.id, {
     extra: JSON.stringify(extraData),
   });
   if (!updatedProfileUser) {
     return res.json({
       error: true,
-      message: "Profile not updated. Please try again later.",
+      message: "Profile not updated, please try again later",
     });
   }
 
@@ -148,7 +147,7 @@ export const updateProfileHandler = async (req: Request, res: Response) => {
 
   res.json({
     error: false,
-    message: "Profile updated successfully!",
+    message: "Profile updated successfully",
     data: updatedUser,
   });
 };
@@ -161,10 +160,10 @@ export const updateDisplayPictureHandler = async (
     log.error(
       JSON.stringify({
         action: "uploading_file_error",
-        message: "No files were uploaded.",
+        message: "No files were uploaded",
       })
     );
-    return res.status(400).send("No files were uploaded.");
+    return res.status(400).send("No files were uploaded");
   }
 
   const { user } = res.locals;
@@ -181,13 +180,13 @@ export const updateDisplayPictureHandler = async (
 
   extraData.avatar = image.secure_url;
 
-  const updatedProfileUser = await getAndUpdateUser(user.id, {
+  const updatedProfileUser = await updateUser(user.id, {
     extra: JSON.stringify(extraData),
   });
   if (!updatedProfileUser) {
     return res.json({
       error: true,
-      message: "Profile not updated. Please try again later.",
+      message: "Profile not updated, please try again later",
     });
   }
 
@@ -196,7 +195,7 @@ export const updateDisplayPictureHandler = async (
 
   res.json({
     error: false,
-    message: "Profile updated successfully!",
+    message: "Profile updated successfully",
     data: updatedUser,
   });
 };
@@ -216,20 +215,20 @@ export const removeDisplayPictureHandler = async (
   if (!removedImgFromCloudinary) {
     return res.json({
       error: true,
-      message: "Error removing image from Cloudinary.",
+      message: "Error removing image from cloudinary",
     });
   }
 
   extraData.avatar = null;
 
-  const updatedProfileUser = await getAndUpdateUser(user.id, {
+  const updatedProfileUser = await updateUser(user.id, {
     extra: JSON.stringify(extraData),
   });
 
   if (!updatedProfileUser) {
     return res.status(500).json({
       error: true,
-      message: "Profile not updated. Please try again later.",
+      message: "Profile not updated, please try again later",
     });
   }
 
@@ -238,7 +237,7 @@ export const removeDisplayPictureHandler = async (
 
   res.json({
     error: false,
-    message: "Profile photo removed successfully!",
+    message: "Profile photo removed successfully",
     data: updatedUser,
   });
 };
@@ -257,7 +256,7 @@ export const addNewCreditCardHandler = async (req: Request, res: Response) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ error: true, message: "Failed to parse extra data." });
+      .json({ error: true, message: "Failed to parse extra data" });
   }
 
   if (!extraData.creditCards) {
@@ -267,13 +266,13 @@ export const addNewCreditCardHandler = async (req: Request, res: Response) => {
   if (extraData.creditCards[cardNr]) {
     return res.json({
       error: true,
-      message: "This card number already exists, please add another card.",
+      message: "This card number already exists, please add another card",
     });
   }
 
   extraData.creditCards[cardNr] = { ...req.body };
 
-  await getAndUpdateUser(user.id, { extra: JSON.stringify(extraData) });
+  await updateUser(user.id, { extra: JSON.stringify(extraData) });
 
-  return res.json({ success: true, message: "Card added successfully." });
+  return res.json({ success: true, message: "Card added successfully" });
 };
