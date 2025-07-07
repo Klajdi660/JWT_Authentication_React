@@ -48,11 +48,11 @@
       "smtpPassword": "SMTP_PASSWORD"
     },
     "sms": {
-      "smsAccoutSId": "SMS_ACCOUNT_SID",
-      "smsAuthToken": "SMS_AUTH_TOKEN",
-      "smsPhoneNumber": "SMS_PHONE_NUMBER",
+      "smsFrom": "SMS_FROM",
       "smsApiKey": "SMS_API_KEY",
-      "smsFrom": "SMS_FROM"
+      "smsAuthToken": "SMS_AUTH_TOKEN",
+      "smsAccoutSId": "SMS_ACCOUNT_SID",
+      "smsPhoneNumber": "SMS_PHONE_NUMBER"
     },
     "rwg": {
       "rwgUrl": "RWG_URL",

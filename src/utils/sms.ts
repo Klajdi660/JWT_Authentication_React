@@ -1,8 +1,8 @@
 import twilio from "twilio";
 import config from "config";
+// import { MailerSend, SMSParams } from "mailersend";
 import { log } from "../utils";
 import { SMSConfigs } from "../types";
-import { MailerSend, SMSParams } from "mailersend";
 
 const { smsAccoutSId, smsAuthToken, smsPhoneNumber, smsApiKey, smsFrom } =
   config.get<SMSConfigs>("providersConfigs.sms");

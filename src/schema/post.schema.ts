@@ -8,14 +8,12 @@ export const createPostSchema = object({
   }),
 });
 
-const params = {
+export const getPostSchema = object({
   params: object({ postId: string() }),
-};
-
-export const getPostSchema = object({ ...params });
+});
 
 export const updatePostSchema = object({
-  ...params,
+  params: object({ postId: string() }),
   body: object({
     title: string(),
     content: string(),
@@ -23,7 +21,9 @@ export const updatePostSchema = object({
   }).partial(),
 });
 
-export const deletePostSchema = object({ ...params });
+export const deletePostSchema = object({
+  params: object({ postId: string() }),
+});
 
 export type UpdatePostInput = TypeOf<typeof updatePostSchema>;
 export type GetPostInput = TypeOf<typeof getPostSchema>["params"];

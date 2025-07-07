@@ -1,12 +1,6 @@
 import config from "config";
-import { Router } from "express";
 import passport from "passport";
-import {
-  validate,
-  requireUser,
-  deserializeUser,
-  authenticateUser,
-} from "../middleware";
+import { Router } from "express";
 import {
   loginUserSchema,
   createUserSchema,
@@ -14,6 +8,12 @@ import {
   resetPasswordSchema,
   forgotPasswordSchema,
 } from "../schema";
+import {
+  validate,
+  requireUser,
+  deserializeUser,
+  authenticateUser,
+} from "../middleware";
 import {
   loginHandler,
   logoutHandler,

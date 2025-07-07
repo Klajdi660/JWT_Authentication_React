@@ -99,7 +99,7 @@ export const createUserHandler = async (req: Request, res: Response) => {
   }
 
   const subject = "User Verification";
-  const templatePath = "OTP";
+  const templatePath = "otp";
   const templateData = {
     title: subject,
     name: fullname,
@@ -249,7 +249,7 @@ export const loginHandler = async (
 
     const extra = JSON.parse(user.extra);
     let subject = "User Verification";
-    let templatePath = "OTP";
+    let templatePath = "otp";
     const templateData = {
       title: subject,
       name: `${extra.firstName} ${extra.lastName}`,
@@ -413,7 +413,7 @@ export const forgotPasswordHandler = async (
   }
   await redisCLI.expire(`reset_password_pending_${user.email}`, 180);
 
-  let templatePath = "ForgotPassword";
+  let templatePath = "forgotPassword";
   const name = JSON.parse(user.extra).name;
   const templateData = {
     title: "Reset Password",
@@ -475,7 +475,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
   await redisCLI.del(`reset_password_pending_${email}`);
 
-  let templatePath = "UpdatePassword";
+  let templatePath = "updatePassword";
   const templateData = {
     title: "Password Update Confirmation",
     name,

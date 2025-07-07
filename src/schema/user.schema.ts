@@ -1,10 +1,10 @@
 import { boolean, object, string, TypeOf } from "zod";
 
 const uppercaseRegex = /[A-Z]/;
+const phoneRegex = /^\+?[0-9]{7,15}$/;
 const usernameRegex = /^[a-zA-Z0-9]+$/;
 const specialCharacterRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const phoneRegex = /^\+?[0-9]{7,15}$/;
 
 export const createUserSchema = object({
   body: object({
@@ -30,9 +30,8 @@ export const createUserSchema = object({
     (data) => {
       const { email, phoneNumber } = data;
       const hasEmail = email.length > 0 && emailRegex.test(email);
-      const hasPhoneNumber =
-        phoneNumber.length > 0 && phoneRegex.test(phoneNumber);
-      return hasEmail || hasPhoneNumber;
+      const hasPhoneNr = phoneNumber.length > 0 && phoneRegex.test(phoneNumber);
+      return hasEmail || hasPhoneNr;
     },
     {
       message: "Either email or phone number must be provided",

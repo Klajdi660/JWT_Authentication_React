@@ -57,11 +57,11 @@ export interface SmtpConfigs {
 }
 
 export interface SMSConfigs {
+  smsFrom: string;
+  smsApiKey: string;
   smsAccoutSId: string;
   smsAuthToken: string;
   smsPhoneNumber: string;
-  smsApiKey: string;
-  smsFrom: string;
 }
 
 export interface CloudinaryConfig {

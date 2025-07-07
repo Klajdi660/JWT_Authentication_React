@@ -1,5 +1,6 @@
-import config from "config";
+import fs from "fs";
 import path from "path";
+import config from "config";
 import { createTransport } from "nodemailer";
 import hbs from "nodemailer-express-handlebars";
 import { SmtpConfigs } from "../types";
@@ -7,7 +8,23 @@ import { SmtpConfigs } from "../types";
 const { smtpEmail, smtpPassword, smtpPort, smtpService, smtpHost } =
   config.get<SmtpConfigs>("providersConfigs.smtp");
 
-export const sendEmail = async (templatePath: string, templateData: any) => {
+export const sendEmail = async (
+  templatePath: string,
+  templateData: Record<string, any>
+) => {
+  const __dirname = path.resolve();
+
+  const cssPath = path.join(
+    __dirname,
+    "src",
+    "views",
+    "css",
+    `${templatePath}.css`
+  );
+  const cssContent = fs.readFileSync(cssPath, "utf-8");
+
+  templateData.inlineCss = cssContent;
+
   let transporter = createTransport({
     service: smtpService,
     host: smtpHost,
@@ -18,8 +35,6 @@ export const sendEmail = async (templatePath: string, templateData: any) => {
       pass: smtpPassword,
     },
   });
-
-  const __dirname = path.resolve();
 
   const handlebarOptions = {
     viewEngine: {
@@ -39,7 +54,6 @@ export const sendEmail = async (templatePath: string, templateData: any) => {
     subject: templateData.title,
     template: templatePath,
     context: templateData,
-    html: "",
     attachments: [
       {
         filename: "icon.png",
@@ -49,6 +63,5 @@ export const sendEmail = async (templatePath: string, templateData: any) => {
     ],
   };
 
-  const info = await transporter.sendMail(mailOptions);
-  return info;
+  return transporter.sendMail(mailOptions);
 };
