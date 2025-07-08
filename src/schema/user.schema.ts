@@ -47,7 +47,7 @@ export const loginUserSchema = object({
     })
       .regex(emailRegex, "Not a valid email")
       .or(string().length(0)),
-    phoneNumber: string({
+    phoneNr: string({
       required_error: "Email, phone number or username is required",
     })
       .regex(phoneRegex, "Not a valid phone number")
@@ -61,11 +61,10 @@ export const loginUserSchema = object({
     timezone: string().optional(),
   }).refine(
     (data) => {
-      const { email, phoneNumber, username } = data;
+      const { email, phoneNr, username } = data;
 
       const hasEmail = email.length > 0 && emailRegex.test(email);
-      const hasPhoneNumber =
-        phoneNumber.length > 0 && phoneRegex.test(phoneNumber);
+      const hasPhoneNumber = phoneNr.length > 0 && phoneRegex.test(phoneNr);
       const hasUsername = username.length > 0 && usernameRegex.test(username);
 
       return hasEmail || hasPhoneNumber || hasUsername;

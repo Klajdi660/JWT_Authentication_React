@@ -71,7 +71,7 @@ export const getUserByUsername = async (
 export const getUserByEmailOrUsernameOrMobile = async (
   request: Record<string, any>
 ): Promise<User | any> => {
-  const { email, username, phoneNumber } = request;
+  const { email, username, phoneNr } = request;
 
   return User.findOne({
     where: {
@@ -80,7 +80,7 @@ export const getUserByEmailOrUsernameOrMobile = async (
         { username },
         {
           extra: {
-            [Op.like]: `%\"phoneNumber\":\"${phoneNumber}\"%`,
+            [Op.like]: `%\"phoneNr\":\"${phoneNr}\"%`,
           },
         },
       ],

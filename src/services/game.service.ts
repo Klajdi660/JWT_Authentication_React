@@ -1,10 +1,13 @@
 import { log } from "../utils";
 import { HttpClient } from "../clients";
 import { GameListParams } from "../types";
+import { GAME_TYPE } from "../constants";
+
+const { GAMES, GENRES } = GAME_TYPE;
 
 export const getGameList = async (params: object) => {
   try {
-    return await HttpClient.get<GameListParams>("games", params);
+    return await HttpClient.get<GameListParams>(GAMES, params);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -17,7 +20,7 @@ export const getGameList = async (params: object) => {
 
 export const getGameDetails = async (gameId: string | any) => {
   try {
-    return await HttpClient.get<GameListParams>(`games/${gameId}`);
+    return await HttpClient.get<GameListParams>(`${GAMES}/${gameId}`);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -30,7 +33,7 @@ export const getGameDetails = async (gameId: string | any) => {
 
 export const getGameVideos = async (gameId: string | any) => {
   try {
-    return await HttpClient.get<GameListParams>(`games/${gameId}/movies`);
+    return await HttpClient.get<GameListParams>(`${GAMES}/${gameId}/movies`);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -43,7 +46,9 @@ export const getGameVideos = async (gameId: string | any) => {
 
 export const getGameImages = async (gameId: string | any) => {
   try {
-    return await HttpClient.get<GameListParams>(`games/${gameId}/screenshots`);
+    return await HttpClient.get<GameListParams>(
+      `${GAMES}/${gameId}/screenshots`
+    );
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -56,7 +61,7 @@ export const getGameImages = async (gameId: string | any) => {
 
 export const getGameReviews = async (gameId: string | any) => {
   try {
-    return await HttpClient.get<GameListParams>(`games/${gameId}/reviews`);
+    return await HttpClient.get<GameListParams>(`${GAMES}/${gameId}/reviews`);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -69,7 +74,7 @@ export const getGameReviews = async (gameId: string | any) => {
 
 export const getGameGenreList = async () => {
   try {
-    return await HttpClient.get<any>("genres");
+    return await HttpClient.get<any>(GENRES);
   } catch (e: any) {
     log.error(
       JSON.stringify({
@@ -99,7 +104,7 @@ const CACHE_DURATION: number = 5 * 60 * 1000;
 
 export const fetchGameList = async () => {
   try {
-    const gameListResp = await HttpClient.get<GameListParams>("games");
+    const gameListResp = await HttpClient.get<GameListParams>(GAMES);
     if (!gameListResp) return;
 
     return gameListResp?.results;
@@ -115,7 +120,7 @@ export const fetchGameList = async () => {
 
 const getRandomGames = (games: any) => {
   const shuffledGames = games.sort(() => 0.5 - Math.random());
-  return shuffledGames.slice(0, 6);
+  return shuffledGames.slice(0, 10);
 };
 
 const refreshGameList = async () => {

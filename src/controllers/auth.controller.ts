@@ -185,7 +185,7 @@ export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
   res: Response
 ) => {
-  const { password, remember, phoneNumber } = req.body;
+  const { password, remember, phoneNr } = req.body;
 
   const user = await getUserByEmailOrUsernameOrMobile(req.body);
   if (!user) {
@@ -211,65 +211,65 @@ export const loginHandler = async (
     });
   }
 
-  if (!user.verified) {
-    const code = createVerificationCode();
+  // if (!user.verified) {
+  //   const code = createVerificationCode();
 
-    const user_registration = {
-      otpCode: code,
-      expiredCodeAt: dayjs().add(60, "s"),
-    };
+  //   const user_registration = {
+  //     otpCode: code,
+  //     expiredCodeAt: dayjs().add(60, "s"),
+  //   };
 
-    const addedToRedis = await redisCLI.set(
-      `verify_account_${user.username}`,
-      JSON.stringify(user_registration)
-    );
-    if (!addedToRedis) {
-      return res.json({ error: true, message: "User already registered" });
-    }
+  //   const addedToRedis = await redisCLI.set(
+  //     `verify_account_${user.username}`,
+  //     JSON.stringify(user_registration)
+  //   );
+  //   if (!addedToRedis) {
+  //     return res.json({ error: true, message: "User already registered" });
+  //   }
 
-    await redisCLI.expire(`verify_account_${user.username}`, 3600);
+  //   await redisCLI.expire(`verify_account_${user.username}`, 3600);
 
-    if (phoneNumber) {
-      const message = `Your GrooveIT verification code is: ${code}`;
+  //   if (phoneNr) {
+  //     const message = `Your GrooveIT verification code is: ${code}`;
 
-      const smsSent = await sendSms(message, phoneNumber);
-      if (!smsSent) {
-        return res.json({
-          error: true,
-          message: "There was an error sending sms, please try again",
-        });
-      }
+  //     const smsSent = await sendSms(message, phoneNr);
+  //     if (!smsSent) {
+  //       return res.json({
+  //         error: true,
+  //         message: "There was an error sending sms, please try again",
+  //       });
+  //     }
 
-      return res.json({
-        error: true,
-        message:
-          "User not verified, an sms with a verification code has been sent to your phone",
-      });
-    }
+  //     return res.json({
+  //       error: true,
+  //       message:
+  //         "User not verified, an sms with a verification code has been sent to your phone",
+  //     });
+  //   }
 
-    const extra = JSON.parse(user.extra);
-    let subject = "User Verification";
-    let templatePath = "otp";
-    const templateData = {
-      title: subject,
-      name: `${extra.firstName} ${extra.lastName}`,
-      code,
-    };
+  //   const extra = JSON.parse(user.extra);
+  //   let subject = "User Verification";
+  //   let templatePath = "otp";
+  //   const templateData = {
+  //     title: subject,
+  //     name: `${extra.firstName} ${extra.lastName}`,
+  //     code,
+  //   };
 
-    const mailSent = await sendEmail(templatePath, templateData);
-    if (!mailSent) {
-      return res.json({
-        error: true,
-        message: "There was an error sending email, please try again",
-      });
-    }
+  //   const mailSent = await sendEmail(templatePath, templateData);
+  //   if (!mailSent) {
+  //     return res.json({
+  //       error: true,
+  //       message: "There was an error sending email, please try again",
+  //     });
+  //   }
 
-    return res.json({
-      error: true,
-      message:
-        "User not verified. An email with a verification code has been sent to your email",
-    });
-  }
+  //   return res.json({
+  //     error: true,
+  //     message:
+  //       "User not verified. An email with a verification code has been sent to your email",
+  //   });
+  // }
 
   const { accessToken, refreshToken } = await signToken(user, remember);
 

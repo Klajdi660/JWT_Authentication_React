@@ -58,11 +58,11 @@
       "rwgUrl": "RWG_URL",
       "rwgKey": "RWG_KEY"
     },
-    "tw": {
-      "twUrl": "TW_URL",
-      "twAuthUrl": "TW_AUTH_URL",
-      "twClientId": "TW_CLIENT_ID",
-      "twClientSecret": "TW_CLIENT_SECRET"
+    "tmdb": {
+      "tmdbUrl": "TMDB_URL",
+      "tmdbKey": "TMDB_KEY",
+      "tmdbAccessToken": "TMDB_ACCESS_TOKEN",
+      "tmdbVNr": "TMDB_V_NR"
     }
   }
 }
