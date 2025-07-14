@@ -211,6 +211,12 @@ export const loginHandler = async (
     });
   }
 
+  if (!user.verified) {
+    return res.json({
+      error: true,
+      message: "User not verified, please verify your account to continue",
+    });
+  }
   // if (!user.verified) {
   //   const code = createVerificationCode();
 
