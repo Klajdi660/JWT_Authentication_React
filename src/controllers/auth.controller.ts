@@ -215,6 +215,7 @@ export const loginHandler = async (
     return res.json({
       error: true,
       message: "User not verified, please verify your account to continue",
+      data: { verified: false },
     });
   }
   // if (!user.verified) {
