@@ -185,7 +185,7 @@ export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
   res: Response
 ) => {
-  const { password, remember, phoneNr } = req.body;
+  const { password, phoneNr } = req.body;
 
   const user = await getUserByEmailOrUsernameOrMobile(req.body);
   if (!user) {
@@ -211,11 +211,13 @@ export const loginHandler = async (
     });
   }
 
+  user.password = undefined;
+
   if (!user.verified) {
     return res.json({
       error: true,
       message: "User not verified, please verify your account to continue",
-      data: { verified: false },
+      data: { user },
     });
   }
   // if (!user.verified) {
@@ -278,9 +280,7 @@ export const loginHandler = async (
   //   });
   // }
 
-  const { accessToken, refreshToken } = await signToken(user, remember);
-
-  user.password = undefined;
+  const { accessToken, refreshToken } = await signToken(user);
 
   res.json({
     error: false,

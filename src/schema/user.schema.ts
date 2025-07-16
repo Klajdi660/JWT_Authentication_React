@@ -57,17 +57,15 @@ export const loginUserSchema = object({
       .min(6, { message: "Username must be at least 6 characters long" })
       .or(string().length(0)),
     password: string({ required_error: "Password is required" }),
-    remember: boolean().optional(),
-    timezone: string().optional(),
   }).refine(
     (data) => {
       const { email, phoneNr, username } = data;
 
       const hasEmail = email.length > 0 && emailRegex.test(email);
-      const hasPhoneNumber = phoneNr.length > 0 && phoneRegex.test(phoneNr);
+      const hasPhoneNr = phoneNr.length > 0 && phoneRegex.test(phoneNr);
       const hasUsername = username.length > 0 && usernameRegex.test(username);
 
-      return hasEmail || hasPhoneNumber || hasUsername;
+      return hasEmail || hasPhoneNr || hasUsername;
     },
     {
       message: "Either email, phone number or username must be provided",
