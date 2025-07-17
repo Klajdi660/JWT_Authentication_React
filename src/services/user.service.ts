@@ -69,7 +69,7 @@ export const getUserByUsername = async (
 };
 
 export const getUserByEmailOrUsernameOrMobile = async (
-  request: Record<string, any>
+  request: Record<string, string>
 ): Promise<User | any> => {
   const { email, username, phoneNr } = request;
 
