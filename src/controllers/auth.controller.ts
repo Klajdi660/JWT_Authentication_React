@@ -191,6 +191,7 @@ export const loginHandler = async (
   if (!user) {
     return res.json({
       error: true,
+      errorType: "no-account",
       message:
         "Sorry, we can't find an account with this credentials, please try again or create a new account",
     });
@@ -199,6 +200,7 @@ export const loginHandler = async (
   if (user && user.provider !== EMAIL_PROVIDERS.Email) {
     return res.json({
       error: true,
+      errorTyep: "user-in-used",
       message: `This user is already in use using ${user.provider} provider`,
     });
   }
@@ -207,7 +209,8 @@ export const loginHandler = async (
   if (user.password !== hash) {
     return res.json({
       error: true,
-      message: "Invalid password, please enter valid password",
+      errorType: "invalid-password",
+      message: "Incorrect password, you can reset your password or try again",
     });
   }
 
@@ -216,8 +219,8 @@ export const loginHandler = async (
   if (!user.verified) {
     return res.json({
       error: true,
+      errorType: "user-not-verified",
       message: "User not verified, please verify your account to continue",
-      data: { user },
     });
   }
   // if (!user.verified) {
