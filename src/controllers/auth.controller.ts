@@ -50,7 +50,8 @@ export const createUserHandler = async (req: Request, res: Response) => {
     );
     return res.json({
       error: true,
-      message: "This user already exists, please enter another user",
+      errorType: "existing-user",
+      message: "This user already exists, please enter another user or log in",
     });
   }
 
@@ -131,14 +132,14 @@ export const verfyAccountHandler = async (
   let redisObj: any = await redisCLI.get(`verify_account_${username}`);
   redisObj = JSON.parse(redisObj);
   if (!redisObj) {
-    return res.json({ error: true, message: "Confirmation time expired!" });
+    return res.json({ error: true, message: "Confirmation time expired" });
   }
 
   const { otpCode, expiredCodeAt } = redisObj;
   if (code !== otpCode) {
-    return res.json({ error: true, message: "Confirmation code incorrect!" });
+    return res.json({ error: true, message: "Confirmation code incorrect" });
   }
-
+  console.log("code :>> ", code);
   const currentDateTime = dayjs();
   const expiresAtDateTime = dayjs(expiredCodeAt);
   const isExpired = currentDateTime.isAfter(expiresAtDateTime);
@@ -147,7 +148,7 @@ export const verfyAccountHandler = async (
     log.error(`${JSON.stringify({ action: "expired_user", data: redisObj })}`);
     return res.json({
       error: true,
-      message: "Your OTP code has expired. Please request a new OTP code",
+      message: "Your otp code has expired, please request a new otp code",
     });
   } // nuk duhet
 

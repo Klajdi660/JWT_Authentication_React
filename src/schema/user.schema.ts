@@ -11,7 +11,7 @@ export const createUserSchema = object({
     email: string({ required_error: "Email or phone number is required" })
       .regex(emailRegex, "Not a valid email")
       .or(string().length(0)),
-    phoneNumber: string({ required_error: "Email or phone number is required" })
+    phoneNr: string({ required_error: "Email or phone number is required" })
       .regex(phoneRegex, "Not a valid phone number")
       .or(string().length(0)),
     username: string({ required_error: "Username is required" })
@@ -28,9 +28,9 @@ export const createUserSchema = object({
       }),
   }).refine(
     (data) => {
-      const { email, phoneNumber } = data;
+      const { email, phoneNr } = data;
       const hasEmail = email.length > 0 && emailRegex.test(email);
-      const hasPhoneNr = phoneNumber.length > 0 && phoneRegex.test(phoneNumber);
+      const hasPhoneNr = phoneNr.length > 0 && phoneRegex.test(phoneNr);
       return hasEmail || hasPhoneNr;
     },
     {
