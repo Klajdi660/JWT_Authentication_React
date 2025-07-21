@@ -10,3 +10,8 @@ export interface EmailProvidersParams {
   Google: string;
   Facebook: string;
 }
+
+export interface GameTypeParams {
+  GAMES: string;
+  GENRES: string;
+}

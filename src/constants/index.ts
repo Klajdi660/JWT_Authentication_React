@@ -1,9 +1,4 @@
-import { RoleParams, EmailProvidersParams } from "../types";
-
-interface GameTypeParams {
-  GAMES: string;
-  GENRES: string;
-}
+import { RoleParams, EmailProvidersParams, GameTypeParams } from "../types";
 
 export const ROLES: RoleParams = {
   Admin: "admin",
