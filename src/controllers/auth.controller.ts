@@ -24,14 +24,13 @@ import {
   updateUser,
   getUserLastLogin,
   createVerificationCode,
-  getUserByEmailOrUsername,
   getUserByEmailOrUsernameOrMobile,
   getUserByUsername,
 } from "../services";
 import { User } from "../models";
 import { redisCLI } from "../clients";
 import { EMAIL_PROVIDERS } from "../constants";
-import { AppConfigs, TokensConfigs, NewUserTypes } from "../types";
+import { AppConfigs, TokensConfigs } from "../types";
 
 dayjs.extend(utc);
 const { clientUrl } = config.get<AppConfigs>("appConfigs");
@@ -51,23 +50,18 @@ export const createUserHandler = async (req: Request, res: Response) => {
     return res.json({
       error: true,
       errorType: "existing-user",
-      message: "This user already exists, please enter another user or log in",
+      message: "This user already exists, please enter another user or sign in",
     });
   }
 
   const hashePassword = createHash(password);
-
-  const newUser: NewUserTypes = {
+  const code = createVerificationCode();
+  const newUser = {
     ...req.body,
     password: hashePassword,
     verified: false,
+    otpCode: code,
   };
-
-  const code = createVerificationCode();
-  const codeExpire = dayjs().add(180, "s");
-
-  newUser["otpCode"] = code;
-  newUser["expiredCodeAt"] = codeExpire;
 
   const addedToRedis = await redisCLI.set(
     `verify_account_${username}`,
@@ -75,10 +69,14 @@ export const createUserHandler = async (req: Request, res: Response) => {
   );
 
   if (!addedToRedis) {
-    return res.json({ error: true, message: "User already registered" });
+    return res.json({
+      error: true,
+      errorType: "existing-user",
+      message: "User already registered, please enter another user or sign in",
+    });
   }
 
-  await redisCLI.expire(`verify_account_${username}`, 180);
+  await redisCLI.expire(`verify_account_${username}`, 60);
 
   if (phoneNumber) {
     const message = `Your GrooveIT verification code is: ${code}`;
@@ -94,8 +92,8 @@ export const createUserHandler = async (req: Request, res: Response) => {
     return res.json({
       error: false,
       message:
-        "An sms with a verification code has been sent to your mobile. Please enter this code to proceed",
-      data: { username, codeExpire },
+        "An sms with a verification code has been sent to your mobile, please enter this code to proceed",
+      data: { username },
     });
   }
 
@@ -119,7 +117,7 @@ export const createUserHandler = async (req: Request, res: Response) => {
     error: false,
     message:
       "An email with a verification code has been sent to your email, please enter this code to proceed",
-    data: { username, codeExpire },
+    data: { username },
   });
 };
 
@@ -129,28 +127,19 @@ export const verfyAccountHandler = async (
 ) => {
   const { code, username } = req.body;
 
-  let redisObj: any = await redisCLI.get(`verify_account_${username}`);
-  redisObj = JSON.parse(redisObj);
-  if (!redisObj) {
-    return res.json({ error: true, message: "Confirmation time expired" });
-  }
-
-  const { otpCode, expiredCodeAt } = redisObj;
-  if (code !== otpCode) {
-    return res.json({ error: true, message: "Confirmation code incorrect" });
-  }
-  console.log("code :>> ", code);
-  const currentDateTime = dayjs();
-  const expiresAtDateTime = dayjs(expiredCodeAt);
-  const isExpired = currentDateTime.isAfter(expiresAtDateTime);
-
-  if (isExpired) {
-    log.error(`${JSON.stringify({ action: "expired_user", data: redisObj })}`);
+  const redisData = await redisCLI.get(`verify_account_${username}`);
+  if (!redisData) {
     return res.json({
       error: true,
-      message: "Your otp code has expired, please request a new otp code",
+      message: "Confirmation time expired, please request a new otp code",
     });
-  } // nuk duhet
+  }
+
+  const redisObj = JSON.parse(redisData);
+
+  if (code !== redisObj.otpCode) {
+    return res.json({ error: true, message: "Confirmation code incorrect" });
+  }
 
   const user = await getUserByUsername(username);
 
@@ -186,7 +175,7 @@ export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
   res: Response
 ) => {
-  const { password, phoneNr } = req.body;
+  const { password } = req.body;
 
   const user = await getUserByEmailOrUsernameOrMobile(req.body);
   if (!user) {
@@ -224,65 +213,6 @@ export const loginHandler = async (
       message: "User not verified, please verify your account to continue",
     });
   }
-  // if (!user.verified) {
-  //   const code = createVerificationCode();
-
-  //   const user_registration = {
-  //     otpCode: code,
-  //     expiredCodeAt: dayjs().add(60, "s"),
-  //   };
-
-  //   const addedToRedis = await redisCLI.set(
-  //     `verify_account_${user.username}`,
-  //     JSON.stringify(user_registration)
-  //   );
-  //   if (!addedToRedis) {
-  //     return res.json({ error: true, message: "User already registered" });
-  //   }
-
-  //   await redisCLI.expire(`verify_account_${user.username}`, 3600);
-
-  //   if (phoneNr) {
-  //     const message = `Your GrooveIT verification code is: ${code}`;
-
-  //     const smsSent = await sendSms(message, phoneNr);
-  //     if (!smsSent) {
-  //       return res.json({
-  //         error: true,
-  //         message: "There was an error sending sms, please try again",
-  //       });
-  //     }
-
-  //     return res.json({
-  //       error: true,
-  //       message:
-  //         "User not verified, an sms with a verification code has been sent to your phone",
-  //     });
-  //   }
-
-  //   const extra = JSON.parse(user.extra);
-  //   let subject = "User Verification";
-  //   let templatePath = "otp";
-  //   const templateData = {
-  //     title: subject,
-  //     name: `${extra.firstName} ${extra.lastName}`,
-  //     code,
-  //   };
-
-  //   const mailSent = await sendEmail(templatePath, templateData);
-  //   if (!mailSent) {
-  //     return res.json({
-  //       error: true,
-  //       message: "There was an error sending email, please try again",
-  //     });
-  //   }
-
-  //   return res.json({
-  //     error: true,
-  //     message:
-  //       "User not verified. An email with a verification code has been sent to your email",
-  //   });
-  // }
 
   const { accessToken, refreshToken } = await signToken(user);
 
@@ -301,7 +231,7 @@ export const loginWithSavedUserHandler = async (
   if (!user) {
     return res.json({
       error: true,
-      message: "User is not Registered with us, please Sign Up to continue",
+      message: "User is not registered with us, please sign up to continue",
     });
   }
 
@@ -398,14 +328,14 @@ export const forgotPasswordHandler = async (
   if (!user) {
     return res.json({
       error: true,
-      message: `This email: '${email}' is not register with us. Please enter a valid email.`,
+      message: `This user is not register with us, please enter a valid user`,
     });
   }
 
   if (!user.verified) {
     return res.json({
       error: true,
-      message: `User with email '${email}' is not verified.`,
+      message: `This user is not verified`,
     });
   }
 
@@ -422,7 +352,7 @@ export const forgotPasswordHandler = async (
       message: "New password waiting for confirmation, please check your inbox",
     });
   }
-  await redisCLI.expire(`reset_password_pending_${user.email}`, 180);
+  await redisCLI.expire(`reset_password_pending_${user.email}`, 60);
 
   let templatePath = "forgotPassword";
   const name = JSON.parse(user.extra).name;

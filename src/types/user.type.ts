@@ -4,8 +4,7 @@ export interface NewUserTypes {
   username: string;
   fullname: string;
   password: string;
-  otpCode?: string;
-  verified: boolean;
-  phoneNumber: string;
-  expiredCodeAt?: any;
+  otpCode: string;
+  verified?: boolean;
+  phoneNr: string;
 }

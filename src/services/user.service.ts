@@ -70,7 +70,7 @@ export const getUserByUsername = async (
 
 export const getUserByEmailOrUsernameOrMobile = async (
   request: Record<string, string>
-): Promise<User | any> => {
+): Promise<User | null> => {
   const { email, username, phoneNr } = request;
 
   return User.findOne({
@@ -92,6 +92,7 @@ export const getUserByEmailOrUsernameOrMobile = async (
         message: error.message,
       })
     );
+    return null;
   });
 };
 

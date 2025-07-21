@@ -8,7 +8,7 @@ export class User extends Model {
   public email: string;
   public extra: string;
   public username: string;
-  public password: string;
+  public password: string | undefined;
   public provider: string;
   public verified: boolean;
   public lastLogin: string;
