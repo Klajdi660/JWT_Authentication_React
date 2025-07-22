@@ -7,6 +7,7 @@ import {
   verifyAccountSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
+  loginHelpSchema,
 } from "../schema";
 import {
   validate,
@@ -23,6 +24,7 @@ import {
   resetPasswordHandler,
   forgotPasswordHandler,
   loginWithSavedUserHandler,
+  loginHelpHandler,
   // refreshAccessTokenHandler,
 } from "../controllers";
 import { AppConfigs } from "../types";
@@ -32,6 +34,7 @@ const { prefix } = config.get<AppConfigs>("appConfigs");
 const router = Router();
 
 router.post("/login", validate(loginUserSchema), loginHandler);
+router.post("/login-help", validate(loginHelpSchema), loginHelpHandler);
 router.post("/register", validate(createUserSchema), createUserHandler);
 router.post(
   "/verify-account",

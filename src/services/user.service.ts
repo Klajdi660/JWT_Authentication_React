@@ -68,7 +68,7 @@ export const getUserByUsername = async (
   });
 };
 
-export const getUserByEmailOrUsernameOrMobile = async (
+export const getUserByEmailOrUsernameOrPhoneNr = async (
   request: Record<string, string>
 ): Promise<User | null> => {
   const { email, username, phoneNr } = request;
@@ -78,6 +78,33 @@ export const getUserByEmailOrUsernameOrMobile = async (
       [Op.or]: [
         { email },
         { username },
+        {
+          extra: {
+            [Op.like]: `%\"phoneNr\":\"${phoneNr}\"%`,
+          },
+        },
+      ],
+    },
+  }).catch((error) => {
+    log.error(
+      JSON.stringify({
+        action: "user_by_email_username_or_mobile_catch",
+        message: error.message,
+      })
+    );
+    return null;
+  });
+};
+
+export const getUserByEmailOrPhoneNr = async (
+  request: Record<string, string>
+): Promise<User | null> => {
+  const { email, phoneNr } = request;
+
+  return User.findOne({
+    where: {
+      [Op.or]: [
+        { email },
         {
           extra: {
             [Op.like]: `%\"phoneNr\":\"${phoneNr}\"%`,

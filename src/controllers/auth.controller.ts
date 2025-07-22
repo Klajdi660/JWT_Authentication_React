@@ -15,6 +15,7 @@ import {
   LoginUserInput,
   VerifyAccountInput,
   ForgotPasswordInput,
+  LoginHelpInput,
 } from "../schema";
 import {
   signToken,
@@ -24,8 +25,9 @@ import {
   updateUser,
   getUserLastLogin,
   createVerificationCode,
-  getUserByEmailOrUsernameOrMobile,
+  getUserByEmailOrUsernameOrPhoneNr,
   getUserByUsername,
+  getUserByEmailOrPhoneNr,
 } from "../services";
 import { User } from "../models";
 import { redisCLI } from "../clients";
@@ -39,7 +41,7 @@ const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
 export const createUserHandler = async (req: Request, res: Response) => {
   const { username, password, phoneNumber, fullname } = req.body;
 
-  const user = await getUserByEmailOrUsernameOrMobile(req.body);
+  const user = await getUserByEmailOrUsernameOrPhoneNr(req.body);
   if (user) {
     log.info(
       JSON.stringify({
@@ -177,7 +179,7 @@ export const loginHandler = async (
 ) => {
   const { password } = req.body;
 
-  const user = await getUserByEmailOrUsernameOrMobile(req.body);
+  const user = await getUserByEmailOrUsernameOrPhoneNr(req.body);
   if (!user) {
     return res.json({
       error: true,
@@ -220,6 +222,77 @@ export const loginHandler = async (
     error: false,
     message: "Login successful",
     data: { aToken: accessToken, rToken: refreshToken, user },
+  });
+};
+
+export const loginHelpHandler = async (
+  req: Request<{}, {}, LoginHelpInput>,
+  res: Response
+) => {
+  const { phoneNr } = req.body;
+
+  const user = await getUserByEmailOrPhoneNr(req.body);
+  if (!user) {
+    return res.json({
+      error: true,
+      errorType: "no-account",
+      message:
+        "Sorry, we can't find an account with this credentials, please try again or create a new account",
+    });
+  }
+
+  const { firstName, lastName } = JSON.parse(user.extra);
+  user.password = undefined;
+
+  const code = createVerificationCode();
+
+  if (phoneNr) {
+    const message = `Your GrooveIT verification code is: ${code}`;
+
+    const smsSent = await sendSms(message, phoneNr);
+    if (!smsSent) {
+      return res.json({
+        error: true,
+        message: "There was an error sending sms, please try again later",
+      });
+    }
+
+    return res.json({
+      error: false,
+      message:
+        "An sms with a verification code has been sent to your mobile, please enter this code to proceed",
+      data: user,
+    });
+  }
+
+  const subject = "User Verification";
+  const templatePath = "otp";
+  const templateData = {
+    title: subject,
+    name: `${firstName} ${lastName}`,
+    code,
+  };
+
+  const mailSent = await sendEmail(templatePath, templateData);
+  if (!mailSent) {
+    return res.json({
+      error: true,
+      message: "There was an error sending email, please try again later",
+    });
+  }
+
+  console.log("object :>> ", {
+    error: false,
+    message:
+      "An email with a verification code has been sent to your email, please enter this code to proceed",
+    data: user,
+  });
+
+  return res.json({
+    error: false,
+    message:
+      "An email with a verification code has been sent to your email, please enter this code to proceed",
+    data: user,
   });
 };
 

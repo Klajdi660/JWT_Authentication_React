@@ -12,12 +12,12 @@ const client = twilio(smsAccoutSId, smsAuthToken);
 //   apiKey: smsApiKey,
 // });
 
-export const sendSms = async (message: string, phoneNumber: string) => {
+export const sendSms = async (message: string, phoneNr: string) => {
   return client.messages
     .create({
       body: message,
       from: smsPhoneNumber,
-      to: phoneNumber,
+      to: phoneNr,
     })
     .catch((error) => {
       log.error(
