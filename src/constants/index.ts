@@ -1,4 +1,9 @@
-import { RoleParams, EmailProvidersParams, GameTypeParams } from "../types";
+import {
+  EmailProvidersParams,
+  GameTypeParams,
+  RedisNameParams,
+  RoleParams,
+} from "../types";
 
 export const ROLES: RoleParams = {
   Admin: "admin",
@@ -16,4 +21,8 @@ export const EMAIL_PROVIDERS: EmailProvidersParams = {
 export const GAME_TYPE: GameTypeParams = {
   GAMES: "games",
   GENRES: "genres",
+};
+
+export const REDIS_NAME: RedisNameParams = {
+  VERIFY_USER: "verify_user",
 };

@@ -2,13 +2,13 @@ import config from "config";
 import { Request, Response } from "express";
 import { UploadApiResponse } from "cloudinary";
 import {
-  getUserById,
-  updateUser,
-  getUserByUsername,
   cancelAccountDeletion,
-  scheduleAccountDeletion,
-  uploadImageToCloudinary,
+  getUserById,
+  getUserByUsername,
   removeImageFromCloudinary,
+  scheduleAccountDeletion,
+  updateUser,
+  uploadImageToCloudinary,
 } from "../services";
 import { createHash, log } from "../utils";
 import { CloudinaryConfig } from "../types";

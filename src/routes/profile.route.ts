@@ -1,18 +1,18 @@
 import { Router } from "express";
 import {
-  deleteAccountSchema,
   changePasswordSchema,
   changeUsernameSchema,
+  deleteAccountSchema,
 } from "../schema";
 import {
-  deleteAccountHandler,
-  updateProfileHandler,
-  cancelDeletionHandler,
-  changeUsernameHandler,
-  changePasswordHandler,
   addNewCreditCardHandler,
+  cancelDeletionHandler,
+  changePasswordHandler,
+  changeUsernameHandler,
+  deleteAccountHandler,
   removeDisplayPictureHandler,
   updateDisplayPictureHandler,
+  updateProfileHandler,
 } from "../controllers";
 import { deserializeUser, requireUser, validate } from "../middleware";
 

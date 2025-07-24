@@ -1,4 +1,4 @@
-import { boolean, object, string, TypeOf } from "zod";
+import { object, string, TypeOf } from "zod";
 
 const uppercaseRegex = /[A-Z]/;
 const phoneRegex = /^\+?[0-9]{7,15}$/;
@@ -40,64 +40,14 @@ export const createUserSchema = object({
   ),
 });
 
-export const loginUserSchema = object({
+export const confirmUserSchema = object({
   body: object({
-    email: string({
-      required_error: "Email, phone number or username is required",
-    })
-      .regex(emailRegex, "Not a valid email")
-      .or(string().length(0)),
-    phoneNr: string({
-      required_error: "Email, phone number or username is required",
-    })
-      .regex(phoneRegex, "Not a valid phone number")
-      .or(string().length(0)),
-    username: string({ required_error: "Username is required" })
-      .regex(usernameRegex, "Username should only contain letters and numbers")
-      .min(6, { message: "Username must be at least 6 characters long" })
-      .or(string().length(0)),
-    password: string({ required_error: "Password is required" }),
-  }).refine(
-    (data) => {
-      const { email, phoneNr, username } = data;
-
-      const hasEmail = email.length > 0 && emailRegex.test(email);
-      const hasPhoneNr = phoneNr.length > 0 && phoneRegex.test(phoneNr);
-      const hasUsername = username.length > 0 && usernameRegex.test(username);
-
-      return hasEmail || hasPhoneNr || hasUsername;
-    },
-    {
-      message: "Either email, phone number or username must be provided",
-      path: ["email"],
-    }
-  ),
+    code: string({ required_error: "OTP code is required" }),
+    username: string({ required_error: "Username is required" }),
+  }),
 });
 
-export const loginHelpSchema = object({
-  body: object({
-    email: string({ required_error: "Email is required" })
-      .regex(emailRegex, "Not a valid email")
-      .or(string().length(0)),
-    phoneNr: string({ required_error: "Phone number is required" })
-      .regex(phoneRegex, "Not a valid phone number")
-      .or(string().length(0)),
-  }).refine(
-    (data) => {
-      const { email, phoneNr } = data;
-      const hasEmail = email.length > 0 && emailRegex.test(email);
-      const hasPhoneNr = phoneNr.length > 0 && phoneRegex.test(phoneNr);
-
-      return hasEmail || hasPhoneNr;
-    },
-    {
-      message: "Either email or phone number must be provided",
-      path: ["email"],
-    }
-  ),
-});
-
-export const verifyAccountSchema = object({
+export const verifyUserSchema = object({
   body: object({
     code: string({ required_error: "OTP code is required" }),
     username: string({ required_error: "Username is required" }),
@@ -172,10 +122,9 @@ export const deleteAccountSchema = object({
   }),
 });
 
-export type LoginUserInput = TypeOf<typeof loginUserSchema>["body"];
-export type LoginHelpInput = TypeOf<typeof loginHelpSchema>["body"];
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
-export type VerifyAccountInput = TypeOf<typeof verifyAccountSchema>["body"];
+export type ConfirmUserInput = TypeOf<typeof verifyUserSchema>["body"];
+export type VerifyUserInput = TypeOf<typeof verifyUserSchema>["body"];
 export type DeleteAccountInput = TypeOf<typeof deleteAccountSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];

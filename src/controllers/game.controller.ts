@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import {
-  getGameList,
-  getGameVideos,
-  getGameReviews,
   getGameDetails,
   getGameGenreList,
-  getGamesSliderList,
+  getGameList,
   getGamePlatformsList,
+  getGameReviews,
+  getGamesSliderList,
+  getGameVideos,
 } from "../services";
 import { log } from "../utils";
 

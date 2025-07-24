@@ -1,13 +1,13 @@
 import { Router } from "express";
 import {
-  gameListHandler,
-  gameImagesHandler,
-  gameVideosHandler,
-  gameSliderHandler,
   gameDetailsHandler,
-  gameReviewsHandler,
   gameGenreListHandler,
+  gameImagesHandler,
+  gameListHandler,
   gamePlatformsListHandler,
+  gameReviewsHandler,
+  gameSliderHandler,
+  gameVideosHandler,
 } from "../controllers";
 
 const router = Router();

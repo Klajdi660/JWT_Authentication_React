@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { redisCLI } from "../clients";
 import { getUserById } from "../services";
-import { verifyJwt, log } from "../utils";
+import { log, verifyJwt } from "../utils";
 
 export const deserializeUser = async (
   req: Request,

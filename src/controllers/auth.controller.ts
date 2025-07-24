@@ -3,31 +3,23 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { NextFunction, Request, Response } from "express";
 import {
-  log,
-  signJwt,
-  sendEmail,
-  verifyJwt,
-  createHash,
   accessTokenCookieOptions,
+  createHash,
+  sendEmail,
   sendSms,
+  signJwt,
+  verifyJwt,
 } from "../utils";
+import { ForgotPasswordInput, LoginHelpInput, LoginUserInput } from "../schema";
 import {
-  LoginUserInput,
-  VerifyAccountInput,
-  ForgotPasswordInput,
-  LoginHelpInput,
-} from "../schema";
-import {
-  signToken,
-  createUser,
-  getUserById,
-  getUserByEmail,
-  updateUser,
-  getUserLastLogin,
   createVerificationCode,
-  getUserByEmailOrUsernameOrPhoneNr,
-  getUserByUsername,
+  getUserByEmail,
   getUserByEmailOrPhoneNr,
+  getUserByEmailOrUsernameOrPhoneNr,
+  getUserById,
+  getUserLastLogin,
+  signToken,
+  updateUser,
 } from "../services";
 import { User } from "../models";
 import { redisCLI } from "../clients";
@@ -37,141 +29,6 @@ import { AppConfigs, TokensConfigs } from "../types";
 dayjs.extend(utc);
 const { clientUrl } = config.get<AppConfigs>("appConfigs");
 const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
-
-export const createUserHandler = async (req: Request, res: Response) => {
-  const { username, password, phoneNumber, fullname } = req.body;
-
-  const user = await getUserByEmailOrUsernameOrPhoneNr(req.body);
-  if (user) {
-    log.info(
-      JSON.stringify({
-        action: "existing_user",
-        data: user,
-      })
-    );
-    return res.json({
-      error: true,
-      errorType: "existing-user",
-      message: "This user already exists, please enter another user or sign in",
-    });
-  }
-
-  const hashePassword = createHash(password);
-  const code = createVerificationCode();
-  const newUser = {
-    ...req.body,
-    password: hashePassword,
-    verified: false,
-    otpCode: code,
-  };
-
-  const addedToRedis = await redisCLI.set(
-    `verify_account_${username}`,
-    JSON.stringify(newUser)
-  );
-
-  if (!addedToRedis) {
-    return res.json({
-      error: true,
-      errorType: "existing-user",
-      message: "User already registered, please enter another user or sign in",
-    });
-  }
-
-  await redisCLI.expire(`verify_account_${username}`, 60);
-
-  if (phoneNumber) {
-    const message = `Your GrooveIT verification code is: ${code}`;
-
-    const smsSent = await sendSms(message, phoneNumber);
-    if (!smsSent) {
-      return res.json({
-        error: true,
-        message: "There was an error sending sms, please try again",
-      });
-    }
-
-    return res.json({
-      error: false,
-      message:
-        "An sms with a verification code has been sent to your mobile, please enter this code to proceed",
-      data: { username },
-    });
-  }
-
-  const subject = "User Verification";
-  const templatePath = "otp";
-  const templateData = {
-    title: subject,
-    name: fullname,
-    code,
-  };
-
-  const mailSent = await sendEmail(templatePath, templateData);
-  if (!mailSent) {
-    return res.json({
-      error: true,
-      message: "There was an error sending email, please try again",
-    });
-  }
-
-  res.json({
-    error: false,
-    message:
-      "An email with a verification code has been sent to your email, please enter this code to proceed",
-    data: { username },
-  });
-};
-
-export const verfyAccountHandler = async (
-  req: Request<VerifyAccountInput>,
-  res: Response
-) => {
-  const { code, username } = req.body;
-
-  const redisData = await redisCLI.get(`verify_account_${username}`);
-  if (!redisData) {
-    return res.json({
-      error: true,
-      message: "Confirmation time expired, please request a new otp code",
-    });
-  }
-
-  const redisObj = JSON.parse(redisData);
-
-  if (code !== redisObj.otpCode) {
-    return res.json({ error: true, message: "Confirmation code incorrect" });
-  }
-
-  const user = await getUserByUsername(username);
-
-  redisObj.verified = true;
-
-  const newUser = user
-    ? await updateUser(user.id, { verified: true })
-    : await createUser(redisObj);
-
-  if (!newUser) {
-    const action = user
-      ? "verify_account_update_user_error"
-      : "verify_account_create_user_error";
-    const message = user ? "Failed to update user" : "Failed to create user";
-    const data = user || redisObj;
-
-    log.error(JSON.stringify({ action, data }));
-    return res.json({ error: true, message });
-  }
-
-  await redisCLI.del(`verify_account_${username}`);
-
-  const message = user
-    ? "Congratulations, your account has been verified"
-    : "Congratulations, your account has been created";
-
-  res.json({ error: false, message });
-};
-
-export const verifyOTPCode = async (req: Request, res: Response) => {};
 
 export const loginHandler = async (
   req: Request<{}, {}, LoginUserInput>,
@@ -229,7 +86,7 @@ export const loginHelpHandler = async (
   req: Request<{}, {}, LoginHelpInput>,
   res: Response
 ) => {
-  const { phoneNr } = req.body;
+  const { action, phoneNr } = req.body;
 
   const user = await getUserByEmailOrPhoneNr(req.body);
   if (!user) {
@@ -241,10 +98,24 @@ export const loginHelpHandler = async (
     });
   }
 
+  const { username } = user;
   const { firstName, lastName } = JSON.parse(user.extra);
   user.password = undefined;
 
   const code = createVerificationCode();
+  const addedToRedis = await redisCLI.set(
+    `${action}_${username}`,
+    JSON.stringify({ username, otpCode: code })
+  );
+
+  if (!addedToRedis) {
+    return res.json({
+      error: true,
+      message: "Something went wrong, please try agin later",
+    });
+  }
+
+  await redisCLI.expire(`${action}_${username}`, 60);
 
   if (phoneNr) {
     const message = `Your GrooveIT verification code is: ${code}`;

@@ -15,3 +15,7 @@ export interface GameTypeParams {
   GAMES: string;
   GENRES: string;
 }
+
+export interface RedisNameParams {
+  VERIFY_USER: string;
+}

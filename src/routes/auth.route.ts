@@ -2,30 +2,25 @@ import config from "config";
 import passport from "passport";
 import { Router } from "express";
 import {
-  loginUserSchema,
-  createUserSchema,
-  verifyAccountSchema,
-  resetPasswordSchema,
   forgotPasswordSchema,
   loginHelpSchema,
+  loginUserSchema,
+  resetPasswordSchema,
 } from "../schema";
 import {
-  validate,
-  requireUser,
-  deserializeUser,
   authenticateUser,
+  deserializeUser,
+  requireUser,
+  validate,
 } from "../middleware";
 import {
-  loginHandler,
-  logoutHandler,
-  createUserHandler,
-  verfyAccountHandler,
-  googleOauthHandler,
-  resetPasswordHandler,
   forgotPasswordHandler,
-  loginWithSavedUserHandler,
+  googleOauthHandler,
+  loginHandler,
   loginHelpHandler,
-  // refreshAccessTokenHandler,
+  loginWithSavedUserHandler,
+  logoutHandler,
+  resetPasswordHandler,
 } from "../controllers";
 import { AppConfigs } from "../types";
 
@@ -35,12 +30,6 @@ const router = Router();
 
 router.post("/login", validate(loginUserSchema), loginHandler);
 router.post("/login-help", validate(loginHelpSchema), loginHelpHandler);
-router.post("/register", validate(createUserSchema), createUserHandler);
-router.post(
-  "/verify-account",
-  validate(verifyAccountSchema),
-  verfyAccountHandler
-);
 router.post(
   "/reset-password",
   validate(resetPasswordSchema),
