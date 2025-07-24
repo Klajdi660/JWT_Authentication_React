@@ -11,7 +11,7 @@ import {
 } from "../services";
 import { createHash, log, sendEmail, sendSms } from "../utils";
 import { redisCLI } from "../clients";
-import { ConfirmUserInput, VerifyUserInput } from "../schema";
+import { VerifyUserInput } from "../schema";
 import { REDIS_NAME } from "../constants";
 
 const { VERIFY_USER } = REDIS_NAME;
@@ -99,44 +99,6 @@ export const createUserHandler = async (req: Request, res: Response) => {
   });
 };
 
-export const confirmUserHandler = async (
-  req: Request<ConfirmUserInput>,
-  res: Response
-) => {
-  const { code, username } = req.body;
-
-  const redisData = await redisCLI.get(`${VERIFY_USER}_${username}`);
-  if (!redisData) {
-    return res.json({
-      error: true,
-      message: "Confirmation time expired, please request a new otp code",
-    });
-  }
-
-  const redisObj = JSON.parse(redisData);
-
-  if (code !== redisObj.otpCode) {
-    return res.json({ error: true, message: "Confirmation code incorrect" });
-  }
-
-  redisObj.verified = true;
-
-  const newUser = await createUser(redisObj);
-  if (!newUser) {
-    log.error(
-      JSON.stringify({ action: "confirm_user_created_error", data: redisObj })
-    );
-    return res.json({ error: true, message: "Failed to create user" });
-  }
-
-  await redisCLI.del(`${VERIFY_USER}_${username}`);
-
-  res.json({
-    error: false,
-    message: "Congratulations, your account has been created",
-  });
-};
-
 export const verfyUserHandler = async (
   req: Request<VerifyUserInput>,
   res: Response
@@ -183,6 +145,54 @@ export const verfyUserHandler = async (
     : "Congratulations, your account has been created";
 
   res.json({ error: false, message });
+};
+
+export const verifyCodeHandler = async (req: Request, res: Response) => {
+  const { code, username, action } = req.body;
+
+  const redisData = await redisCLI.get(`${action}_${username}`);
+  if (!redisData) {
+    return res.json({
+      error: true,
+      errorType: "code-expired",
+      message: "Confirmation time expired, please request a new otp code",
+    });
+  }
+
+  const redisObj = JSON.parse(redisData);
+
+  if (code !== redisObj.otpCode) {
+    return res.json({ error: true, message: "Confirmation code incorrect" });
+  }
+
+  return res.json({ error: false, message: "OK" });
+};
+
+export const resendCodeHandler = async (req: Request, res: Response) => {
+  const { action, username } = req.body;
+  const code = createVerificationCode();
+
+  const newUser = {
+    ...req.body,
+    // password: hashePassword,
+    verified: false,
+    otpCode: code,
+  };
+
+  const addedToRedis = await redisCLI.set(
+    `${VERIFY_USER}_${username}`,
+    JSON.stringify(newUser)
+  );
+
+  if (!addedToRedis) {
+    return res.json({
+      error: true,
+      errorType: "existing-user",
+      message: "User already registered, please enter another user or sign in",
+    });
+  }
+
+  await redisCLI.expire(`${VERIFY_USER}_${username}`, 60);
 };
 
 export const getUserByUsernameHandler = async (req: Request, res: Response) => {

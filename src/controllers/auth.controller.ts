@@ -87,7 +87,7 @@ export const loginHelpHandler = async (
   res: Response
 ) => {
   const { action, phoneNr } = req.body;
-
+  console.log("action :>> ", action);
   const user = await getUserByEmailOrPhoneNr(req.body);
   if (!user) {
     return res.json({
@@ -151,13 +151,6 @@ export const loginHelpHandler = async (
       message: "There was an error sending email, please try again later",
     });
   }
-
-  console.log("object :>> ", {
-    error: false,
-    message:
-      "An email with a verification code has been sent to your email, please enter this code to proceed",
-    data: user,
-  });
 
   return res.json({
     error: false,

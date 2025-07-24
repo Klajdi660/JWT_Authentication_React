@@ -6,7 +6,8 @@ import {
   getUserByUsernameHandler,
   createUserHandler,
   verfyUserHandler,
-  confirmUserHandler,
+  verifyCodeHandler,
+  resendCodeHandler,
 } from "../controllers";
 import { ROLES } from "../constants";
 import {
@@ -16,8 +17,8 @@ import {
   validate,
 } from "../middleware";
 import {
-  confirmUserSchema,
   createUserSchema,
+  verifyCodeSchema,
   verifyUserSchema,
 } from "../schema";
 
@@ -26,8 +27,9 @@ const router = Router();
 // router.get("/:username", getUserByUsernameHandler);
 
 router.post("/create", validate(createUserSchema), createUserHandler);
-router.post("/confirm", validate(confirmUserSchema), confirmUserHandler);
 router.post("/verify", validate(verifyUserSchema), verfyUserHandler);
+router.post("/verify-code", validate(verifyCodeSchema), verifyCodeHandler);
+router.post("/resend-code", resendCodeHandler);
 
 // router.use(deserializeUser, requireUser);
 // router.get("/:id", getUserDetailsHandler);

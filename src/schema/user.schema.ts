@@ -40,17 +40,18 @@ export const createUserSchema = object({
   ),
 });
 
-export const confirmUserSchema = object({
+export const verifyUserSchema = object({
   body: object({
     code: string({ required_error: "OTP code is required" }),
     username: string({ required_error: "Username is required" }),
   }),
 });
 
-export const verifyUserSchema = object({
+export const verifyCodeSchema = object({
   body: object({
     code: string({ required_error: "OTP code is required" }),
     username: string({ required_error: "Username is required" }),
+    action: string({ required_error: "Action is required" }),
   }),
 });
 
@@ -123,8 +124,8 @@ export const deleteAccountSchema = object({
 });
 
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
-export type ConfirmUserInput = TypeOf<typeof verifyUserSchema>["body"];
 export type VerifyUserInput = TypeOf<typeof verifyUserSchema>["body"];
+export type VerifyCodeInput = TypeOf<typeof verifyCodeSchema>["body"];
 export type DeleteAccountInput = TypeOf<typeof deleteAccountSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
