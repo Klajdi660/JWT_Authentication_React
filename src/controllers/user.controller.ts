@@ -17,7 +17,7 @@ import { REDIS_NAME } from "../constants";
 const { VERIFY_USER } = REDIS_NAME;
 
 export const createUserHandler = async (req: Request, res: Response) => {
-  const { username, password, phoneNumber, fullname } = req.body;
+  const { username, password, phoneNr, fullname } = req.body;
 
   const user = await getUserByEmailOrUsernameOrPhoneNr(req.body);
   if (user) {
@@ -58,10 +58,10 @@ export const createUserHandler = async (req: Request, res: Response) => {
 
   await redisCLI.expire(`${VERIFY_USER}_${username}`, 60);
 
-  if (phoneNumber) {
+  if (phoneNr) {
     const message = `Your GrooveIT verification code is: ${code}`;
 
-    const smsSent = await sendSms(message, phoneNumber);
+    const smsSent = await sendSms(message, phoneNr);
     if (!smsSent) {
       return res.json({
         error: true,
@@ -169,30 +169,63 @@ export const verifyCodeHandler = async (req: Request, res: Response) => {
 };
 
 export const resendCodeHandler = async (req: Request, res: Response) => {
-  const { action, username } = req.body;
+  const { action, username, phoneNr, fullname } = req.body;
+
   const code = createVerificationCode();
 
-  const newUser = {
-    ...req.body,
-    // password: hashePassword,
-    verified: false,
-    otpCode: code,
-  };
-
   const addedToRedis = await redisCLI.set(
-    `${VERIFY_USER}_${username}`,
-    JSON.stringify(newUser)
+    `${action}_${username}`,
+    JSON.stringify({ username, otpCode: code })
   );
 
   if (!addedToRedis) {
     return res.json({
       error: true,
-      errorType: "existing-user",
-      message: "User already registered, please enter another user or sign in",
+      message: "Code not send, please try again",
     });
   }
 
-  await redisCLI.expire(`${VERIFY_USER}_${username}`, 60);
+  await redisCLI.expire(`${action}_${username}`, 60);
+
+  if (phoneNr) {
+    const message = `Your GrooveIT verification code is: ${code}`;
+
+    const smsSent = await sendSms(message, phoneNr);
+    if (!smsSent) {
+      return res.json({
+        error: true,
+        message: "There was an error sending sms, please try again",
+      });
+    }
+
+    return res.json({
+      error: false,
+      message:
+        "An sms with a verification code has been sent to your mobile, please enter this code to proceed",
+    });
+  }
+
+  const subject = "User Verification";
+  const templatePath = "otp";
+  const templateData = {
+    title: subject,
+    name: fullname,
+    code,
+  };
+
+  const mailSent = await sendEmail(templatePath, templateData);
+  if (!mailSent) {
+    return res.json({
+      error: true,
+      message: "There was an error sending email, please try again",
+    });
+  }
+
+  res.json({
+    error: false,
+    message:
+      "An email with a verification code has been sent to your email, please enter this code to proceed",
+  });
 };
 
 export const getUserByUsernameHandler = async (req: Request, res: Response) => {

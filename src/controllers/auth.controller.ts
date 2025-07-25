@@ -87,7 +87,7 @@ export const loginHelpHandler = async (
   res: Response
 ) => {
   const { action, phoneNr } = req.body;
-  console.log("action :>> ", action);
+
   const user = await getUserByEmailOrPhoneNr(req.body);
   if (!user) {
     return res.json({
@@ -130,8 +130,8 @@ export const loginHelpHandler = async (
 
     return res.json({
       error: false,
-      message:
-        "An sms with a verification code has been sent to your mobile, please enter this code to proceed",
+      message: `We sent a text message to ${phoneNr} with your verification code, enter it below to proceed`,
+      // "An sms with a verification code has been sent to your mobile, please enter this code to proceed",
       data: user,
     });
   }
