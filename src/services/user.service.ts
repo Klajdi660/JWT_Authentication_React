@@ -14,7 +14,7 @@ const {
   rememberRefreshTokenExpiresIn,
 } = config.get<TokensConfigs>("tokensConfigs");
 
-export const getUserById = async (id: number): Promise<User | any> => {
+export const getUserById = async (id: number) => {
   return User.findOne({
     where: { id },
   }).catch((error) => {
@@ -24,9 +24,7 @@ export const getUserById = async (id: number): Promise<User | any> => {
   });
 };
 
-export const getUserByProviderId = async (
-  providerId: number
-): Promise<User | any> => {
+export const getUserByProviderId = async (providerId: number) => {
   return User.findOne({
     where: {
       extra: {
@@ -43,7 +41,7 @@ export const getUserByProviderId = async (
   });
 };
 
-export const getUserByEmail = async (email: string): Promise<User | any> => {
+export const getUserByEmail = async (email: string) => {
   return User.findOne({
     where: { email },
   }).catch((error) => {
@@ -53,9 +51,7 @@ export const getUserByEmail = async (email: string): Promise<User | any> => {
   });
 };
 
-export const getUserByUsername = async (
-  username: string
-): Promise<User | any> => {
+export const getUserByUsername = async (username: string) => {
   return User.findOne({
     where: { username },
   }).catch((error) => {
@@ -70,7 +66,7 @@ export const getUserByUsername = async (
 
 export const getUserByEmailOrUsernameOrPhoneNr = async (
   request: Record<string, string>
-): Promise<User | null> => {
+) => {
   const { email, username, phoneNr } = request;
 
   return User.findOne({
@@ -92,13 +88,12 @@ export const getUserByEmailOrUsernameOrPhoneNr = async (
         message: error.message,
       })
     );
-    return null;
   });
 };
 
 export const getUserByEmailOrPhoneNr = async (
   request: Record<string, string>
-): Promise<User | null> => {
+) => {
   const { email, phoneNr } = request;
 
   return User.findOne({
@@ -119,14 +114,14 @@ export const getUserByEmailOrPhoneNr = async (
         message: error.message,
       })
     );
-    return null;
   });
 };
 
 export const getUserByEmailOrUsername = async (
-  email: string,
-  username: string
-): Promise<User | any> => {
+  request: Record<string, string>
+) => {
+  const { email, username } = request;
+
   return User.findOne({
     where: {
       [Op.or]: [{ email }, { username }],
@@ -141,7 +136,7 @@ export const getUserByEmailOrUsername = async (
   });
 };
 
-export const createUser = async (data: NewUserTypes): Promise<User | any> => {
+export const createUser = async (data: NewUserTypes) => {
   const { email, username, fullname, password, verified } = data;
 
   const [firstName, ...rest] = fullname.split(" ");
@@ -153,7 +148,7 @@ export const createUser = async (data: NewUserTypes): Promise<User | any> => {
     gender: null,
     dateOfBirth: null,
     about: null,
-    phoneNumber: null,
+    phoneNr: null,
     photo: null,
   };
 
@@ -174,7 +169,7 @@ export const createUser = async (data: NewUserTypes): Promise<User | any> => {
 export const updateUser = async (
   id: number,
   updatedField: { [key: string]: any }
-): Promise<User | any> => {
+) => {
   // updatedField.updatedAt = dayjs().toDate();
 
   return User.update(updatedField, { where: { id } }).catch((error) => {
@@ -184,7 +179,7 @@ export const updateUser = async (
   });
 };
 
-export const deleteUser = async (id: number): Promise<User | any> => {
+export const deleteUser = async (id: number) => {
   return User.destroy({
     where: { id },
   }).catch((error) => {

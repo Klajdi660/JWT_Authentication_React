@@ -10,10 +10,8 @@ import {
   signJwt,
   verifyJwt,
 } from "../utils";
-import { ForgotPasswordInput, LoginHelpInput, LoginUserInput } from "../schema";
 import {
   createVerificationCode,
-  getUserByEmail,
   getUserByEmailOrPhoneNr,
   getUserByEmailOrUsernameOrPhoneNr,
   getUserById,
@@ -24,6 +22,7 @@ import { User } from "../models";
 import { redisCLI } from "../clients";
 import { EMAIL_PROVIDERS } from "../constants";
 import { AppConfigs, TokensConfigs } from "../types";
+import { LoginHelpInput, LoginUserInput } from "../schema";
 
 dayjs.extend(utc);
 const { clientUrl, supportEmail } = config.get<AppConfigs>("appConfigs");
@@ -263,67 +262,6 @@ export const logoutHandler = async (
   await getUserLastLogin(user.id);
 
   res.json({ error: false, message: "Logout success" });
-};
-
-export const forgotPasswordHandler = async (
-  req: Request<{}, {}, ForgotPasswordInput>,
-  res: Response
-) => {
-  const { email } = req.body;
-
-  const user = await getUserByEmail(email);
-  if (!user) {
-    return res.json({
-      error: true,
-      message: `This user is not register with us, please enter a valid user`,
-    });
-  }
-
-  if (!user.verified) {
-    return res.json({
-      error: true,
-      message: `This user is not verified`,
-    });
-  }
-
-  const { accessToken } = await signToken(user);
-  const resetPassordUrl = `${clientUrl}/reset-password/${user.email}/${accessToken}`;
-
-  const addedToRedis = await redisCLI.set(
-    `reset_password_pending_${user.email}`,
-    JSON.stringify(user)
-  );
-  if (!addedToRedis) {
-    return res.json({
-      error: true,
-      message: "New password waiting for confirmation, please check your inbox",
-    });
-  }
-  await redisCLI.expire(`reset_password_pending_${user.email}`, 60);
-
-  let templatePath = "forgotPassword";
-  const name = JSON.parse(user.extra).name;
-  const templateData = {
-    title: "Reset Password",
-    url: resetPassordUrl,
-    name,
-    clientUrl,
-    supportEmail,
-  };
-
-  const mailSent = await sendEmail(templatePath, templateData);
-  if (!mailSent) {
-    return res.json({
-      error: true,
-      message: "There was an error sending email, please try again",
-    });
-  }
-
-  res.json({
-    error: false,
-    message:
-      "Email sent successfully, please check your email to continue further",
-  });
 };
 
 export const googleOauthHandler = async (req: Request, res: Response) => {

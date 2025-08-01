@@ -1,11 +1,7 @@
 import config from "config";
 import passport from "passport";
 import { Router } from "express";
-import {
-  forgotPasswordSchema,
-  loginHelpSchema,
-  loginUserSchema,
-} from "../schema";
+import { loginHelpSchema, loginUserSchema } from "../schema";
 import {
   authenticateUser,
   deserializeUser,
@@ -13,7 +9,6 @@ import {
   validate,
 } from "../middleware";
 import {
-  forgotPasswordHandler,
   googleOauthHandler,
   loginHandler,
   loginHelpHandler,
@@ -28,11 +23,6 @@ const router = Router();
 
 router.post("/login", validate(loginUserSchema), loginHandler);
 router.post("/login-help", validate(loginHelpSchema), loginHelpHandler);
-router.post(
-  "/forgot-password",
-  validate(forgotPasswordSchema),
-  forgotPasswordHandler
-);
 
 // router.get("/refresh", refreshAccessTokenHandler);
 router.get(

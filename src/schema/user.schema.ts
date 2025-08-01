@@ -55,15 +55,6 @@ export const verifyCodeSchema = object({
   }),
 });
 
-export const forgotPasswordSchema = object({
-  body: object({
-    email: string({ required_error: "Email is required" }).regex(
-      emailRegex,
-      "Not a valid email"
-    ),
-  }),
-});
-
 export const resetPasswordSchema = object({
   body: object({
     username: string({ required_error: "Username is required" }),
@@ -121,6 +112,5 @@ export type VerifyUserInput = TypeOf<typeof verifyUserSchema>["body"];
 export type VerifyCodeInput = TypeOf<typeof verifyCodeSchema>["body"];
 export type DeleteAccountInput = TypeOf<typeof deleteAccountSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>["body"];
-export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type ChangeUsernameInput = TypeOf<typeof changeUsernameSchema>["body"];
 export type ChangePasswordInput = TypeOf<typeof changePasswordSchema>["body"];

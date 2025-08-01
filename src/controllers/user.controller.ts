@@ -12,14 +12,17 @@ import {
 } from "../services";
 import { createHash, log, sendEmail, sendSms } from "../utils";
 import { redisCLI } from "../clients";
-import { VerifyUserInput } from "../schema";
+import { CreateUserInput, VerifyUserInput } from "../schema";
 import { REDIS_NAME } from "../constants";
 import { AppConfigs } from "../types";
 
 const { VERIFY_USER, RESET_PASSWORD } = REDIS_NAME;
 const { clientUrl, supportEmail } = config.get<AppConfigs>("appConfigs");
 
-export const createUserHandler = async (req: Request, res: Response) => {
+export const createUserHandler = async (
+  req: Request<{}, {}, CreateUserInput>,
+  res: Response
+) => {
   const { username, password, phoneNr, fullname } = req.body;
 
   const user = await getUserByEmailOrUsernameOrPhoneNr(req.body);
