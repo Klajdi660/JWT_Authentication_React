@@ -5,6 +5,7 @@ export interface AppConfigs {
   prefix: string;
   logLevel: string;
   clientUrl: string;
+  supportEmail: string;
 }
 
 export interface TokensConfigs {

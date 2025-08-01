@@ -26,7 +26,7 @@ import { EMAIL_PROVIDERS } from "../constants";
 import { AppConfigs, TokensConfigs } from "../types";
 
 dayjs.extend(utc);
-const { clientUrl } = config.get<AppConfigs>("appConfigs");
+const { clientUrl, supportEmail } = config.get<AppConfigs>("appConfigs");
 const { accessTokenExpiresIn } = config.get<TokensConfigs>("tokensConfigs");
 
 export const loginHandler = async (
@@ -150,6 +150,8 @@ export const loginHelpHandler = async (
     title: subject,
     name: `${firstName} ${lastName}`,
     code,
+    clientUrl,
+    supportEmail,
   };
 
   const mailSent = await sendEmail(templatePath, templateData);
@@ -305,6 +307,8 @@ export const forgotPasswordHandler = async (
     title: "Reset Password",
     url: resetPassordUrl,
     name,
+    clientUrl,
+    supportEmail,
   };
 
   const mailSent = await sendEmail(templatePath, templateData);

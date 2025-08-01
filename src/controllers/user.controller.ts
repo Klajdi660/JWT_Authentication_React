@@ -1,3 +1,4 @@
+import config from "config";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../models";
 import {
@@ -9,12 +10,14 @@ import {
   signToken,
   updateUser,
 } from "../services";
-import { createHash, log, sendEmail, sendSms, verifyJwt } from "../utils";
+import { createHash, log, sendEmail, sendSms } from "../utils";
 import { redisCLI } from "../clients";
 import { VerifyUserInput } from "../schema";
 import { REDIS_NAME } from "../constants";
+import { AppConfigs } from "../types";
 
 const { VERIFY_USER, RESET_PASSWORD } = REDIS_NAME;
+const { clientUrl, supportEmail } = config.get<AppConfigs>("appConfigs");
 
 export const createUserHandler = async (req: Request, res: Response) => {
   const { username, password, phoneNr, fullname } = req.body;
@@ -82,6 +85,8 @@ export const createUserHandler = async (req: Request, res: Response) => {
     title: subject,
     name: fullname,
     code,
+    clientUrl,
+    supportEmail,
   };
 
   const mailSent = await sendEmail(templatePath, templateData);
@@ -224,6 +229,8 @@ export const resendCodeHandler = async (req: Request, res: Response) => {
     title: subject,
     name: fullname,
     code,
+    clientUrl,
+    supportEmail,
   };
 
   const mailSent = await sendEmail(templatePath, templateData);
@@ -275,6 +282,8 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     title: "Password Update Confirmation",
     name: `${firstName} ${lastName}`,
     identifier: email || phoneNr,
+    clientUrl,
+    supportEmail,
   };
 
   const mailSent = await sendEmail(templatePath, templateData);

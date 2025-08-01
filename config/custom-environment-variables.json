@@ -3,7 +3,8 @@
     "port": "PORT",
     "prefix": "PREFIX",
     "logLevel": "LOG_LEVEL",
-    "clientUrl": "CLIENT_URL"
+    "clientUrl": "CLIENT_URL",
+    "supportEmail": "SUPPORT_EMAIL"
   },
   "tokensConfigs": {
     "registerSecretKey": "REGISTER_SECRET_KEY",
