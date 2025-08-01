@@ -9,12 +9,12 @@ import {
   signToken,
   updateUser,
 } from "../services";
-import { createHash, log, sendEmail, sendSms } from "../utils";
+import { createHash, log, sendEmail, sendSms, verifyJwt } from "../utils";
 import { redisCLI } from "../clients";
 import { VerifyUserInput } from "../schema";
 import { REDIS_NAME } from "../constants";
 
-const { VERIFY_USER } = REDIS_NAME;
+const { VERIFY_USER, RESET_PASSWORD } = REDIS_NAME;
 
 export const createUserHandler = async (req: Request, res: Response) => {
   const { username, password, phoneNr, fullname } = req.body;
@@ -34,11 +34,11 @@ export const createUserHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const hashePassword = createHash(password);
+  const hashPassword = createHash(password);
   const code = createVerificationCode();
   const newUser = {
     ...req.body,
-    password: hashePassword,
+    password: hashPassword,
     verified: false,
     otpCode: code,
   };
@@ -165,6 +165,19 @@ export const verifyCodeHandler = async (req: Request, res: Response) => {
     return res.json({ error: true, message: "Confirmation code incorrect" });
   }
 
+  await redisCLI.del(`${action}_${username}`);
+
+  const resetPasswordRedisData = await redisCLI.set(
+    `${RESET_PASSWORD}_${username}`,
+    JSON.stringify({ user: redisObj.user })
+  );
+  if (!resetPasswordRedisData) {
+    return res.json({
+      error: true,
+      message: "Something went wrong, please try again later",
+    });
+  }
+
   return res.json({ error: false, message: "OK" });
 };
 
@@ -225,6 +238,57 @@ export const resendCodeHandler = async (req: Request, res: Response) => {
     error: false,
     message:
       "An email with a verification code has been sent to your email, please enter this code to proceed",
+  });
+};
+
+export const resetPasswordHandler = async (req: Request, res: Response) => {
+  const { password, username } = req.body;
+
+  const redisData = await redisCLI.get(`${RESET_PASSWORD}_${username}`);
+  if (!redisData) {
+    return res.json({
+      error: true,
+      message:
+        "Something went wrong, please attempt to reset your password again",
+    });
+  }
+
+  const redisObj = JSON.parse(redisData);
+  const { id, email, extra } = redisObj.user;
+  const { firstName, lastName, phoneNr } = JSON.parse(extra);
+
+  const hashPassword = createHash(password);
+
+  const newPassword = await updateUser(+id, { password: hashPassword });
+  if (!newPassword) {
+    return res.json({
+      error: true,
+      message:
+        "Something went wrong changing the password, please try again later",
+    });
+  }
+
+  await redisCLI.del(`${RESET_PASSWORD}_${username}`);
+
+  let templatePath = "updatePassword";
+  const templateData = {
+    title: "Password Update Confirmation",
+    name: `${firstName} ${lastName}`,
+    identifier: email || phoneNr,
+  };
+
+  const mailSent = await sendEmail(templatePath, templateData);
+  if (!mailSent) {
+    return res.json({
+      error: true,
+      message: "Somenthing went wrong, email not sent",
+    });
+  }
+
+  res.json({
+    error: false,
+    message:
+      "Password data successfully updated, please login with your new credentials",
   });
 };
 

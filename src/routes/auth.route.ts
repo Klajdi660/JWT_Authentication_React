@@ -5,7 +5,6 @@ import {
   forgotPasswordSchema,
   loginHelpSchema,
   loginUserSchema,
-  resetPasswordSchema,
 } from "../schema";
 import {
   authenticateUser,
@@ -20,7 +19,6 @@ import {
   loginHelpHandler,
   loginWithSavedUserHandler,
   logoutHandler,
-  resetPasswordHandler,
 } from "../controllers";
 import { AppConfigs } from "../types";
 
@@ -30,11 +28,6 @@ const router = Router();
 
 router.post("/login", validate(loginUserSchema), loginHandler);
 router.post("/login-help", validate(loginHelpSchema), loginHelpHandler);
-router.post(
-  "/reset-password",
-  validate(resetPasswordSchema),
-  resetPasswordHandler
-);
 router.post(
   "/forgot-password",
   validate(forgotPasswordSchema),

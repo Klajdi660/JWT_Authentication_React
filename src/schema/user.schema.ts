@@ -65,15 +65,8 @@ export const forgotPasswordSchema = object({
 });
 
 export const resetPasswordSchema = object({
-  // params: object({
-  //   email: string({
-  //     required_error: "Email is required",
-  //   }).regex(emailRegex, "Not a valid email"),
-  //   hash: string({
-  //     required_error: "Hash is required",
-  //   }),
-  // }),
   body: object({
+    username: string({ required_error: "Username is required" }),
     password: string({ required_error: "Password is required" })
       .min(8, { message: "Password must be at least 8 characters long" })
       .refine((value) => uppercaseRegex.test(value), {

@@ -8,6 +8,7 @@ import {
   verfyUserHandler,
   verifyCodeHandler,
   resendCodeHandler,
+  resetPasswordHandler,
 } from "../controllers";
 import { ROLES } from "../constants";
 import {
@@ -18,6 +19,7 @@ import {
 } from "../middleware";
 import {
   createUserSchema,
+  resetPasswordSchema,
   verifyCodeSchema,
   verifyUserSchema,
 } from "../schema";
@@ -30,6 +32,11 @@ router.post("/create", validate(createUserSchema), createUserHandler);
 router.post("/verify", validate(verifyUserSchema), verfyUserHandler);
 router.post("/verify-code", validate(verifyCodeSchema), verifyCodeHandler);
 router.post("/resend-code", resendCodeHandler);
+router.post(
+  "/reset-password",
+  validate(resetPasswordSchema),
+  resetPasswordHandler
+);
 
 // router.use(deserializeUser, requireUser);
 // router.get("/:id", getUserDetailsHandler);

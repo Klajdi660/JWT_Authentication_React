@@ -19,7 +19,6 @@ import {
   getUserById,
   getUserLastLogin,
   signToken,
-  updateUser,
 } from "../services";
 import { User } from "../models";
 import { redisCLI } from "../clients";
@@ -98,14 +97,23 @@ export const loginHelpHandler = async (
     });
   }
 
-  const { username } = user;
-  const { firstName, lastName } = JSON.parse(user.extra);
+  const { username, verified, extra } = user;
+
+  if (action === "forgot_password" && !verified) {
+    return res.json({
+      error: true,
+      errorType: "user-not-verified",
+      message: "User not verified, please verify your account to continue",
+    });
+  }
+
+  const { firstName, lastName } = JSON.parse(extra);
   user.password = undefined;
 
   const code = createVerificationCode();
   const addedToRedis = await redisCLI.set(
     `${action}_${username}`,
-    JSON.stringify({ username, otpCode: code })
+    JSON.stringify({ username, user, otpCode: code })
   );
 
   if (!addedToRedis) {
@@ -311,67 +319,6 @@ export const forgotPasswordHandler = async (
     error: false,
     message:
       "Email sent successfully, please check your email to continue further",
-  });
-};
-
-export const resetPasswordHandler = async (req: Request, res: Response) => {
-  const { hash, email } = req.query;
-  const { password } = req.body;
-
-  let redisObj: any = await redisCLI.get(`reset_password_pending_${email}`);
-  redisObj = JSON.parse(redisObj);
-  if (!redisObj) {
-    return res.json({
-      error: true,
-      message:
-        "Your token has expired, please attempt to reset your password again",
-    });
-  }
-
-  const { id } = redisObj;
-  const parseExtra = JSON.parse(redisObj.extra);
-  const { name } = parseExtra;
-
-  const decoded = verifyJwt(hash, "accessTokenPublicKey");
-  if (!decoded) {
-    return res.json({
-      error: true,
-      message: "Invalid token or user doesn't exist",
-    });
-  }
-
-  const hashPass = createHash(password);
-
-  const newPassword = await updateUser(+id, { password: hashPass });
-  if (!newPassword) {
-    return res.json({
-      error: true,
-      message:
-        "Something went wrong changing the password, please try again later",
-    });
-  }
-
-  await redisCLI.del(`reset_password_pending_${email}`);
-
-  let templatePath = "updatePassword";
-  const templateData = {
-    title: "Password Update Confirmation",
-    name,
-    email,
-  };
-
-  const mailSent = await sendEmail(templatePath, templateData);
-  if (!mailSent) {
-    return res.json({
-      error: true,
-      message: "Somenthing went wrong, email not sent",
-    });
-  }
-
-  res.json({
-    error: false,
-    message:
-      "Password data successfully updated, please login with your new credentials",
   });
 };
 

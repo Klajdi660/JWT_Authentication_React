@@ -25,4 +25,5 @@ export const GAME_TYPE: GameTypeParams = {
 
 export const REDIS_NAME: RedisNameParams = {
   VERIFY_USER: "verify_user",
+  RESET_PASSWORD: "reset_password",
 };

@@ -18,4 +18,5 @@ export interface GameTypeParams {
 
 export interface RedisNameParams {
   VERIFY_USER: string;
+  RESET_PASSWORD: string;
 }
