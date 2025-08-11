@@ -14,7 +14,7 @@ const {
   rememberRefreshTokenExpiresIn,
 } = config.get<TokensConfigs>("tokensConfigs");
 
-export const getUserById = async (id: number) => {
+export const getUserById = async (id: number): Promise<User | any> => {
   return User.findOne({
     where: { id },
   }).catch((error) => {
@@ -24,7 +24,9 @@ export const getUserById = async (id: number) => {
   });
 };
 
-export const getUserByProviderId = async (providerId: number) => {
+export const getUserByProviderId = async (
+  providerId: number
+): Promise<User | any> => {
   return User.findOne({
     where: {
       extra: {
@@ -41,7 +43,7 @@ export const getUserByProviderId = async (providerId: number) => {
   });
 };
 
-export const getUserByEmail = async (email: string) => {
+export const getUserByEmail = async (email: string): Promise<User | any> => {
   return User.findOne({
     where: { email },
   }).catch((error) => {
@@ -51,7 +53,9 @@ export const getUserByEmail = async (email: string) => {
   });
 };
 
-export const getUserByUsername = async (username: string) => {
+export const getUserByUsername = async (
+  username: string
+): Promise<User | any> => {
   return User.findOne({
     where: { username },
   }).catch((error) => {
@@ -66,7 +70,7 @@ export const getUserByUsername = async (username: string) => {
 
 export const getUserByEmailOrUsernameOrPhoneNr = async (
   request: Record<string, string>
-) => {
+): Promise<User | any> => {
   const { email, username, phoneNr } = request;
 
   return User.findOne({
@@ -93,7 +97,7 @@ export const getUserByEmailOrUsernameOrPhoneNr = async (
 
 export const getUserByEmailOrPhoneNr = async (
   request: Record<string, string>
-) => {
+): Promise<User | any> => {
   const { email, phoneNr } = request;
 
   return User.findOne({
@@ -119,7 +123,7 @@ export const getUserByEmailOrPhoneNr = async (
 
 export const getUserByEmailOrUsername = async (
   request: Record<string, string>
-) => {
+): Promise<User | any> => {
   const { email, username } = request;
 
   return User.findOne({
@@ -136,7 +140,7 @@ export const getUserByEmailOrUsername = async (
   });
 };
 
-export const createUser = async (data: NewUserTypes) => {
+export const createUser = async (data: NewUserTypes): Promise<User | any> => {
   const { email, username, fullname, password, verified } = data;
 
   const [firstName, ...rest] = fullname.split(" ");
@@ -169,7 +173,7 @@ export const createUser = async (data: NewUserTypes) => {
 export const updateUser = async (
   id: number,
   updatedField: { [key: string]: any }
-) => {
+): Promise<User | any> => {
   // updatedField.updatedAt = dayjs().toDate();
 
   return User.update(updatedField, { where: { id } }).catch((error) => {
@@ -179,7 +183,7 @@ export const updateUser = async (
   });
 };
 
-export const deleteUser = async (id: number) => {
+export const deleteUser = async (id: number): Promise<User | any> => {
   return User.destroy({
     where: { id },
   }).catch((error) => {
@@ -240,7 +244,7 @@ export const signToken = async (
   return { accessToken, refreshToken };
 };
 
-export const getUserLastLogin = async (id: number) => {
+export const getUserLastLogin = async (id: number): Promise<User | any> => {
   const currentTimestamp = dayjs().toDate();
 
   let { date, time } = convertTZ(currentTimestamp);
