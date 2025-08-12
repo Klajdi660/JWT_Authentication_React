@@ -8,8 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "skipLibCheck": true
   }
 }
