@@ -1,10 +1,12 @@
-import config from "config";
 import dayjs from "dayjs";
+import config from "config";
+import { omit } from "lodash";
 import utc from "dayjs/plugin/utc";
 import { NextFunction, Request, Response } from "express";
 import {
   accessTokenCookieOptions,
   createHash,
+  excludedFields,
   sendEmail,
   sendSms,
   signJwt,
@@ -61,8 +63,6 @@ export const loginHandler = async (
     });
   }
 
-  user.password = undefined;
-
   if (!user.verified) {
     return res.json({
       error: true,
@@ -76,7 +76,11 @@ export const loginHandler = async (
   res.json({
     error: false,
     message: "Login successful",
-    data: { aToken: accessToken, rToken: refreshToken, user },
+    data: {
+      aToken: accessToken,
+      rToken: refreshToken,
+      user: omit(user, excludedFields),
+    },
   });
 };
 
@@ -96,6 +100,7 @@ export const loginHelpHandler = async (
     });
   }
 
+  const safeUser = omit(user, excludedFields);
   const { username, verified, extra } = user;
 
   if (action === "forgot_password" && !verified) {
@@ -107,12 +112,11 @@ export const loginHelpHandler = async (
   }
 
   const { firstName, lastName } = JSON.parse(extra);
-  user.password = undefined;
 
   const code = createVerificationCode();
   const addedToRedis = await redisCLI.set(
     `${action}_${username}`,
-    JSON.stringify({ username, user, otpCode: code })
+    JSON.stringify({ username, user: safeUser, otpCode: code })
   );
 
   if (!addedToRedis) {
@@ -138,8 +142,7 @@ export const loginHelpHandler = async (
     return res.json({
       error: false,
       message: `We sent a text message to ${phoneNr} with your verification code, enter it below to proceed`,
-      // "An sms with a verification code has been sent to your mobile, please enter this code to proceed",
-      data: user,
+      data: safeUser,
     });
   }
 
@@ -165,7 +168,7 @@ export const loginHelpHandler = async (
     error: false,
     message:
       "An email with a verification code has been sent to your email, please enter this code to proceed",
-    data: user,
+    data: safeUser,
   });
 };
 
@@ -185,15 +188,13 @@ export const loginWithSavedUserHandler = async (
 
   await getUserLastLogin(user.id);
 
-  user.password = undefined;
-
   res.json({
     error: false,
     message: "Login successful",
     data: {
       aToken: accessToken,
       rToken: refreshToken,
-      user,
+      user: omit(user, excludedFields),
     },
   });
 };
@@ -277,11 +278,9 @@ export const googleOauthHandler = async (req: Request, res: Response) => {
 
   await getUserLastLogin(user.id);
 
-  user.password = undefined;
-
   const params = new URLSearchParams({
     token: JSON.stringify(token),
-    user: JSON.stringify(user),
+    user: JSON.stringify(omit(user, excludedFields)),
   }).toString();
 
   res.redirect(`${clientUrl}/social-auth?${params}`);

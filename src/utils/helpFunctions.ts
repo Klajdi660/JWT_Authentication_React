@@ -11,6 +11,8 @@ dayjs.extend(customParseFormat);
 const { logLevel } = config.get<AppConfigs>("appConfigs");
 const { registerSecretKey } = config.get<TokensConfigs>("tokensConfigs");
 
+export const excludedFields = ["password"];
+
 export const asyncHandler = (fn: any) =>
   function asyncUtilWrap(...args: any) {
     const fnReturn = fn(...args);

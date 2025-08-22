@@ -1,4 +1,5 @@
 import config from "config";
+import { omit } from "lodash";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../models";
 import {
@@ -10,7 +11,7 @@ import {
   signToken,
   updateUser,
 } from "../services";
-import { createHash, log, sendEmail, sendSms } from "../utils";
+import { createHash, excludedFields, log, sendEmail, sendSms } from "../utils";
 import { redisCLI } from "../clients";
 import { CreateUserInput, VerifyUserInput } from "../schema";
 import { REDIS_NAME } from "../constants";
@@ -321,7 +322,7 @@ export const getUserByUsernameHandler = async (req: Request, res: Response) => {
 export const getUserDetailsHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  let user = await getUserById(+id);
+  const user = await getUserById(+id);
   if (!user) {
     return res.json({
       error: true,
@@ -329,9 +330,7 @@ export const getUserDetailsHandler = async (req: Request, res: Response) => {
     });
   }
 
-  user.password = undefined;
-
-  res.json({ error: false, data: user });
+  res.json({ error: false, data: omit(user, excludedFields) });
 };
 
 export const getUsersListHandler = async (req: Request, res: Response) => {
@@ -371,14 +370,12 @@ export const saveAuthUser = async (
 
   const { saveAuthUserToken } = await signToken(user, remember);
 
-  user.password = undefined;
-
   res.json({
     error: false,
     message: "Save auth user successful",
     data: {
       saveAuthUserToken,
-      user,
+      user: omit(user, excludedFields),
     },
   });
 };
