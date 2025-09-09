@@ -6,96 +6,88 @@ import { GAME_TYPE } from "../constants";
 const { GAMES, GENRES } = GAME_TYPE;
 
 export const getGameList = async (params: object) => {
-  try {
-    return await HttpClient.get<GameListParams>(GAMES, params);
-  } catch (e: any) {
+  return HttpClient.get<GameListParams>(GAMES, params).catch((e: any) => {
     log.error(
       JSON.stringify({
         action: "game_list_catch",
-        message: "Failed to get game list",
+        message: e?.response?.data || "Failed to get game list",
       })
     );
-  }
+  });
 };
 
-export const getGameDetails = async (gameId: string | any) => {
-  try {
-    return await HttpClient.get<GameListParams>(`${GAMES}/${gameId}`);
-  } catch (e: any) {
-    log.error(
-      JSON.stringify({
-        action: "game_details_catch",
-        message: "Failed to get game detail",
-      })
-    );
-  }
+export const getGameDetails = async (gameId: string) => {
+  return HttpClient.get<GameListParams>(`${GAMES}/${gameId}`).catch(
+    (e: any) => {
+      log.error(
+        JSON.stringify({
+          action: "game_details_catch",
+          message: e?.response?.data || "Failed to get game detail",
+        })
+      );
+    }
+  );
 };
 
-export const getGameVideos = async (gameId: string | any) => {
-  try {
-    return await HttpClient.get<GameListParams>(`${GAMES}/${gameId}/movies`);
-  } catch (e: any) {
-    log.error(
-      JSON.stringify({
-        action: "game_videos_catch",
-        message: e.response.data,
-      })
-    );
-  }
+export const getGameVideos = async (gameId: string) => {
+  return HttpClient.get<GameListParams>(`${GAMES}/${gameId}/movies`).catch(
+    (e) => {
+      log.error(
+        JSON.stringify({
+          action: "game_videos_catch",
+          message: e?.response?.data || "Failed to get game videos",
+        })
+      );
+    }
+  );
 };
 
-export const getGameImages = async (gameId: string | any) => {
-  try {
-    return await HttpClient.get<GameListParams>(
-      `${GAMES}/${gameId}/screenshots`
-    );
-  } catch (e: any) {
-    log.error(
-      JSON.stringify({
-        action: "game_images_catch",
-        message: e.response.data,
-      })
-    );
-  }
+export const getGameImages = async (gameId: string) => {
+  return HttpClient.get<GameListParams>(`${GAMES}/${gameId}/screenshots`).catch(
+    (e) => {
+      log.error(
+        JSON.stringify({
+          action: "game_images_catch",
+          message: e?.response?.data || "Failed to get game images",
+        })
+      );
+    }
+  );
 };
 
-export const getGameReviews = async (gameId: string | any) => {
-  try {
-    return await HttpClient.get<GameListParams>(`${GAMES}/${gameId}/reviews`);
-  } catch (e: any) {
-    log.error(
-      JSON.stringify({
-        action: "game_reviews_catch",
-        message: e.response.data,
-      })
-    );
-  }
+export const getGameReviews = async (gameId: string) => {
+  return HttpClient.get<GameListParams>(`${GAMES}/${gameId}/reviews`).catch(
+    (e) => {
+      log.error(
+        JSON.stringify({
+          action: "game_reviews_catch",
+          message: e?.response?.data || "Failed to get game reviews",
+        })
+      );
+    }
+  );
 };
 
 export const getGameGenreList = async () => {
-  try {
-    return await HttpClient.get<any>(GENRES);
-  } catch (e: any) {
+  return HttpClient.get<any>(GENRES).catch((e) => {
     log.error(
       JSON.stringify({
         action: "game_genre_list_catch",
-        message: "Failed to get game genre list",
+        message: e?.response?.data || "Failed to get game genre list",
       })
     );
-  }
+  });
 };
 
 export const getGamePlatformsList = async () => {
-  try {
-    return await HttpClient.get<any>("platforms/lists/parents");
-  } catch (e) {
+  return HttpClient.get<any>("platforms/lists/parents").catch((e) => {
     log.error(
       JSON.stringify({
         action: "game_platforms_list_catch",
-        message: "Failed to get game platforms list",
+        message: e?.response?.data || "Failed to get game platforms list",
       })
     );
-  }
+  });
 };
 
 let cachedGameList: GameListParams[] = [];
@@ -103,19 +95,16 @@ let lastFetchTime: number = 0;
 const CACHE_DURATION: number = 5 * 60 * 1000;
 
 export const fetchGameList = async () => {
-  try {
-    const gameListResp = await HttpClient.get<GameListParams>(GAMES);
-    if (!gameListResp) return;
-
-    return gameListResp?.results;
-  } catch (e: any) {
-    log.error(
-      JSON.stringify({
-        action: "fetch_game_list_catch",
-        message: e.response.data,
-      })
-    );
-  }
+  return HttpClient.get<GameListParams>(GAMES)
+    .then((res) => res.results)
+    .catch((e) => {
+      log.error(
+        JSON.stringify({
+          action: "fetch_game_list_catch",
+          message: e?.response?.data || "Failed to fetch game list",
+        })
+      );
+    });
 };
 
 const getRandomGames = (games: any) => {

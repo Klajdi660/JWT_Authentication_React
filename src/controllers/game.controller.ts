@@ -8,80 +8,58 @@ import {
   getGamesSliderList,
   getGameVideos,
 } from "../services";
-import { log } from "../utils";
 
 export const gameListHandler = async (req: Request, res: Response) => {
   const gameList = await getGameList(req.query);
   if (!gameList) {
-    log.error(JSON.stringify({ action: "game_list_error", data: gameList }));
     return res.json({ error: true, message: "Failed to get games list" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get games list",
-    data: gameList,
-  });
+  res.json({ error: false, data: gameList });
 };
 
 export const gameDetailsHandler = async (req: Request, res: Response) => {
-  const { gameId } = req.query;
+  const gameId = req.query.gameId as string;
 
   const gameDetails = await getGameDetails(gameId);
   if (!gameDetails) {
     return res.json({ error: true, message: "Failed to get game details" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get game details",
-    data: gameDetails,
-  });
+  res.json({ error: false, data: gameDetails });
 };
 
 export const gameVideosHandler = async (req: Request, res: Response) => {
-  const { gameId } = req.query;
+  const gameId = req.query.gameId as string;
 
   const gameVideos = await getGameVideos(gameId);
   if (!gameVideos) {
     return res.json({ error: true, message: "Failed to get game videos" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get games videos",
-    data: gameVideos.results,
-  });
+  res.json({ error: false, data: gameVideos.results });
 };
 
 export const gameImagesHandler = async (req: Request, res: Response) => {
-  const { gameId } = req.query;
+  const gameId = req.query.gameId as string;
 
   const gameImages = await getGameVideos(gameId);
   if (!gameImages) {
     return res.json({ error: true, message: "Failed to get game images" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get games images",
-    data: gameImages,
-  });
+  res.json({ error: false, data: gameImages });
 };
 
 export const gameReviewsHandler = async (req: Request, res: Response) => {
-  const { gameId } = req.query;
+  const gameId = req.query.gameId as string;
 
   const gameReviews = await getGameReviews(gameId);
   if (!gameReviews) {
     return res.json({ error: true, message: "Failed to get game reviews" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get game reviews",
-    data: gameReviews.results,
-  });
+  res.json({ error: false, data: gameReviews.results });
 };
 
 export const gameSliderHandler = async (req: Request, res: Response) => {
@@ -90,11 +68,7 @@ export const gameSliderHandler = async (req: Request, res: Response) => {
     return res.json({ error: true, message: "Failed to get game slider" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get game slider",
-    data: gameSlider,
-  });
+  res.json({ error: false, data: gameSlider });
 };
 
 export const gameGenreListHandler = async (req: Request, res: Response) => {
@@ -103,11 +77,7 @@ export const gameGenreListHandler = async (req: Request, res: Response) => {
     return res.json({ error: true, message: "Failed to get game list" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get genre list",
-    data: genreList.results,
-  });
+  res.json({ error: false, data: genreList.results });
 };
 
 export const gamePlatformsListHandler = async (req: Request, res: Response) => {
@@ -116,9 +86,5 @@ export const gamePlatformsListHandler = async (req: Request, res: Response) => {
     return res.json({ error: true, message: "Failed to get platforms list" });
   }
 
-  res.json({
-    error: false,
-    message: "Success get platforms list",
-    data: platformsList.results,
-  });
+  res.json({ error: false, data: platformsList.results });
 };
