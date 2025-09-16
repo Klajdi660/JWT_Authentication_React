@@ -19,9 +19,7 @@ export const gameListHandler = async (req: Request, res: Response) => {
 };
 
 export const gameDetailsHandler = async (req: Request, res: Response) => {
-  const gameId = req.query.gameId as string;
-
-  const gameDetails = await getGameDetails(gameId);
+  const gameDetails = await getGameDetails(req.params.gameId);
   if (!gameDetails) {
     return res.json({ error: true, message: "Failed to get game details" });
   }
@@ -30,9 +28,9 @@ export const gameDetailsHandler = async (req: Request, res: Response) => {
 };
 
 export const gameVideosHandler = async (req: Request, res: Response) => {
-  const gameId = req.query.gameId as string;
+  const gameVideos = await getGameVideos(req.params.gameId);
 
-  const gameVideos = await getGameVideos(gameId);
+  console.log("gameVideos :>> ", gameVideos);
   if (!gameVideos) {
     return res.json({ error: true, message: "Failed to get game videos" });
   }
@@ -41,9 +39,7 @@ export const gameVideosHandler = async (req: Request, res: Response) => {
 };
 
 export const gameImagesHandler = async (req: Request, res: Response) => {
-  const gameId = req.query.gameId as string;
-
-  const gameImages = await getGameVideos(gameId);
+  const gameImages = await getGameVideos(req.params.gameId);
   if (!gameImages) {
     return res.json({ error: true, message: "Failed to get game images" });
   }
@@ -52,9 +48,7 @@ export const gameImagesHandler = async (req: Request, res: Response) => {
 };
 
 export const gameReviewsHandler = async (req: Request, res: Response) => {
-  const gameId = req.query.gameId as string;
-
-  const gameReviews = await getGameReviews(gameId);
+  const gameReviews = await getGameReviews(req.params.gameId);
   if (!gameReviews) {
     return res.json({ error: true, message: "Failed to get game reviews" });
   }
