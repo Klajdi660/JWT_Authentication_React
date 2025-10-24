@@ -1,0 +1,34 @@
+<html lang="en">
+  <head>
+    <title>{{title}}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>{{{inlineCss}}}</style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="{{clientUrl}}">
+        <img class="logo" src="cid:icon" />
+      </a>
+      <div class="title">{{title}}</div>
+      <div class="divider"></div>
+      <div class="content">
+        <p>Dear <b class="name">{{name}}</b>,</p>
+        <p>
+          Thank you for registering with GrooveIT. To complete your
+          registration, please use the following OTP (One-Time Password) to
+          verify your account:
+        </p>
+        <h2 class="link">{{code}}</h2>
+        <p>This OTP code is valid for 5 min. If you did not request this
+          verification, please disregard this email. Once your account is
+          verified, you will have access to our platform and its features.</p>
+      </div>
+      <div class="support">
+        If you have any questions or need assistance, please feel free to reach
+        out to us at
+        <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>. We are here to
+        help!
+      </div>
+    </div>
+  </body>
+</html>

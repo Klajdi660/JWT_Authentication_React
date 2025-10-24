@@ -5,6 +5,7 @@ import { sequelizeConnection } from "../clients/db/database";
 export class User extends Model {
   public id: number;
   public role: string;
+  public part: string;
   public email: string;
   public extra: string;
   public username: string;
@@ -41,6 +42,10 @@ User.init(
       allowNull: false,
       defaultValue: ROLES.User,
       type: DataTypes.STRING,
+    },
+    part: {
+      allowNull: false,
+      type: DataTypes.NUMBER,
     },
     provider: {
       allowNull: false,

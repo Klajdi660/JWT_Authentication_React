@@ -22,16 +22,20 @@ const { prefix } = config.get<AppConfigs>("appConfigs");
 const router = Router();
 
 router.post("/login", validate(loginUserSchema), loginHandler);
+
 router.post("/login-help", validate(loginHelpSchema), loginHelpHandler);
 
 // router.get("/refresh", refreshAccessTokenHandler);
+
 router.get(
   "/login-saved-user",
   authenticateUser,
   requireUser,
   loginWithSavedUserHandler
 );
+
 router.get("/logout", deserializeUser, requireUser, logoutHandler);
+
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })

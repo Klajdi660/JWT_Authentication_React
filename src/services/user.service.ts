@@ -72,6 +72,7 @@ export const getUserByEmailOrUsernameOrPhoneNr = async (
   request: Record<string, string>
 ): Promise<User | any> => {
   const { email, username, phoneNr } = request;
+  console.log("request :>> ", request);
 
   return User.findOne({
     where: {
