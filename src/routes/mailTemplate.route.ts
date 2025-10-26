@@ -3,6 +3,6 @@ import { getMailTemplate } from "../controllers";
 
 const router = Router();
 
-router.post("/:role/:hostname/:type", getMailTemplate);
+router.get("/:role/:hostname/:type", getMailTemplate);
 
 export default router;
